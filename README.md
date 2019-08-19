@@ -18,7 +18,7 @@ Use Qt5, OpenCV and other technologies to analysis the photo and video which was
 
 #### 天知道
 
-##### 环球同此凉热
+##### 环球同此凉热主题曲
 
 那时候
 
@@ -49,3 +49,7 @@ Use Qt5, OpenCV and other technologies to analysis the photo and video which was
 天知道那光阴似箭
 
 会射中谁的胸膛和梦想
+
+#### 本项目目的
+
+环球同此凉热，你我共同感受
