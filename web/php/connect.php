@@ -76,7 +76,7 @@ if ($result && mysqli_num_rows($result)) {
     // 7、处理数据
     //转成数组，且返回第一条数据,当不是一个对象时候退出
     echo "<table class=\"altrowstable\" id=\"alternatecolor\">
-        <tr>
+        <tr align=\"center\" >
         <th>时间</th>
         <th>省份</th>
         <th>城市</th>
@@ -92,7 +92,7 @@ if ($result && mysqli_num_rows($result)) {
         <th>预警等级</th>
         </tr>";
     while ($row = mysqli_fetch_array($result)) {
-        echo "<tr>";
+        echo "<tr align=\"center\" >";
         echo "<td>" . $row['time'] . "</td>";
         echo "<td>" . $row['province'] . "</td>";
         echo "<td>" . $row['city'] . "</td>";
