@@ -1,4 +1,58 @@
 <?php
+
+// Javascript
+echo "<script type=\"text/javascript\">
+        function altRows(id){
+            if(document.getElementsByTagName){
+
+                var table = document.getElementById(id);
+                var rows = table.getElementsByTagName(\"tr\");
+
+                for(i = 0; i < rows.length; i++){
+                    if(i % 2 == 0){
+                        rows[i].className = \"evenrowcolor\";
+                    }else{
+                        rows[i].className = \"oddrowcolor\";
+                    }
+                }
+            }
+        }
+
+        window.onload=function(){
+            altRows('alternatecolor');
+        }
+    </script>";
+
+//css
+echo "<style type=\"text/css\">
+        table.altrowstable {
+            font-family: verdana,arial,sans-serif;
+            font-size:11px;
+            color:#333333;
+            border-width: 1px;
+            border-color: #a9c6c9;
+            border-collapse: collapse;
+        }
+        table.altrowstable th {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #a9c6c9;
+        }
+        table.altrowstable td {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #a9c6c9;
+        }
+        .oddrowcolor{
+            background-color:#d4e3e5;
+        }
+        .evenrowcolor{
+            background-color:#c3dde0;
+        }
+    </style>";
+
 //使用面向对象进行数据库的连接，在创建对象的时候就自动的连接数据
 
 $mySQLi = new MySQLi('localhost','root','','environment_record',3306);
@@ -21,7 +75,7 @@ $result = mysqli_query($mySQLi,$sql);
 if ($result && mysqli_num_rows($result)) {
     // 7、处理数据
     //转成数组，且返回第一条数据,当不是一个对象时候退出
-    echo "<table border='1'>
+    echo "<table class=\"altrowstable\" id=\"alternatecolor\">
         <tr>
         <th>时间</th>
         <th>省份</th>
