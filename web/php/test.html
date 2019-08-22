@@ -1,85 +1,155 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <!-- Javascript goes in the document HEAD -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>无标题文档</title>
+    <style type="text/css">
+        .overcolor{
+            background-color: #ffff66;
+        }
+        .oddrowcolor{
+            background-color:#c3dde0;
+        }
+        .evenrowcolor{
+            background-color:#d4e3e5;
+        }
+    </style>
     <script type="text/javascript">
-        function altRows(id){
-            if(document.getElementsByTagName){
-
-                var table = document.getElementById(id);
-                var rows = table.getElementsByTagName("tr");
-
-                for(i = 0; i < rows.length; i++){
-                    if(i % 2 == 0){
-                        rows[i].className = "evenrowcolor";
-                    }else{
-                        rows[i].className = "oddrowcolor";
-                    }
+        window.onload = function() {
+            var td = document.getElementsByTagName('td');
+            for(var i = 0; i < td.length; i ++) {
+                td[i].onmouseout = function() {
+                    for (var j = 0; j < td.length; j ++) td[j].className = '';
+                }
+                td[i].onmouseover = function() {
+                    this.className = 'overcolor';
                 }
             }
         }
-
-        window.onload=function(){
-            altRows('alternatecolor');
-        }
     </script>
-
-    <!-- CSS goes in the document HEAD or added to your external stylesheet -->
-    <style type="text/css">
-        table.altrowstable {
-            font-family: verdana,arial,sans-serif;
-            font-size:11px;
-            color:#333333;
-            border-width: 1px;
-            border-color: #a9c6c9;
-            border-collapse: collapse;
-        }
-        table.altrowstable th {
-            border-width: 1px;
-            padding: 8px;
-            border-style: solid;
-            border-color: #a9c6c9;
-        }
-        table.altrowstable td {
-            border-width: 1px;
-            padding: 8px;
-            border-style: solid;
-            border-color: #a9c6c9;
-        }
-        .oddrowcolor{
-            background-color:#d4e3e5;
-        }
-        .evenrowcolor{
-            background-color:#c3dde0;
-        }
-    </style>
 </head>
+
 <body>
-
-
-<!-- Table goes in the document BODY -->
-<table class="altrowstable" id="alternatecolor">
+<table width="400" border="1">
     <tr>
-        <th>Info Header 1</th><th>Info Header 2</th><th>Info Header 3</th>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr>
-        <td>Text 1A</td><td>Text 1B</td><td>Text 1C</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr>
-        <td>Text 2A</td><td>Text 2B</td><td>Text 2C</td>
-    </tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr>
-        <td>Text 3A</td><td>Text 3B</td><td>Text 3C</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr>
-        <td>Text 4A</td><td>Text 4B</td><td>Text 4C</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
     <tr>
-        <td>Text 5A</td><td>Text 5B</td><td>Text 5C</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
     </tr>
 </table>
 </body>

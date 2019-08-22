@@ -13,8 +13,25 @@ echo "<script type=\"text/javascript\">
                 for(i = 0; i < rows.length; i++){
                     if(i % 2 == 0){
                         rows[i].className = \"evenrowcolor\";
-                    }else{
+                    }else {
                         rows[i].className = \"oddrowcolor\";
+                    }
+                }
+            }
+        }
+        
+        function mouseMoveAndOut(id) {
+            if(document.getElementsByTagName){
+            
+                var table = document.getElementById(id);
+                var rows = table.getElementsByTagName(\"tr\");
+                
+                for(var i = 0; i < rows.length; i++) {
+                    rows[i].onmouseout = function() {
+                        altRows('alternatecolor')
+                    }
+                    rows[i].onmouseover = function() {
+                        this.className = \"overcolor\";
                     }
                 }
             }
@@ -22,6 +39,7 @@ echo "<script type=\"text/javascript\">
 
         window.onload=function(){
             altRows('alternatecolor');
+            mouseMoveAndOut('alternatecolor');
         }
     </script>";
 
@@ -40,6 +58,7 @@ echo "<style type=\"text/css\">
             padding: 8px;
             border-style: solid;
             border-color: #a9c6c9;
+            background-color: #dedede;
         }
         table.altrowstable td {
             border-width: 1px;
@@ -47,11 +66,14 @@ echo "<style type=\"text/css\">
             border-style: solid;
             border-color: #a9c6c9;
         }
+        .overcolor{
+            background-color: #ffff66;
+        }
         .oddrowcolor{
-            background-color:#d4e3e5;
+            background-color:#c3dde0;
         }
         .evenrowcolor{
-            background-color:#c3dde0;
+            background-color:#d4e3e5;
         }
     </style>";
 
@@ -61,12 +83,18 @@ $mySQLi = new MySQLi('localhost','root','','environment_record',3306);
 //判断数据库是否连接
 
 if($mySQLi -> connect_errno){
-    echo "Error";
+    echo "连接失败，请检查数据库模块";
 }
 else
 {
-    echo "Success";
+    echo "连接成功，读取数据中...";
 
+    echo "\n\n";
+    
+    echo "<h3 align=\"center\">环境数据记录</h3>";
+
+    echo "\n\n";
+    
     // 4、设置字符集
     mysqli_set_charset($mySQLi,'utf8');
     // 5、准备SQL语句
@@ -76,7 +104,7 @@ else
     if ($result && mysqli_num_rows($result)) {
         // 7、处理数据
         //转成数组，且返回第一条数据,当不是一个对象时候退出
-        echo "<table class=\"altrowstable\" id=\"alternatecolor\">
+        echo "<table align=\"center\" class=\"altrowstable\" id=\"alternatecolor\">
             <tr align=\"center\" >
             <th>时间</th>
             <th>省份</th>
