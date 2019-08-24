@@ -146,31 +146,43 @@ else
 
     echo "\n\n";
 
-    echo "<h3 align=\"center\">空气质量</h3>";
+    echo "<h3 align=\"center\">输入数据</h3>";
 
     echo "\n\n";
 
-    // 不能只选择某一列，只能自己控制显示
-    $sql = 'select * from environment_record.recorder';
+// 插入新的记录
+?>
+<form action='' method='post'>
+    <table>
+        <tr>
+            <td>时间:</td>
+            <td><input type='text' name='time'> </td>
+        <tr>
+    </table>
+
+    省份:<input type='text' name='province'>
+    城市:<input type='text' name='city'>
+    最高温度:<input type='text' name='weather'>
+    最低温度:<input type='text' name='highest_temperature'>
+    空气质量:<input type='text' name='lowest_temperature'>
+    PM2.5:<input type='text' name='air_quality'>
+    SO2:<input type='text' name='PM25'>
+    NO2:<input type='text' name='SO2'>
+    CO:<input type='text' name='NO2'>
+    预警类型:<input type='text' name='warning_type'>
+    预警等级:<input type='text' name='warning_level'>
+    <input type='submit' value='提交' name='sub'>
+</form>
+
+<?php
+    $sql = 'INSERT INTO `environment_record`.`recorder`
+(`time`,`province`,`city`,`weather`,`highest_temperature`,`lowest_temperature`,`air_quality`,`PM25`,`SO2`,`NO2`,`CO`,`warning_type`,`warning_level`)
+VALUES
+($_POST[time],$_POST[province],$_POST[city],$_POST[weather],$_POST[highest_temperature],$_POST[lowest_temperature],$_POST[air_quality],$_POST[PM25],$_POST[SO2],$_POST[NO2],$_POST[CO],$_POST[warning_type],$_POST[warning_level]);';
+
     $result = mysqli_query($mySQLi,$sql);
     if ($result && mysqli_num_rows($result)) {
-        //转成数组，且返回第一条数据,当不是一个对象时候退出
-        echo "<table align=\"center\" class=\"altrowstable\" id=\"alternatecolorAQI\">
-            <tr align=\"center\" >
-            <th>时间</th>
-            <th>省份</th>
-            <th>城市</th>
-            <th>空气质量</th>           
-            </tr>";
-        while ($row = mysqli_fetch_array($result)) {
-            echo "<tr align=\"center\" >";
-            echo "<td>" . $row['time'] . "</td>";
-            echo "<td>" . $row['province'] . "</td>";
-            echo "<td>" . $row['city'] . "</td>";
-            echo "<td>" . $row['air_quality'] . "</td>";
-            echo "</tr>";
-        }
-        echo "</table>";
+        echo "SQL语句执行成功，添加了一份数据。";
     } else {
         echo "SQL语句执行出错，请检查数据库或语句。";
     }
