@@ -154,56 +154,42 @@ else {
         <tr>
             <td> 时间: </td>
             <td> <input type='text' name='time'> </td>
-        <tr>
-        <tr>
             <td> 省份: </td>
             <td> <input type='text' name='province'></td>
-        <tr>
+        </tr>
         <tr>
             <td> 城市: </td>
             <td> <input type='text' name='city'> </td>
-        <tr>
-        <tr>
             <td> 天气: </td>
             <td> <input type='text' name='weather'> </td>
-        <tr>
+        </tr>
         <tr>
             <td> 最高温度: </td>
             <td> <input type='text' name='highest_temperature'> </td>
-        <tr>
-        <tr>
             <td> 最低温度: </td>
             <td> <input type='text' name='lowest_temperature'> </td>
-        <tr>
+        </tr>
         <tr>
             <td> 空气质量: </td>
             <td> <input type='text' name='air_quality'> </td>
-        <tr>
-        <tr>
             <td> PM2.5: </td>
             <td> <input type='text' name='PM25'> </td>
-        <tr>
+        </tr>
         <tr>
             <td> SO2: </td>
             <td> <input type='text' name='SO2'> </td>
-        </tr>
-        <tr>
             <td> SO2: </td>
             <td> <input type='text' name='SO2'> </td>
         </tr>
         <tr>
             <td> NO2: </td>
             <td> <input type='text' name='NO2'> </td>
-        </tr>
-        <tr>
             <td> CO: </td>
             <td> <input type='text' name='CO'> </td>
         </tr>
         <tr>
             <td> 预警类型: </td>
             <td> <input type='text' name='warning_type'> </td>
-        </tr>
-        <tr>
             <td> 预警等级: </td>
             <td> <input type='text' name='warning_level'> </td>
         </tr>
