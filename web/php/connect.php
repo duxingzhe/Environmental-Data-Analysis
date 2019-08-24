@@ -28,7 +28,7 @@ echo "<script type=\"text/javascript\">
                 
                 for(var i = 0; i < rows.length; i++) {
                     rows[i].onmouseout = function() {
-                        altRows('alternatecolor')
+                        altRows(id)
                     }
                     rows[i].onmouseover = function() {
                         this.className = \"overcolor\";
@@ -38,8 +38,10 @@ echo "<script type=\"text/javascript\">
         }
 
         window.onload=function(){
-            altRows('alternatecolor');
-            mouseMoveAndOut('alternatecolor');
+            altRows('alternatecolorAll');
+            mouseMoveAndOut('alternatecolorAll');
+            altRows('alternatecolorAQI');
+            mouseMoveAndOut('alternatecolorAQI');
         }
     </script>";
 
@@ -104,7 +106,7 @@ else
     if ($result && mysqli_num_rows($result)) {
         // 7、处理数据
         //转成数组，且返回第一条数据,当不是一个对象时候退出
-        echo "<table align=\"center\" class=\"altrowstable\" id=\"alternatecolor\">
+        echo "<table align=\"center\" class=\"altrowstable\" id=\"alternatecolorAll\">
             <tr align=\"center\" >
             <th>时间</th>
             <th>省份</th>
@@ -139,7 +141,37 @@ else
         }
         echo "</table>";
     } else {
+        echo "SQL语句执行出错，请检查数据库或语句。";
+    }
 
+    echo "\n\n";
+
+    echo "<h3 align=\"center\">空气质量</h3>";
+
+    echo "\n\n";
+
+    $sql = 'select * from environment_record.recorder';
+    $result = mysqli_query($mySQLi,$sql);
+    if ($result && mysqli_num_rows($result)) {
+        //转成数组，且返回第一条数据,当不是一个对象时候退出
+        echo "<table align=\"center\" class=\"altrowstable\" id=\"alternatecolorAQI\">
+            <tr align=\"center\" >
+            <th>时间</th>
+            <th>省份</th>
+            <th>城市</th>
+            <th>空气质量</th>           
+            </tr>";
+        while ($row = mysqli_fetch_array($result)) {
+            echo "<tr align=\"center\" >";
+            echo "<td>" . $row['time'] . "</td>";
+            echo "<td>" . $row['province'] . "</td>";
+            echo "<td>" . $row['city'] . "</td>";
+            echo "<td>" . $row['air_quality'] . "</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "SQL语句执行出错，请检查数据库或语句。";
     }
     // 8、释放资源、关闭连接
     if($result){
