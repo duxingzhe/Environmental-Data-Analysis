@@ -23,6 +23,7 @@ INSERT INTO `environment_record`.`recorder`
 (`time`,
 `province`,
 `city`,
+`weather`,
 `highest_temperature`,
 `lowest_temperature`,
 `air_quality`,
@@ -34,8 +35,8 @@ INSERT INTO `environment_record`.`recorder`
 `warning_level`)
 VALUES
 ("2019/08/11",
-"广东",
-"河源",
+"广东省",
+"河源市",
 "小雨",
 "34",
 "26",
