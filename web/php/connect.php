@@ -150,6 +150,7 @@ else
 
     echo "\n\n";
 
+    // 不能只选择某一列，只能自己控制显示
     $sql = 'select * from environment_record.recorder';
     $result = mysqli_query($mySQLi,$sql);
     if ($result && mysqli_num_rows($result)) {

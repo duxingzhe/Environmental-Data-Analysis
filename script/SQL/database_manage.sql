@@ -6,7 +6,7 @@ CREATE TABLE `recorder` (
   `time` varchar(45) NOT NULL,
   `province` varchar(45) NOT NULL,
   `city` varchar(45) NOT NULL,
-  'weather' varchar(45) NOT NULL,
+  `weather` varchar(45) NOT NULL,
   `highest_temperature` varchar(45) NOT NULL,
   `lowest_temperature` varchar(45) NOT NULL,
   `air_quality` varchar(45) NOT NULL,
@@ -66,3 +66,18 @@ CHANGE COLUMN `city` `city` VARCHAR(45) NOT NULL ;
 ALTER TABLE `environment_record`.`recorder` 
 CHANGE COLUMN `warning_type` `warning_type` VARCHAR(45) CHARACTER SET 'utf8mb4' NULL DEFAULT NULL ,
 CHANGE COLUMN `warning_level` `warning_level` VARCHAR(45) CHARACTER SET 'utf8mb4' NULL DEFAULT NULL ;
+
+CREATE TABLE `environment_record`.`new_table` (
+  `cityname` VARCHAR(45) NOT NULL,
+  `time_point` VARCHAR(45) NULL,
+  `aqi` VARCHAR(45) NULL,
+  `max_aqi` VARCHAR(45) NULL,
+  `min_aqi` VARCHAR(45) NULL,
+  `pm2_5` VARCHAR(45) NULL,
+  `pm10` VARCHAR(45) NULL,
+  `so2` VARCHAR(45) NULL,
+  `no2` VARCHAR(45) NULL,
+  `co` VARCHAR(45) NULL,
+  `o3` VARCHAR(45) NULL,
+  `rank` VARCHAR(45) NULL,
+  `quality` VARCHAR(45) NULL);
