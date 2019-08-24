@@ -87,22 +87,21 @@ $mySQLi = new MySQLi('localhost','root','','environment_record',3306);
 if($mySQLi -> connect_errno){
     echo "连接失败，请检查数据库模块";
 }
-else
-{
+else {
     echo "连接成功，读取数据中...";
 
     echo "\n\n";
-    
+
     echo "<h3 align=\"center\">环境数据记录</h3>";
 
     echo "\n\n";
-    
+
     // 4、设置字符集
-    mysqli_set_charset($mySQLi,'utf8');
+    mysqli_set_charset($mySQLi, 'utf8');
     // 5、准备SQL语句
     $sql = 'select * from environment_record.recorder';
     // 6、执行SQL语句
-    $result = mysqli_query($mySQLi,$sql);
+    $result = mysqli_query($mySQLi, $sql);
     if ($result && mysqli_num_rows($result)) {
         // 7、处理数据
         //转成数组，且返回第一条数据,当不是一个对象时候退出
@@ -150,46 +149,69 @@ else
 
     echo "\n\n";
 
-// 插入新的记录
-?>
-<form action='' method='post'>
-    <table>
+    echo "<form action='insert.php' method='post'>
+    <table align=\"center\">
         <tr>
-            <td>时间:</td>
-            <td><input type='text' name='time'> </td>
+            <td> 时间: </td>
+            <td> <input type='text' name='time'> </td>
         <tr>
+        <tr>
+            <td> 省份: </td>
+            <td> <input type='text' name='province'></td>
+        <tr>
+        <tr>
+            <td> 城市: </td>
+            <td> <input type='text' name='city'> </td>
+        <tr>
+        <tr>
+            <td> 天气: </td>
+            <td> <input type='text' name='weather'> </td>
+        <tr>
+        <tr>
+            <td> 最高温度: </td>
+            <td> <input type='text' name='highest_temperature'> </td>
+        <tr>
+        <tr>
+            <td> 最低温度: </td>
+            <td> <input type='text' name='lowest_temperature'> </td>
+        <tr>
+        <tr>
+            <td> 空气质量: </td>
+            <td> <input type='text' name='air_quality'> </td>
+        <tr>
+        <tr>
+            <td> PM2.5: </td>
+            <td> <input type='text' name='PM25'> </td>
+        <tr>
+        <tr>
+            <td> SO2: </td>
+            <td> <input type='text' name='SO2'> </td>
+        </tr>
+        <tr>
+            <td> SO2: </td>
+            <td> <input type='text' name='SO2'> </td>
+        </tr>
+        <tr>
+            <td> NO2: </td>
+            <td> <input type='text' name='NO2'> </td>
+        </tr>
+        <tr>
+            <td> CO: </td>
+            <td> <input type='text' name='CO'> </td>
+        </tr>
+        <tr>
+            <td> 预警类型: </td>
+            <td> <input type='text' name='warning_type'> </td>
+        </tr>
+        <tr>
+            <td> 预警等级: </td>
+            <td> <input type='text' name='warning_level'> </td>
+        </tr>
+
     </table>
 
-    省份:<input type='text' name='province'>
-    城市:<input type='text' name='city'>
-    最高温度:<input type='text' name='weather'>
-    最低温度:<input type='text' name='highest_temperature'>
-    空气质量:<input type='text' name='lowest_temperature'>
-    PM2.5:<input type='text' name='air_quality'>
-    SO2:<input type='text' name='PM25'>
-    NO2:<input type='text' name='SO2'>
-    CO:<input type='text' name='NO2'>
-    预警类型:<input type='text' name='warning_type'>
-    预警等级:<input type='text' name='warning_level'>
     <input type='submit' value='提交' name='sub'>
-</form>
-
-<?php
-    $sql = 'INSERT INTO `environment_record`.`recorder`
-(`time`,`province`,`city`,`weather`,`highest_temperature`,`lowest_temperature`,`air_quality`,`PM25`,`SO2`,`NO2`,`CO`,`warning_type`,`warning_level`)
-VALUES
-($_POST[time],$_POST[province],$_POST[city],$_POST[weather],$_POST[highest_temperature],$_POST[lowest_temperature],$_POST[air_quality],$_POST[PM25],$_POST[SO2],$_POST[NO2],$_POST[CO],$_POST[warning_type],$_POST[warning_level]);';
-
-    $result = mysqli_query($mySQLi,$sql);
-    if ($result && mysqli_num_rows($result)) {
-        echo "SQL语句执行成功，添加了一份数据。";
-    } else {
-        echo "SQL语句执行出错，请检查数据库或语句。";
-    }
-    // 8、释放资源、关闭连接
-    if($result){
-        mysqli_free_result($result);
-    }
-    mysqli_close($mySQLi);
+</form>";
 }
-    ?>
+// 插入新的记录
+?>
