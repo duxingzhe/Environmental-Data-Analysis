@@ -178,8 +178,6 @@ else {
         <tr>
             <td> SO2: </td>
             <td> <input type='text' name='SO2'> </td>
-            <td> SO2: </td>
-            <td> <input type='text' name='SO2'> </td>
         </tr>
         <tr>
             <td> NO2: </td>
@@ -193,10 +191,12 @@ else {
             <td> 预警等级: </td>
             <td> <input type='text' name='warning_level'> </td>
         </tr>
+        <tr>
+            <td><input type='submit' value='提交' name='sub'></td>
+        </tr>
 
     </table>
 
-    <input type='submit' value='提交' name='sub'>
 </form>";
 }
 // 插入新的记录
