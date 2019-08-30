@@ -19,7 +19,7 @@ Class Chart{
         $this->title = $title;
         $this->xdata = $xdata;
         $this->ydata = $ydata;
-        $this->color = array('#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4');
+        $this->color = array('#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572');
     }
 
     /*
@@ -72,10 +72,10 @@ Class Chart{
         $fontPath = 'F:\Project\Environment\web\php\font\simsun.ttc';
 
         // 绘制扇形弧
-        for($i = 0; $i < 10; $i++) {
-            foreach($this->ydata as $key => $val) {
-                $end += 360*$val/$sum;
-                imagefilledarc($this->image,$cx,$cy-$i,$pieWidth,$pieHeight, $start,$end,$color[$key%count($this->color)],IMG_ARC_PIE);
+        foreach($this->ydata as $key => $val) {
+            if($val>0) {
+                $end += 360 * $val / $sum;
+                imagefilledarc($this->image, $cx, $cy, $pieWidth, $pieHeight, $start, $end, $color[$key % count($this->color)], IMG_ARC_PIE);
                 $start = $end;
             }
         }
