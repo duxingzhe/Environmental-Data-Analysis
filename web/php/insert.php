@@ -1,6 +1,8 @@
 <?php
+// 插入新的记录
 
 $mySQLi = new MySQLi('localhost','root','','environment_record',3306);
+
 //判断数据库是否连接
 
 if($mySQLi -> connect_errno){

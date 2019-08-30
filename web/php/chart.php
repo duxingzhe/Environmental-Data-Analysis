@@ -34,6 +34,7 @@ Class Chart{
      * 绘制饼图
      */
     function mkPieChart() {
+
         $sum = array_sum($this->ydata); // 获取ydata所有元素之和
         $start = 0; // 弧的开始角度
         $end = 0; // 弧的结束角度
@@ -68,7 +69,7 @@ Class Chart{
         // 设置线段的颜色、字体的颜色、字体的路径
         $lineColor = imagecolorallocate($this->image ,0xcc,0xcc,0xcc);
         $fontColor = imagecolorallocate($this->image, 0x95,0x8f,0x8f);
-        $fontPath = 'font/simsun.ttc';
+        $fontPath = 'F:\Project\Environment\web\php\font\simsun.ttc';
 
         // 绘制扇形弧
         for($i = 0; $i < 10; $i++) {
@@ -81,10 +82,10 @@ Class Chart{
 
         // 绘制小矩形及之后文字说明
         $x1 = $pieWidth+$space;
-        $y1 = $titleHeight ;
+        $y1 = $titleHeight;
         foreach($this->ydata as $key => $val) {
             imagefilledrectangle($this->image,$x1,$y1,$x1+$recWidth,$y1+$recHeight,$color[$key%count($this->color)]);
-            imagettftext($this->image,10,0,$x1+$recWidth+5,$y1+$recHeight-2,$fontColor,$fontPath,$this->xdata[$key]);
+            imagettftext($this->image,10,0,$x1+$recWidth+5,$y1+$recHeight-2,$fontColor,$fontPath,mb_convert_encoding($this->xdata[$key],'html-entities','UTF-8'));
             $y1 += $recHeight + 10;
         }
 
@@ -114,4 +115,5 @@ Class Chart{
         imagedestroy($this->image);
     }
 }
+
 ?>

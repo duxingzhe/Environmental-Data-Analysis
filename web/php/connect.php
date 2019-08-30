@@ -199,5 +199,12 @@ else {
 
 </form>";
 }
-// 插入新的记录
+
+?>
+
+<?php
+require_once("chart.php");
+
+echo "<img src=\"test.php\">";
+
 ?>
