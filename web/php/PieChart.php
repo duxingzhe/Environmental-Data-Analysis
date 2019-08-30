@@ -19,7 +19,7 @@ Class PieChart{
         $this->title = $title;
         $this->xdata = $xdata;
         $this->ydata = $ydata;
-        $this->color = array('#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572');
+        $this->color = array('#009966', '#FFDE33', '#FF9933', '#CC0033', '#660099', '#7E0023');
     }
 
     /*
