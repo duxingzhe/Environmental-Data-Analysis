@@ -203,8 +203,7 @@ else {
 ?>
 
 <?php
-require_once("chart.php");
 
-echo "<img src=\"test.php\">";
+echo "<img src=\"PieChartForAPIInHeyuan.php\">";
 
 ?>

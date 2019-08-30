@@ -1,5 +1,5 @@
 <?php
-Class Chart{
+Class PieChart{
     private $image; // 定义图像
     private $title; // 定义标题
     private $ydata; // 定义Y轴数据

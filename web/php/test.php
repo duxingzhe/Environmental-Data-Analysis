@@ -1,6 +1,6 @@
 <?php
 
-require_once("chart.php");
+require_once("PieChart.php");
 
 $mySQLi = new MySQLi('localhost','root','','environment_record',3306);
 //判断数据库是否连接
@@ -18,19 +18,15 @@ else {
     $veryUnhealthy=0;
     $hazardous=0;
 
-    $xdata = array();
-
     $title = "空气污染指数";
 
-
-
-    // 4、设置字符集
+    // 设置字符集
     mysqli_set_charset($mySQLi, 'utf8');
 
-    // 5、准备SQL语句
+    // 准备SQL语句
     $sql = 'select * from environment_record.recorder';
 
-    // 6、执行SQL语句
+    // 执行SQL语句
     $result = mysqli_query($mySQLi, $sql);
 
     if ($result && mysqli_num_rows($result)) {
@@ -64,8 +60,7 @@ else {
     $ydata[] = $veryUnhealthy;
     $ydata[] = $hazardous;
 
-
-    $Img = new Chart($title, $xdata, $ydata);
+    $Img = new PieChart($title, $xdata, $ydata);
     $Img->mkPieChart();
 }
 
