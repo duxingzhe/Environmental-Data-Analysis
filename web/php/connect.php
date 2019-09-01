@@ -3,81 +3,10 @@
 echo "<title>环境数据分析前端</title>";
 
 // Javascript
-echo "<script type=\"text/javascript\">
-        function altRows(id){
-            if(document.getElementsByTagName){
-
-                var table = document.getElementById(id);
-                var rows = table.getElementsByTagName(\"tr\");
-
-                for(i = 0; i < rows.length; i++){
-                    if(i % 2 == 0){
-                        rows[i].className = \"evenrowcolor\";
-                    }else {
-                        rows[i].className = \"oddrowcolor\";
-                    }
-                }
-            }
-        }
-        
-        function mouseMoveAndOut(id) {
-            if(document.getElementsByTagName){
-            
-                var table = document.getElementById(id);
-                var rows = table.getElementsByTagName(\"tr\");
-                
-                for(var i = 0; i < rows.length; i++) {
-                    rows[i].onmouseout = function() {
-                        altRows(id)
-                    }
-                    rows[i].onmouseover = function() {
-                        this.className = \"overcolor\";
-                    }
-                }
-            }
-        }
-
-        window.onload=function(){
-            altRows('alternatecolorAll');
-            mouseMoveAndOut('alternatecolorAll');
-            altRows('alternatecolorAQI');
-            mouseMoveAndOut('alternatecolorAQI');
-        }
-    </script>";
+echo "<script type=\"text/javascript\" src=\"./js/change_color.js\"></script>";
 
 //css
-echo "<style type=\"text/css\">
-        table.altrowstable {
-            font-family: verdana,arial,sans-serif;
-            font-size:11px;
-            color:#333333;
-            border-width: 1px;
-            border-color: #a9c6c9;
-            border-collapse: collapse;
-        }
-        table.altrowstable th {
-            border-width: 1px;
-            padding: 8px;
-            border-style: solid;
-            border-color: #a9c6c9;
-            background-color: #dedede;
-        }
-        table.altrowstable td {
-            border-width: 1px;
-            padding: 8px;
-            border-style: solid;
-            border-color: #a9c6c9;
-        }
-        .overcolor{
-            background-color: #ffff66;
-        }
-        .oddrowcolor{
-            background-color:#c3dde0;
-        }
-        .evenrowcolor{
-            background-color:#d4e3e5;
-        }
-    </style>";
+echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"./css/table_color.css\"></style>";
 
 //使用面向对象进行数据库的连接，在创建对象的时候就自动的连接数据
 
