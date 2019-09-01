@@ -40,7 +40,7 @@ Class LineChart{
     public function paintLineChart() {
         $ydataNum = $this->arrayNum($this->ydata); // 取得数据分组的个数
         $max = $this->arrayMax($this->ydata); // 取得所有呈现数据的最大值
-        $max = ($max > 100)? $max : 100;
+        $max = ($max > 50)? $max :50;
         $multi = $max/100; // 如果最大数据是大于100的则进行缩小处理
         $barHeightMulti = 2.2; // 条形高缩放的比例
         $lineWidth = 50;
@@ -255,11 +255,4 @@ Class LineChart{
     }
 }
 
-$xdata = array('测试一','测试二','测试三','测试四','测试五','测试六','测试七','测试八','测试九');
-$ydata = array(array(29,30,45,54,65,45,76,23,54),array(89,60,90,23,35,45,56,23,56));
-$color = array();
-$seriesName = array("七月","八月");
-$title = "测试数据";
-$Img = new LineChart($title,$xdata,$ydata,$seriesName);
-$Img->paintLineChart();
 ?>

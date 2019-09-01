@@ -1,6 +1,6 @@
 <?php
 
-require_once("PieChart.php");
+require_once("./Class/PieChart.php");
 
 $mySQLi = new MySQLi('localhost','root','','environment_record',3306);
 //判断数据库是否连接

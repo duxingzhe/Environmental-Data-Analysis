@@ -206,4 +206,6 @@ else {
 
 echo "<img src=\"PieChartForAPIInHeyuan.php\">";
 
+echo "<img src=\"LineChartForTemperatureInHeyuan.php\">";
+
 ?>
