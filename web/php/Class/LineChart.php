@@ -63,7 +63,7 @@ Class LineChart{
         }
         $this->width = $lineChartWidth + $tmpWidth;
 
-        $this->height = 300;
+        $this->height = 500;
         $this->image = imagecreatetruecolor($this->width ,$this->height); // 准备画布
         $this->bgcolor = imagecolorallocate($this->image,255,255,255); // 图片的背景颜色
 
