@@ -58,7 +58,7 @@ ADD COLUMN `weather` VARCHAR(45) NOT NULL AFTER `city`;
 UPDATE `environment_record`.`recorder`
 SET
 `weather` = '小雨'
-WHERE `time`='2019/08/11'
+WHERE `time`='2019/08/11';
 
 ALTER TABLE `environment_record`.`recorder`
 CHANGE COLUMN `province` `province` VARCHAR(45) NOT NULL ,
@@ -68,7 +68,7 @@ ALTER TABLE `environment_record`.`recorder`
 CHANGE COLUMN `warning_type` `warning_type` VARCHAR(45) CHARACTER SET 'utf8mb4' NULL DEFAULT NULL ,
 CHANGE COLUMN `warning_level` `warning_level` VARCHAR(45) CHARACTER SET 'utf8mb4' NULL DEFAULT NULL ;
 
-CREATE TABLE `environment_record`.`new_table` (
+CREATE TABLE `environment_record`.`month_data` (
   `cityname` VARCHAR(45) NOT NULL,
   `time_point` VARCHAR(45) NULL,
   `aqi` VARCHAR(45) NULL,
