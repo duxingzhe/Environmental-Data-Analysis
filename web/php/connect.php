@@ -127,14 +127,9 @@ else {
     </table>
 
 </form>";
+    echo "<img src=\"PieChartForAPIInHeyuan.php\">";
+
+    echo "<img src=\"LineChartForTemperatureInHeyuan.php\">";
 }
-
-?>
-
-<?php
-
-echo "<img src=\"PieChartForAPIInHeyuan.php\">";
-
-echo "<img src=\"LineChartForTemperatureInHeyuan.php\">";
 
 ?>
