@@ -23,7 +23,7 @@ if ($mySQLi->connect_errno) {
     mysqli_set_charset($mySQLi, 'utf8');
 
     // 准备SQL语句
-    $sql = 'select * from environment_record.recorder';
+    $sql = 'select time, highest_temperature, lowest_temperature from environment_record.recorder';
 
     // 执行SQL语句
     $result = mysqli_query($mySQLi, $sql);
