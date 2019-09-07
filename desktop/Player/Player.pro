@@ -24,6 +24,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
+INCLUDEPATH += $$PWD/ffmpeg/include \
+                $$PWD/sdl/include
+
+LIBS += -L$$PWD/ffmpeg/lib/ -lavcodec \
+        -L$$PWD/ffmpeg/lib/ -lavdevice \
+        -L$$PWD/ffmpeg/lib/ -lavfilter \
+        -L$$PWD/ffmpeg/lib/ -lavformat \
+        -L$$PWD/ffmpeg/lib/ -lpostproc \
+        -L$$PWD/ffmpeg/lib/ -lswresample \
+        -L$$PWD/ffmpeg/lib/ -lswscale \
+        -L$$PWD/ffmpeg/lib/ -lavutil \
+        -L$$PWD/sdl/lib/ -lSDL2
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp
