@@ -97,7 +97,7 @@ def get_all_info_by_city(city):
             if html_info is not None:
                 item = decode_info(html_info, ctx)
                 for i in item['result']['data']['items']:
-                    result.append(en_day_sdict_to_list(city, i))
+                    result.append(en_day_dict_to_list(city, i))
     return result
 
 
@@ -117,7 +117,7 @@ def get_least_info_by_city(city):
             logging.info(city + '无最近数据或未更新')
             return []
         logging.info('获取' + city + str(item['result']['data']['items'][-1]['time_point']) + '数据')
-        return [en_day_sdict_to_list(city, item['result']['data']['items'][-1])]
+        return [en_day_dict_to_list(city, item['result']['data']['items'][-1])]
 
 
 # 爬取某城市一年的日数据
@@ -135,7 +135,8 @@ def get_year_info_by_city(year, city):
         if html_info is not None:
             item = decode_info(html_info, ctx)
             for i in item['result']['data']['items']:
-                result.append(i)
+                result.append(en_day_dict_to_list(city, i))
+                logging.info('获取' + city + str(i['time_point']) + '的日平均数据')
     return result
 
 
@@ -189,7 +190,7 @@ def write_excel(result, ci, data_type):
     wbk.save('./day/' + ci + '.xls')
 
 
-def en_day_sdict_to_list(cityName, result):
+def en_day_dict_to_list(cityName, result):
     return [cityName, result['time_point'], result['aqi'], result['pm2_5'], result['pm10'], result['so2'],
             result['no2'], result['co'], result['o3'],
             result['rank'], result['quality']]

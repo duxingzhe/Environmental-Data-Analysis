@@ -18,7 +18,7 @@ class AQIThread(threading.Thread):
     def run(self):
         while not self.city_queue.empty():
             ci = self.city_queue.get()
-            result = get_year_info_by_city(city=ci)
+            result = get_all_info_by_city(city=ci)
             print(result)
             # insert_month_db(result)
             insert_db(result)
@@ -35,9 +35,9 @@ class AQIThread(threading.Thread):
 
 if __name__ == '__main__':
     city_queue = Queue()
-    citys = get_city()
+    cities = ["安阳"]
 
-    for i in citys:
+    for i in cities:
         city_queue.put(i)
 
     threads = [AQIThread(i, city_queue) for i in range(num_of_threads)]
