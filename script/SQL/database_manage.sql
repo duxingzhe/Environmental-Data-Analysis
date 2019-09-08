@@ -82,3 +82,16 @@ CREATE TABLE `environment_record`.`month_data` (
   `o3` VARCHAR(45) NULL,
   `rank` VARCHAR(45) NULL,
   `quality` VARCHAR(45) NULL);
+  
+  CREATE TABLE `environment_record`.`day_data` (
+  `cityname` VARCHAR(45) NOT NULL,
+  `time_point` VARCHAR(45) NULL,
+  `aqi` VARCHAR(45) NULL,
+  `pm2_5` VARCHAR(45) NULL,
+  `pm10` VARCHAR(45) NULL,
+  `so2` VARCHAR(45) NULL,
+  `no2` VARCHAR(45) NULL,
+  `co` VARCHAR(45) NULL,
+  `o3` VARCHAR(45) NULL,
+  `rank` VARCHAR(45) NULL,
+  `quality` VARCHAR(45) NULL);
