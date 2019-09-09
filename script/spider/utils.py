@@ -93,7 +93,7 @@ def get_all_info_by_city(city):
                 break
             date_time = y + m  # 201805
             html_info = get_response(day_params(city, date_time, ctx))
-            print('爬取' + date_time + city)
+            print('爬取' + city + date_time + "每日天气数据")
             if html_info is not None:
                 item = decode_info(html_info, ctx)
                 for i in item['result']['data']['items']:
