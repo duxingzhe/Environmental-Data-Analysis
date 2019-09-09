@@ -11,7 +11,7 @@ conn = pymysql.connect(host='localhost', port=3306, db='environment_record', use
 cur = conn.cursor()
 
 
-def draw_citiy(city):
+def draw_city(city):
     select = "SELECT aqi FROM month_data WHERE cityname='" + city + "'"
 
     cur.execute(select)
@@ -147,7 +147,7 @@ def draw_cities(cities):
 
     for city in cities:
 
-        draw_citiy(city)
+        draw_city(city)
 
 
 # 南北方城市列表
