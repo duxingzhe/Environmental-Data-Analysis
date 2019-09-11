@@ -39,13 +39,16 @@ def draw_city(city):
 
         x1 = time_point
         y1 = so2
-        plt.plot(x1, y1, color='#009966')
+        plt.plot(x1, y1, label='so2', color='#009966')
 
         y2 = no2
-        plt.plot(x1, y2, color='#FFDE33')
+        plt.plot(x1, y2, label='no2', color='#FFDE33')
+        plt.legend(loc=1)
 
+        plt.twinx()  # 添加一条Y轴
         y3 = co
-        plt.plot(x1, y3, color='#FF9933')
+        plt.plot(x1, y3, label='co', color='#FF9933')
+        plt.legend(loc=1)
 
         # 坐标轴标签
         plt.xlabel("时间", fontproperties=my_font)
