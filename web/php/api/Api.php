@@ -14,7 +14,7 @@ abstract class Api {
     public static function factory($type = self::JSON) {
         $type = isset($_GET['format']) ? $_GET['format'] : $type;
         $resultClass = ucwords($type);
-        require_once('./Response/' . $type . '.php');
+        require_once('./Json.php');
         return new $resultClass();
     }
 

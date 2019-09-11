@@ -2,6 +2,7 @@
 
 
 class Json extends Api {
+
     public function response($code, $message = '', $data = array()) {
         if(!(is_numeric($code))) {
             return '';

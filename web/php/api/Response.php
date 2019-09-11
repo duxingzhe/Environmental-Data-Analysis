@@ -1,6 +1,7 @@
 <?php
 
 class Response {
+
     const JSON = "json";
     /**
      * 按综合方式输出通信数据
@@ -28,11 +29,6 @@ class Response {
             exit;
         } elseif($type == 'array') { //适合调试代码
             var_dump($result);
-        } elseif($type == 'xml') {
-            self::xmlEncode($code, $message, $data);
-            exit;
-        } else {
-            // TODO
         }
     }
     /**
@@ -54,51 +50,17 @@ class Response {
             'data' => $data
         );
 
-        echo json_encode($result);
+        echo self::decodeUnicode(json_encode($result));
         exit;
     }
 
-    /**
-     * 按xml方式输出通信数据
-     * @param integer $code 状态码
-     * @param string $message 提示信息
-     * @param array $data 数据
-     * return string
-     */
-    public static function xmlEncode($code, $message, $data = array()) {
-        if(!is_numeric($code)) {
-            return '';
-        }
-
-        $result = array(
-            'code' => $code,
-            'message' => $message,
-            'data' => $data,
-        );
-
-        header("Content-Type:text/xml");
-        $xml = "<?xml version='1.0' encoding='UTF-8'?>\n";
-        $xml .= "<root>\n";
-
-        $xml .= self::xmlToEncode($result);
-
-        $xml .= "</root>";
-        echo $xml;
-    }
-
-    public static function xmlToEncode($data) {
-
-        $xml = $attr = "";
-        foreach($data as $key => $value) {
-            if(is_numeric($key)) {
-                $attr = " id='{$key}'";
-                $key = "item";
-            }
-            $xml .= "<{$key}{$attr}>";
-            $xml .= is_array($value) ? self::xmlToEncode($value) : $value;
-            $xml .= "</{$key}>\n";
-        }
-        return $xml;
+    function decodeUnicode($str){
+        return preg_replace_callback('/\\\\u([0-9a-f]{4})/i',
+            function($matches) {
+                return mb_convert_encoding(pack("H*", $matches[1]), "UTF-8", "UCS-2BE");
+            }, $str);
     }
 
 }
+
+?>
