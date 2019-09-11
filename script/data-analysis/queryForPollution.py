@@ -1,3 +1,4 @@
+from mpl_toolkits.axisartist.parasite_axes import HostAxes, ParasiteAxes
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm  # 字体管理器
 import pymysql  # 连接数据库
@@ -35,24 +36,31 @@ def draw_city(city):
         my_font = fm.FontProperties(fname="F:\\Project\\Environment\\web\\php\\font\\simsun.ttc")
 
         # 绘制气温变化
-        plt.figure(figsize=(20, 8), dpi=80)
+        fig = plt.figure(figsize=(20, 8), dpi=80)
+
+        ax = fig.add_subplot(111)
 
         x1 = time_point
         y1 = so2
-        plt.plot(x1, y1, label='so2', color='#009966')
+        lns1 = ax.plot(x1, y1, label='so2', color='#009966')
 
         y2 = no2
-        plt.plot(x1, y2, label='no2', color='#FFDE33')
-        plt.legend(loc=1)
+        lns2 = ax.plot(x1, y2, label='no2', color='#FFDE33')
 
-        plt.twinx()  # 添加一条Y轴
+        ax2 = ax.twinx()  # 添加一条Y轴
         y3 = co
-        plt.plot(x1, y3, label='co', color='#FF9933')
-        plt.legend(loc=1)
+        lns3 = ax2.plot(x1, y3, label='co', color='#FF9933')
 
         # 坐标轴标签
-        plt.xlabel("时间", fontproperties=my_font)
-        plt.ylabel("μg/m3(CO为mg/m3)", fontproperties=my_font)
+
+        ax.set_xlabel("时间", fontproperties=my_font)
+        ax.set_ylabel("μg/m3", fontproperties=my_font)
+        ax2.set_ylabel("CO为mg/m3", fontproperties=my_font)
+
+        # added these three lines
+        lns = lns1 + lns2 + lns3
+        labs = [l.get_label() for l in lns]
+        ax.legend(lns, labs, loc=0)
 
         # 添加图形标题
 
@@ -65,7 +73,6 @@ def draw_city(city):
         # 显示图形
 
         plt.show()
-
 
 def draw_cities(cities):
 
