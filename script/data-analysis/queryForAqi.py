@@ -10,7 +10,6 @@ import pymysql  # 连接数据库
 conn = pymysql.connect(host='localhost', port=3306, db='environment_record', user='root', passwd='', charset='utf8')
 cur = conn.cursor()
 
-
 def draw_city(city):
     select = "SELECT aqi FROM month_data WHERE cityname='" + city + "'"
 
