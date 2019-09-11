@@ -127,7 +127,7 @@ else {
     </table>
 
 </form>";
-    echo "<img src=\"PieChartForAPIInHeyuan.php\">";
+    echo ">";
 
     echo "<img src=\"LineChartForTemperatureInHeyuan.php\">";
 }
