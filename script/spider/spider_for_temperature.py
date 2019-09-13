@@ -1,49 +1,9 @@
-from bs4 import BeautifulSoup
-import requests
 import pymysql
 import warnings
-# import pinyin
-# from pinyin import PinYin
-from pypinyin import pinyin, lazy_pinyin
-import pypinyin
+from pypinyin import lazy_pinyin
+from utils import *
 
 warnings.filterwarnings("ignore")
-
-def get_temperature(url, city):
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,  like Gecko) Chrome/63.0.3239.132 Safari/537.36'}  # 设置头文件信息
-    response = requests.get(url, headers=headers).content  # 提交requests get 请求
-    soup = BeautifulSoup(response, "lxml")  # 用Beautifulsoup 进行解析
-
-    conmid2 = soup.findAll('div', class_='wdetail')
-    # conmid2 = conmid.findAll('div',  class_='wdetail')
-
-    list = []
-
-    for info in conmid2:
-        tr_list = info.find_all('tr')[1:]  # 使用切片取到第三个tr标签
-        for index, tr in enumerate(tr_list):  # enumerate可以返回元素的位置及内容
-            td_list = tr.find_all('td')
-            # if index == 0:
-
-            date = td_list[0].text.strip().replace("\n", "")  # 取每个标签的text信息，并使用replace()函数将换行符删除
-            weather = td_list[1].text.strip().replace("\n", "").split("/")[0].strip()
-            min = td_list[2].text.strip().replace("\n", "").split("/")[0].strip()
-            max = td_list[2].text.strip().replace("\n", "").split("/")[1].strip()
-            wind = td_list[3].text.strip().replace("\n", "").split("/")[0].strip()
-
-            # else:
-            #     city_name = td_list[0].text.replace('\n',  '')
-            #     weather = td_list[4].text.replace('\n',  '')
-            #     wind = td_list[5].text.replace('\n',  '')
-            #     max = td_list[3].text.replace('\n',  '')
-            #     min = td_list[6].text.replace('\n',  '')
-
-            print(city, date, weather, wind, max, min)
-
-            list = [city, date, weather, wind, max, min]
-
-    return list
 
 if __name__ == '__main__':
 
@@ -82,28 +42,37 @@ if __name__ == '__main__':
               '台北', '台中', '高雄', '香港', '澳门']
 
     for city in cities:
+
         city1 = ''.join(lazy_pinyin(city[:]))
         print(city1)
-        urls = []
-        for year in range(2011, 2020):
+
+        # 2011——2019年
+        now_y, now_m, _ = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
+        for year in range(2011, now_y+1):
+
+            urls = []
+
+            # 1月——12月
             for month in range(1, 13):
                 if 1 <= month <= 9:
                     month = "0" + str(month)
 
-                if year == 2019 and int(month) > 9:
+                if year == now_y and int(month) > now_m:
                     break
 
                 urls.append('http://www.tianqihoubao.com/lishi/' + city1 + '/month/' + str(year) + str(month) + '.html')
 
-        result = []
-        for url in urls:
-            list = get_temperature(url, city)
-            result.append(list)
+            result = []
 
-        conn = pymysql.connect(host='localhost', user='root', passwd='', db='environment_record', port=3306,
-                               charset='utf8')
-        cursor = conn.cursor()
-        cursor.executemany('INSERT INTO weather(city, date, weather, wind, min, max) VALUES(%s, %s, %s, %s, %s, %s)',
-                           result)
-        conn.commit()
-        conn.close()
+            for url in urls:
+                result_list = get_temperature(url, city)
+                result.append(result_list)
+
+            # 一年一年存储
+            conn = pymysql.connect(host='localhost', user='root', passwd='', db='environment_record', port=3306,
+                                   charset='utf8')
+            cursor = conn.cursor()
+            cursor.executemany('INSERT INTO weather(city, date, weather, wind, min, max) VALUES(%s, %s, %s, %s, %s, %s)',
+                               result)
+            conn.commit()
+            conn.close()

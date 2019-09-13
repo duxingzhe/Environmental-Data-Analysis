@@ -11,6 +11,8 @@ from xlutils3 import copy
 from config import *
 from usually_data import target_type, USER_AGENTS, years, month
 import pymysql as mdb
+from bs4 import BeautifulSoup
+import requests
 
 logging.basicConfig(filename='apiStudy.log', level=logging.DEBUG, format=LOG_FORMAT, datefmt=DATE_FORMAT)
 
@@ -201,3 +203,45 @@ def en_month_dict_to_list(cityName, result):
             result['pm10'], result['so2'],
             result['no2'], result['co'], result['o3'],
             result['rank'], result['quality']]
+
+
+def get_temperature(url, city):
+
+    # 设置头文件信息
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+                      'AppleWebKit/537.36 (KHTML,  like Gecko)'
+                      'Chrome/63.0.3239.132 Safari/537.36'}
+
+    response = requests.get(url, headers=headers).content  # 提交requests get 请求
+    soup = BeautifulSoup(response, "lxml")  # 用Beautifulsoup 进行解析
+
+    conmid2 = soup.findAll('div', class_='wdetail')
+    # conmid2 = conmid.findAll('div',  class_='wdetail')
+
+    result_list = []
+
+    for info in conmid2:
+        tr_list = info.find_all('tr')[1:]  # 使用切片取到第三个tr标签
+        for index, tr in enumerate(tr_list):  # enumerate可以返回元素的位置及内容
+            td_list = tr.find_all('td')
+            # if index == 0:
+
+            date = td_list[0].text.strip().replace("\n", "")  # 取每个标签的text信息，并使用replace()函数将换行符删除
+            weather = td_list[1].text.strip().replace("\n", "").split("/")[0].strip()
+            min = td_list[2].text.strip().replace("\n", "").split("/")[0].strip()
+            max = td_list[2].text.strip().replace("\n", "").split("/")[1].strip()
+            wind = td_list[3].text.strip().replace("\n", "").split("/")[0].strip()
+
+            # else:
+            #     city_name = td_list[0].text.replace('\n',  '')
+            #     weather = td_list[4].text.replace('\n',  '')
+            #     wind = td_list[5].text.replace('\n',  '')
+            #     max = td_list[3].text.replace('\n',  '')
+            #     min = td_list[6].text.replace('\n',  '')
+
+            print(city, date, weather, wind, max, min)
+
+            result_list = [city, date, weather, wind, max, min]
+
+    return result_list

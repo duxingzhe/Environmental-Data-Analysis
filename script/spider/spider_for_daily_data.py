@@ -35,6 +35,7 @@ class AQIThread(threading.Thread):
 
 
 if __name__ == '__main__':
+
     city_queue = Queue()
 
     cities = get_city()
