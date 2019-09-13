@@ -86,11 +86,11 @@ if __name__ == '__main__':
         city1 = ''.join(lazy_pinyin(city[:]))
         print(city1)
         urls = []
-        for year in range(2011, 2019):
-            for month in range(1, 12):
+        for year in range(2011, 2020):
+            for month in range(1, 13):
                 if 1 <= month <= 9:
                     month = "0" + str(month)
-                    urls.append('http://www.tianqihoubao.com/lishi/' + city1 + '/month/' + str(year) + month + '.html')
+                urls.append('http://www.tianqihoubao.com/lishi/' + city1 + '/month/' + str(year) + month + '.html')
 
         for url in urls:
             get_temperature(url, city)
