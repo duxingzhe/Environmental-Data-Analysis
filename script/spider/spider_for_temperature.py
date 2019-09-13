@@ -18,6 +18,8 @@ def get_temperature(url, city):
     conmid2 = soup.findAll('div', class_='wdetail')
     # conmid2 = conmid.findAll('div',  class_='wdetail')
 
+    list = []
+
     for info in conmid2:
         tr_list = info.find_all('tr')[1:]  # 使用切片取到第三个tr标签
         for index, tr in enumerate(tr_list):  # enumerate可以返回元素的位置及内容
@@ -38,17 +40,14 @@ def get_temperature(url, city):
             #     min = td_list[6].text.replace('\n',  '')
 
             print(city, date, weather, wind, max, min)
-            conn = pymysql.connect(host='localhost', user='root', passwd='', db='environment_record', port=3306,
-                                   charset='utf8')
-            cursor = conn.cursor()
-            cursor.execute('INSERT INTO weather(city, date, weather, wind, min, max) VALUES(%s, %s, %s, %s, %s, %s)',
-                           (city, date, weather, wind, min, max))
-            conn.commit()
-            conn.close()
+
+            list = [city, date, weather, wind, max, min]
+
+    return list
 
 if __name__ == '__main__':
 
-    cities = ['北京', '天津', '石家庄', '唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德', '沧州', '廊坊', '衡水', '太原', '大同',
+    cities = ['石家庄', '唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德', '沧州', '廊坊', '衡水', '太原', '大同',
               '阳泉', '长治', '晋城', '朔州', '晋中', '运城', '忻州', '临汾', '吕梁',
               '呼和浩特', '包头', '乌海', '赤峰', '通辽', '鄂尔多斯', '呼伦贝尔', '巴彦淖尔', '乌兰察布', '兴安盟', '锡林郭勒', '阿拉善盟',
               '沈阳', '大连', '鞍山', '抚顺', '本溪', '丹东', '锦州', '营口', '阜新', '辽阳', '盘锦', '昌图', '朝阳', '葫芦岛',
@@ -90,7 +89,21 @@ if __name__ == '__main__':
             for month in range(1, 13):
                 if 1 <= month <= 9:
                     month = "0" + str(month)
-                urls.append('http://www.tianqihoubao.com/lishi/' + city1 + '/month/' + str(year) + month + '.html')
 
+                if year == 2019 and int(month) > 9:
+                    break
+
+                urls.append('http://www.tianqihoubao.com/lishi/' + city1 + '/month/' + str(year) + str(month) + '.html')
+
+        result = []
         for url in urls:
-            get_temperature(url, city)
+            list = get_temperature(url, city)
+            result.append(list)
+
+        conn = pymysql.connect(host='localhost', user='root', passwd='', db='environment_record', port=3306,
+                               charset='utf8')
+        cursor = conn.cursor()
+        cursor.executemany('INSERT INTO weather(city, date, weather, wind, min, max) VALUES(%s, %s, %s, %s, %s, %s)',
+                           result)
+        conn.commit()
+        conn.close()
