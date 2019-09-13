@@ -95,3 +95,11 @@ CREATE TABLE `environment_record`.`month_data` (
   `o3` VARCHAR(45) NULL,
   `rank` VARCHAR(45) NULL,
   `quality` VARCHAR(45) NULL);
+
+  CREATE TABLE `environment_record`.`weather` (
+  `city` VARCHAR(45) NOT NULL,
+  `date` VARCHAR(45) NULL,
+  `weather` VARCHAR(45) NULL,
+  `wind` VARCHAR(45) NULL,
+  `min` VARCHAR(45) NULL,
+  `max` VARCHAR(45) NULL);
