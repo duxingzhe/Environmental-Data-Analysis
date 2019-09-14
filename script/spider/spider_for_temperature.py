@@ -7,7 +7,7 @@ warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
 
-    cities = ['石家庄', '唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德', '沧州', '廊坊', '衡水', '太原', '大同',
+    cities = ['唐山', '秦皇岛', '邯郸', '邢台', '保定', '张家口', '承德', '沧州', '廊坊', '衡水', '太原', '大同',
               '阳泉', '长治', '晋城', '朔州', '晋中', '运城', '忻州', '临汾', '吕梁',
               '呼和浩特', '包头', '乌海', '赤峰', '通辽', '鄂尔多斯', '呼伦贝尔', '巴彦淖尔', '乌兰察布', '兴安盟', '锡林郭勒', '阿拉善盟',
               '沈阳', '大连', '鞍山', '抚顺', '本溪', '丹东', '锦州', '营口', '阜新', '辽阳', '盘锦', '昌图', '朝阳', '葫芦岛',
@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
         # 2011——2019年
         now_y, now_m, _ = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
-        for year in range(2011, now_y+1):
+        for year in range(2011, int(now_y)+1):
 
             urls = []
 
@@ -57,22 +57,20 @@ if __name__ == '__main__':
                 if 1 <= month <= 9:
                     month = "0" + str(month)
 
-                if year == now_y and int(month) > now_m:
+                if year == int(now_y) and int(month) > int(now_m):
                     break
 
                 urls.append('http://www.tianqihoubao.com/lishi/' + city1 + '/month/' + str(year) + str(month) + '.html')
 
-            result = []
-
             for url in urls:
-                result_list = get_temperature(url, city)
-                result.append(result_list)
 
-            # 一年一年存储
-            conn = pymysql.connect(host='localhost', user='root', passwd='', db='environment_record', port=3306,
-                                   charset='utf8')
-            cursor = conn.cursor()
-            cursor.executemany('INSERT INTO weather(city, date, weather, wind, min, max) VALUES(%s, %s, %s, %s, %s, %s)',
-                               result)
-            conn.commit()
-            conn.close()
+                result_list = get_temperature(url, city)
+
+                # 一个月存储一次
+                conn = pymysql.connect(host='localhost', user='root', passwd='', db='environment_record', port=3306,
+                                       charset='utf8')
+                cursor = conn.cursor()
+                cursor.executemany('INSERT INTO weather(city, date, weather, wind, min, max) VALUES(%s, %s, %s, %s, %s, %s)',
+                                   result_list)
+                conn.commit()
+                conn.close()

@@ -242,6 +242,6 @@ def get_temperature(url, city):
 
             print(city, date, weather, wind, max, min)
 
-            result_list = [city, date, weather, wind, max, min]
+            result_list.append([city, date, weather, wind, max, min])
 
     return result_list

@@ -7,11 +7,11 @@ warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
 
-    city=''
-
+    city = '北京'
+    result = []
     city1 = ''.join(lazy_pinyin(city[:]))
     print(city1)
-    url = 'http://www.tianqihoubao.com/lishi/' + city1 + '/month/201801.html'
+    url = 'http://www.tianqihoubao.com/lishi/' + city1 + '/month/201901.html'
 
     result_list = get_temperature(url, city)
 
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     conn = pymysql.connect(host='localhost', user='root', passwd='', db='environment_record', port=3306,
                            charset='utf8')
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO weather(city, date, weather, wind, min, max) VALUES(%s, %s, %s, %s, %s, %s)',
-                       list)
+    cursor.executemany('INSERT INTO weather(city, date, weather, wind, min, max) VALUES(%s, %s, %s, %s, %s, %s)',
+                   result_list)
     conn.commit()
     conn.close()
