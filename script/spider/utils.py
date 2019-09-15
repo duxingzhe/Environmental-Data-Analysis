@@ -85,7 +85,7 @@ def get_city_data():
 
 # 得到一个城市所有的历史数据
 def get_all_info_by_city(city):
-    now_y, now_m, _ = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
+    now_y, now_m, now_day = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
     node = execjs.get()
     ctx = node.compile(open('decrypt.js', encoding='utf-8').read())
     result = []
@@ -105,7 +105,7 @@ def get_all_info_by_city(city):
 
 # 得到一个城市最近一天的数据
 def get_least_info_by_city(city):
-    now_y, now_m, _ = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
+    now_y, now_m, now_day = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
     node = execjs.get()
     ctx = node.compile(open('decrypt.js', encoding='utf-8').read())
     result = []
@@ -124,7 +124,7 @@ def get_least_info_by_city(city):
 
 # 爬取某城市一年的日数据
 def get_year_info_by_city(year, city):
-    now_y, now_m, _ = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
+    now_y, now_m, now_day = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
     node = execjs.get()
     ctx = node.compile(open('decrypt.js', encoding='utf-8').read())
     result = []
@@ -245,3 +245,18 @@ def get_temperature(url, city):
             result_list.append([city, date, weather, wind, max, min])
 
     return result_list
+
+
+# 修正拼音
+def pinyin_correction(city):
+
+    if city == 'zhangzhi':
+        city = 'changzhi'
+
+    if city == 'xilinguolei':
+        city = 'xilinguole'
+
+    if city == 'zhaoyang':
+        city = 'chaoyang'
+
+    return city

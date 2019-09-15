@@ -7,8 +7,7 @@ warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
 
-    cities = ['上海', '南京', '无锡', '徐州', '常州', '苏州', '南通', '连云港', '淮安', '盐城', '扬州', '镇江', '泰州', '宿迁',
-              '杭州', '宁波', '温州', '嘉兴', '湖州', '绍兴', '金华', '衢州', '舟山', '台州', '丽水',
+    cities = ['温州', '嘉兴', '湖州', '绍兴', '金华', '衢州', '舟山', '台州', '丽水',
               '合肥', '芜湖', '蚌埠', '淮南', '马鞍山', '淮北', '铜陵', '安庆', '黄山', '滁州', '阜阳', '宿州', '巢湖', '六安', '亳州', '池州', '宣城',
               '福州', '厦门', '莆田', '三明', '泉州', '漳州', '南平', '龙岩', '宁德', '南昌', '景德镇', '萍乡', '九江', '新余', '鹰潭', '赣州', '吉安', '宜春',
               '抚州', '上饶',
@@ -39,19 +38,12 @@ if __name__ == '__main__':
 
         city1 = ''.join(lazy_pinyin(city[:]))
 
-        if city1 == 'zhangzhi':
-            city1 ='changzhi'
-
-        if city1 == 'xilinguolei':
-            city1 = 'xilinguole'
-
-        if city1 == 'zhaoyang':
-            city1 = 'chaoyang'
+        city1 = pinyin_correction(city1)
 
         print(city1)
 
         # 2011——2019年
-        now_y, now_m, _ = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
+        now_y, now_m, now_day = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
         for year in range(2011, int(now_y)+1):
 
             urls = []

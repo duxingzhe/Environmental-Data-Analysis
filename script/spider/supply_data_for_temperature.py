@@ -11,20 +11,13 @@ if __name__ == '__main__':
     result = []
     city1 = ''.join(lazy_pinyin(city[:]))
 
-    if city1 == 'zhangzhi':
-        city1 = 'changzhi'
-
-    if city1 == 'xilinguolei':
-        city1 = 'xilinguole'
-
-    if city1 == 'zhaoyang':
-        city1 = 'chaoyang'
+    city1 = pinyin_correction(city1)
 
     print(city1)
 
     start_year = 2011
     start_month = 4
-    now_y, now_m, _ = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
+    now_y, now_m, now_day = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
 
     for year in range(start_year, int(now_y) + 1):
 
