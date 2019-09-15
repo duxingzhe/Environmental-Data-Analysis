@@ -259,4 +259,15 @@ def pinyin_correction(city):
     if city == 'zhaoyang':
         city = 'chaoyang'
 
+    if city == 'bengbu':
+        city = 'bangbu'
+
+    # 六安 lu'an
+    if city == 'luan':
+        city = 'liuan'
+
+    # 洛阳 luoyang
+    if city == 'luoyang':
+        city = 'lvyang'
+
     return city
