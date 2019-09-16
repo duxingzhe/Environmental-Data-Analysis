@@ -7,7 +7,7 @@ warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
 
-    city = '肇庆'
+    city = '雅安'
     result = []
     city1 = ''.join(lazy_pinyin(city[:]))
 
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     print(city1)
 
     start_year = 2011
-    start_month = 2
+    start_month = 3
     now_y, now_m, now_day = datetime.datetime.now().strftime('%Y-%m-%d').split('-')
 
     for year in range(start_year, int(now_y) + 1):

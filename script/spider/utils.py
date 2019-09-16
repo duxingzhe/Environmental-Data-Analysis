@@ -270,4 +270,8 @@ def pinyin_correction(city):
     if city == 'luoyang':
         city = 'lvyang'
 
+    # 东莞 dongguan
+    if city == 'dongguan':
+        city = 'dongguang'
+
     return city
