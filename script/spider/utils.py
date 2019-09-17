@@ -9,7 +9,7 @@ from lxml import etree
 import requests
 from xlutils3 import copy
 from config import *
-from usually_data import target_type, USER_AGENTS, years, month
+from usually_data import target_type, USER_AGENTS, years, month, cities_for_temperature
 import pymysql as mdb
 from bs4 import BeautifulSoup
 import requests
@@ -274,4 +274,22 @@ def pinyin_correction(city):
     if city == 'dongguan':
         city = 'dongguang'
 
+    if city == 'changdou':
+        city = 'changdu'
+        
+    # 商洛 shangluo
+    if city == 'shangluo':
+        city = 'shanglv'
+
+    # 果洛 guoluo
+    if city == 'guoluo':
+        city = 'guolv'
+
+    if city == 'aleitai':
+        city = 'aletai'
+
     return city
+
+def get_all_cities():
+
+    return cities_for_temperature
