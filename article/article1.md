@@ -49,3 +49,15 @@
 这是月空气质量图，日空气质量还在爬。
 
 大致看了一下可视化后的全部图片，北方的天气还是没有南方好。
+
+![](./image/pollution/河源.png)
+
+![](./image/pollution/广州.png)
+
+![](./image/pollution/郑州.png)
+
+![](./image/temperature/河源.png)
+
+![](./image/temperature/广州.png)
+
+![](./image/temperature/郑州.png)
