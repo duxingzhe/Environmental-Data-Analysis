@@ -67,7 +67,7 @@ def draw_city(city):
         fig.add_axes(ax_max)
 
         x1 = time_point
-        x2 = [i for i in range(0, 28)]
+        x2 = [i for i in range(0, len(time_point))]
         y1 = max
         y2 = min
 

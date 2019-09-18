@@ -72,7 +72,7 @@ def draw_city(city):
         fig.add_axes(ax_so2)
 
         x1 = time_point
-        x2 = [i for i in range(0, 29)]
+        x2 = [i for i in range(0, len(x1))]
         y1 = so2
         y2 = no2
         y3 = co
