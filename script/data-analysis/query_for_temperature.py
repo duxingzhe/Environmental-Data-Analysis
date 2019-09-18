@@ -134,5 +134,5 @@ northern_cities = ['北京', '天津', '石家庄', '承德', '张家口', '唐�
 
 if __name__ == '__main__':
 
-    draw_cities(['北京'])
-    # draw_cities(northern_cities)
+    draw_cities(southern_cities)
+    draw_cities(northern_cities)
