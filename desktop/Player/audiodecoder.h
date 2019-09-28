@@ -51,7 +51,7 @@ private:
 
     quint32 audioDeviceFormat;
     quint8 audioDepth;
-    struct SwrContext *aCoverCtx;
+    struct SwrContext *aCovertCtx;
     quint64 audioDstChannel;
     enum AVSampleFormat audioDstFormat;
 
