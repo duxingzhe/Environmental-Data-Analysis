@@ -1,5 +1,5 @@
-#ifndef DECODE_H
-#define DECODE_H
+#ifndef DECODER_H
+#define DECODER_H
 
 #include <QThread>
 #include <QImage>
@@ -8,7 +8,7 @@ extern "C"
 {
 #include "libavfilter/buffersink.h"
 #include "libavfilter/buffersrc.h"
-#incldue "libswscale/swscale.h"
+#include "libswscale/swscale.h"
 #include "libavdevice/avdevice.h"
 #include "libavutil/pixfmt.h"
 #include "libavutil/opt.h"
@@ -16,14 +16,15 @@ extern "C"
 #include "libavutil/imgutils.h"
 }
 
-#include "audioencoder.h"
+#include "audiodecoder.h"
 
 class Decoder : public QThread
 {
     Q_OBJECT
 
 public:
-    enum PlayState{
+    enum PlayState
+    {
         STOP,
         PAUSE,
         PLAYING,
@@ -31,7 +32,7 @@ public:
     };
 
     explicit Decoder();
-    ~Decoder
+    ~Decoder();
 
     double getCurrentTime();
     void seekProgress(qint64 pos);
@@ -46,7 +47,56 @@ private:
     static int videoThread(void *arg);
     double synchronize(AVFrame *frame, double pts);
     bool isRealtime(AVFormatContext *pFormatCtx);
+    int initFilter();
 
+    int fileType;
+
+    int videoIndex;
+    int audioIndex;
+    int subtitleIndex;
+
+    QString currentFile;
+    QString currentType;
+
+    qint64 timeTotal;
+
+    AVPacket seekPacket;
+    qint64 seekPos;
+    double seekTime;
+
+    PlayState playState;
+    bool isStop;
+    bool gotStop;
+    bool isPause;
+    bool isSeek;
+    bool isReadFinished;
+    bool isDecodeFinished;
+
+    AVFormatContext *pFormatCtx;
+    AVCodecContext *pCodecCtx;
+
+    AvPacketQueue videoQueue;
+    AvPacketQueue subtitleQueue;
+
+    double videoClock;
+
+    AudioDecoder *audioDecoder;
+
+    AVFilterGraph *filterGraph;
+    AVFilterContext *filterSinkCtx;
+    AVFilterContext *filterSrcCtx;
+
+public slots:
+    void decoderFile(QString filePath, QString type);
+    void stopVideo();
+    void pauseVideo();
+    void audioFinished();
+
+signals:
+    void readFinished();
+    void gotVideo(QImage image);
+    void gotVideoTime(qint64 time);
+    void plyaStateChanged(Decoder::PlayState);
 };
 
 #endif // DECODE_H

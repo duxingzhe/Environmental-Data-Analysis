@@ -25,11 +25,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        audiodecoder.cpp \
         decoder.cpp \
         main.cpp \
         mainwindow.cpp
 
 HEADERS += \
+        audiodecoder.h \
         decoder.h \
         mainwindow.h
 
@@ -43,38 +45,38 @@ LIBS += `sdl2-config --cflags --libs` -lpthread -lavcodec  -lavformat  -lavutil 
 
 win32:
 
-LIBS += -L$$PWD/windows/ffmpeg/lib/ -lavcodec
-                    -L$$PWD/windows/ffmpeg/lib/ -lavcdevice
-                    -L$$PWD/windows/ffmpeg/lib/ -lavfilter
-                    -L$$PWD/windows/ffmpeg/lib/ -lavformat
-                    -L$$PWD/windows/ffmpeg/lib/ -lavutil
-                    -L$$PWD/windows/ffmpeg/lib/ -lpostproc
-                    -L$$PWD/windows/ffmpeg/lib/ -lswresample
-                    -L$$PWD/windows/ffmpeg/lib/ -lswscale
-                    -L$$PWD/windows/openssl/lib/ -lcryto
-                    -L$$PWD/windows/openssl/lib/ -lssl
-                    -L$$PWD/windows/sdl/lib/ -lSDL2
+LIBS += -L$$PWD/windows/ffmpeg/lib/ -lavcodec \
+        -L$$PWD/windows/ffmpeg/lib/ -lavcdevice \
+        -L$$PWD/windows/ffmpeg/lib/ -lavfilter \
+        -L$$PWD/windows/ffmpeg/lib/ -lavformat \
+        -L$$PWD/windows/ffmpeg/lib/ -lavutil \
+        -L$$PWD/windows/ffmpeg/lib/ -lpostproc \
+        -L$$PWD/windows/ffmpeg/lib/ -lswresample \
+        -L$$PWD/windows/ffmpeg/lib/ -lswscale \
+        -L$$PWD/windows/openssl/lib/ -lcryto \
+        -L$$PWD/windows/openssl/lib/ -lssl \
+        -L$$PWD/windows/sdl/lib/ -lSDL2
 
-INCLUDEPATH += $$PWD/windows/ffmpeg/include
+INCLUDEPATH += $$PWD/windows/ffmpeg/include \
                 $$PWD/windows/openssl/include
-DEPENDPATH += $$PWD/windows/ffmpeg/include
+DEPENDPATH += $$PWD/windows/ffmpeg/include \
                 $$PWD/windows/openssl/include
 
 unix:macx:
 
-LIBS += -L$$PWD/mac/ffmpeg/lib/ -lavcodec
-                    -L$$PWD/mac/ffmpeg/lib/ -lavcdevice
-                    -L$$PWD/mac/ffmpeg/lib/ -lavfilter
-                    -L$$PWD/mac/ffmpeg/lib/ -lavformat
-                    -L$$PWD/mac/ffmpeg/lib/ -lavutil
-                    -L$$PWD/mac/ffmpeg/lib/ -lpostproc
-                    -L$$PWD/mac/ffmpeg/lib/ -lswresample
-                    -L$$PWD/mac/ffmpeg/lib/ -lswscale
-                    -L$$PWD/mac/openssl/lib/ -lcryto
-                    -L$$PWD/mac/openssl/lib/ -lssl
-                    -L$$PWD/mac/sdl/lib/ -lSDL2
+LIBS += -L$$PWD/mac/ffmpeg/lib/ -lavcodec \
+            -L$$PWD/mac/ffmpeg/lib/ -lavcdevice \
+            -L$$PWD/mac/ffmpeg/lib/ -lavfilter \
+            -L$$PWD/mac/ffmpeg/lib/ -lavformat \
+            -L$$PWD/mac/ffmpeg/lib/ -lavutil \
+            -L$$PWD/mac/ffmpeg/lib/ -lpostproc \
+            -L$$PWD/mac/ffmpeg/lib/ -lswresample \
+            -L$$PWD/mac/ffmpeg/lib/ -lswscale \
+            -L$$PWD/mac/openssl/lib/ -lcryto \
+            -L$$PWD/mac/openssl/lib/ -lssl \
+            -L$$PWD/mac/sdl/lib/ -lSDL2
 
-INCLUDEPATH += $$PWD/mac/ffmpeg/include
+INCLUDEPATH += $$PWD/mac/ffmpeg/include \
                 $$PWD/mac/openssl/include
-DEPENDPATH += $$PWD/mac/ffmpeg/include
+DEPENDPATH += $$PWD/mac/ffmpeg/include \
                 $$PWD/mac/openssl/include
