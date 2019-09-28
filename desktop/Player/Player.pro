@@ -80,7 +80,15 @@ LIBS += -L$$PWD/mac/ffmpeg/lib/ -lavcodec \
             -L$$PWD/mac/openssl/lib/ -lssl \
             -L$$PWD/mac/sdl/lib/ -lSDL2
 
-INCLUDEPATH += $$PWD/mac/ffmpeg/include \
-                $$PWD/mac/openssl/include
-DEPENDPATH += $$PWD/mac/ffmpeg/include \
-                $$PWD/mac/openssl/include
+INCLUDEPATH += $$PWD/windows/ffmpeg/include \
+                $$PWD/windows/openssl/include \
+                $$PWD/windows/sdl/include
+DEPENDPATH += $$PWD/windows/ffmpeg/include \
+                $$PWD/windows/openssl/include \
+                $$PWD/windows/sdl/include
+
+DISTFILES += \
+    image/icon.rc
+
+RESOURCES += \
+    res.qrc
