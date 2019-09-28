@@ -26,12 +26,14 @@ CONFIG += c++11
 
 SOURCES += \
         audiodecoder.cpp \
+        avpacketqueue.cpp \
         decoder.cpp \
         main.cpp \
         mainwindow.cpp
 
 HEADERS += \
         audiodecoder.h \
+        avpacketqueue.h \
         decoder.h \
         mainwindow.h
 
@@ -58,9 +60,11 @@ LIBS += -L$$PWD/windows/ffmpeg/lib/ -lavcodec \
         -L$$PWD/windows/sdl/lib/ -lSDL2
 
 INCLUDEPATH += $$PWD/windows/ffmpeg/include \
-                $$PWD/windows/openssl/include
+                $$PWD/windows/openssl/include \
+                $$PWD/windows/sdl/include
 DEPENDPATH += $$PWD/windows/ffmpeg/include \
-                $$PWD/windows/openssl/include
+                $$PWD/windows/openssl/include \
+                $$PWD/windows/sdl/include
 
 unix:macx:
 
