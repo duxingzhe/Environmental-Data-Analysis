@@ -25,33 +25,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        decode.cpp \
         main.cpp \
         mainwindow.cpp
 
 HEADERS += \
+        decoder.h \
         mainwindow.h
 
 FORMS += \
         mainwindow.ui
 
-unix:!macx: LIBS += -L$$PWD/linux/ffmpeg/lib/ -lavcodec
-                    -L$$PWD/linux/ffmpeg/lib/ -lavcdevice
-                    -L$$PWD/linux/ffmpeg/lib/ -lavfilter
-                    -L$$PWD/linux/ffmpeg/lib/ -lavformat
-                    -L$$PWD/linux/ffmpeg/lib/ -lavutil
-                    -L$$PWD/linux/ffmpeg/lib/ -lpostproc
-                    -L$$PWD/linux/ffmpeg/lib/ -lswresample
-                    -L$$PWD/linux/ffmpeg/lib/ -lswscale
-                    -L$$PWD/linux/openssl/lib/ -lcryto
-                    -L$$PWD/linux/openssl/lib/ -lssl
-                    -L$$PWD/linux/sdl/lib/ -lSDL2
+unix:!macx:
 
-INCLUDEPATH += $$PWD/linux/ffmpeg/include
-                $$PWD/linux/openssl/include
-DEPENDPATH += $$PWD/linux/ffmpeg/include
-                $$PWD/linux/openssl/include
+INCLUDEPATH += /usr/local/include/
+LIBS += `sdl2-config --cflags --libs` -lpthread -lavcodec  -lavformat  -lavutil  -lswscale -lswresample -lavdevice -lavfilter -lssl
 
-win32: LIBS += -L$$PWD/windows/ffmpeg/lib/ -lavcodec
+win32:
+
+LIBS += -L$$PWD/windows/ffmpeg/lib/ -lavcodec
                     -L$$PWD/windows/ffmpeg/lib/ -lavcdevice
                     -L$$PWD/windows/ffmpeg/lib/ -lavfilter
                     -L$$PWD/windows/ffmpeg/lib/ -lavformat
@@ -68,7 +60,9 @@ INCLUDEPATH += $$PWD/windows/ffmpeg/include
 DEPENDPATH += $$PWD/windows/ffmpeg/include
                 $$PWD/windows/openssl/include
 
-unix:macx: LIBS += -L$$PWD/mac/ffmpeg/lib/ -lavcodec
+unix:macx:
+
+LIBS += -L$$PWD/mac/ffmpeg/lib/ -lavcodec
                     -L$$PWD/mac/ffmpeg/lib/ -lavcdevice
                     -L$$PWD/mac/ffmpeg/lib/ -lavfilter
                     -L$$PWD/mac/ffmpeg/lib/ -lavformat
