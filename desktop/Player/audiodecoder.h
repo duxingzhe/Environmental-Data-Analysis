@@ -49,6 +49,29 @@ private:
 
     SDL_AudioSpec spec;
 
+    quint32 audioDeviceFormat;
+    quint8 audioDepth;
+    struct SwrContext *aCoverCtx;
+    quint64 audioDstChannel;
+    enum AVSampleFormat audioDstFormat;
+
+    qint64 audioSrcChannelLayout;
+    int audioSrcChannels;
+    enum AVSampleFormat audioSrcFmt;
+    int audioSrcFreq;
+
+    AVCodecContext *codecCtx;
+    AvPacketQueue packetQueue;
+    AVPacket packet;
+
+    int sendReturn;
+
+signals:
+    void playFinished();
+
+public slots:
+    void readFileFinished();
+
 };
 
 #endif // AUDIODECODER_H
