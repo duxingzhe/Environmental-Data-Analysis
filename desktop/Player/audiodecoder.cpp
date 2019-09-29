@@ -170,3 +170,52 @@ int AudioDecoder::openAudio(AVFormatContext *pFormatCtx, int index)
 
     return 0;
 }
+
+void AudioDecoder::closeAudio()
+{
+    emptyAudioData();
+
+    SDL_LockAudio();
+    SDL_CloseAudio();
+    SDL_UnlockAudio();
+
+    avcodec_close(codecCtx);
+    avcodec_free_context(&codecCtx);
+}
+
+void AudioDecoder::readFileFinished()
+{
+    isReadFinished=true;
+}
+
+void AudioDecoder::pauseAudio(bool pause)
+{
+    isPause=pause;
+}
+
+void AudioDecoder::stopAudio()
+{
+    isStop=true;
+}
+
+void AudioDecoder::packetEnqueue(AVPacket *packet)
+{
+    packetQueue.enqueue(packet);
+}
+
+void AudioDecoder::emptyAudioData()
+{
+    audioBuffer=nullptr;
+
+    audioBufferIndex=0;
+    audioBufferSize=0;
+    audioBufferSize1=0;
+
+    clock=0;
+
+    sendReturn=0;
+
+    packetQueue.empty();
+}
+
+void

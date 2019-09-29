@@ -20,6 +20,7 @@ public:
     int openAudio(AVFormatContext *pFormatCtx, int index);
     void closeAudio();
     void pauseAudio(bool pause);
+    void stopAudio();
     int getVolume();
     void setVolume(int volume);
     double getAudioClock();
