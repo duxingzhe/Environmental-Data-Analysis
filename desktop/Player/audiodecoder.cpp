@@ -2,6 +2,11 @@
 
 #include "audiodecoder.h"
 
+/* Minimum SDL audio buffer size, in samples. */
+#define SDL_AUDIO_MIN_BUFFER_SIZE 512
+/* Calculate actual buffer size keeping in mind not cause too frequent audio callbacks */
+#define SDL_AUDIO_MAX_CALLBACKS_PER_SEC 30
+
 AudioDecoder::AudioDecoder(QObject *parent):
     QObject(parent), isStop(false), isPause(false), isReadFinished(false),
     totalTime(0), clock(0), volume(SDL_MIX_MAXVOLUME), audioDeviceFormat(AUDIO_F32SYS),
@@ -136,6 +141,32 @@ int AudioDecoder::openAudio(AVFormatContext *pFormatCtx, int index)
             return -1;
         }
     }
+
+    switch(audioDeviceFormat)
+    {
+    case AUDIO_U8:
+        audioDstFmt=AV_SAMPLE_FMT_U8;
+        audioDepth=1;
+        break;
+    case AUDIO_S16SYS:
+        audioDstFmt=AV_SAMPLE_FMT_S16;
+        audioDepth=2;
+        break;
+    case AUDIO_S32SYS:
+        audioDstFmt=AV_SAMPLE_FMT_S32;
+        audioDepth=4;
+        break;
+    case AUDIO_F32SYS:
+        audioDstFmt=AV_SAMPLE_FMT_FLT;
+        audioDepth=4;
+    default:
+        audioDstFmt=AV_SAMPLE_FMT_S16;
+        audioDepth=2;
+        break;
+    }
+
+    /* open sound */
+    SDL_PauseAudio(0);
 
     return 0;
 }
