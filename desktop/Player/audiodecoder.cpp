@@ -80,5 +80,62 @@ int AudioDecoder::openAudio(AVFormatContext *pFormatCtx, int index)
         return -1;
     }
 
+    while(nextSampleRateIndex&&nextSampleRates[nextSampleRateIndex]>=wantedSpec.freq)
+    {
+        nextSampleRateIndex--;
+    }
+
+    wantedSpec.format=audioDeviceFormat;
+    wantedSpec.silence=0;
+    wantedSpec.samples=FFMAX(SDL_AUDIO_MIN_BUFFER_SIZE, 2<<av_log2(wantedSpec.freq/SDL_AUDIO_MAX_CALLBACKS_PER_SEC));
+    wantedSpec.callback=&AudioDecoder::audioCallback;
+    wantedSpec.userdata=this;
+
+    while(1)
+    {
+        while(SDL_OpenAudio(&wantedSpec, &spec)<0)
+        {
+            qDebug()<<QString("SDL_OpenAudio (%1 channels, %2 Hz): %3").arg(
+                          wantedSpec.channels).arg(wantedSpec.freq).arg(SDL_GetError());
+            wantedSpec.channels=nextNbChannels[FFMIN(7, wantedSpec.channels)];
+            if(!wantedSpec.channels)
+            {
+                wantedSpec.freq=nextSampleRates[nextSampleRateIndex--];
+                wantedSpec.channels=wantedNbChannels;
+                if(!wantedSpec.freq)
+                {
+                    avcodec_free_context(&codecCtx);
+                    qDebug()<<"No more combinations to try, audio open failed";
+                    return -1;
+                }
+            }
+            audioDstChannelLayout=av_get_default_channel_layout(wantedSpec.channels);
+        }
+
+        if(spec.format!=audioDeviceFormat)
+        {
+            qDebug()<<"SDL audio format: "<<wantedSpec.format<<" is not supported"
+                   <<", set to advised audio format: "<< spec.format;
+            wantedSpec.format=spec.format;
+            audioDeviceFormat=spec.format;
+            SDL_CloseAudio();
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    if(spec.channels!=wantedSpec.channels)
+    {
+        audioDstChannelLayout=av_get_default_channel_layout(spec.channels);
+        if(!audioDstChannelLayout)
+        {
+            avcodec_free_context(&codecCtx);
+            qDebug()<<"SDL advised channel count "<<spec.channels<<" is not supported!";
+            return -1;
+        }
+    }
+
     return 0;
 }
