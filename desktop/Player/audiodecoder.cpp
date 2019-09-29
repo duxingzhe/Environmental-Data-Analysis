@@ -52,5 +52,33 @@ int AudioDecoder::openAudio(AVFormatContext *pFormatCtx, int index)
         return -1;
     }
 
+    totalTime=pFormatCtx->duration;
+
+    env=SDL_getenv("SDL_AUDIO_CHANNELS");
+    if(env)
+    {
+        qDebug()<<"SDL audio channels";
+        wantedNbChannels=atoi(env);
+        audioDstChannelLayout=av_get_default_channel_layout(wantedNbChannels);
+    }
+
+    wantedNbChannels=codecCtx->channels;
+    if(!audioDstChannelLayout||
+            (wantedNbChannels!=av_get_channel_layout_nb_channels(audioDstChannelLayout)))
+    {
+        audioDstChannelLayout=av_get_default_channel_layout(wantedNbChannels);
+        audioDstChannelLayout &= ~AV_CH_LAYOUT_STEREO_DOWNMIX;
+    }
+
+    wantedSpec.channels=av_get_channel_layout_nb_channels(audioDstChannelLayout);
+    wantedSpec.freq=codecCtx->sample_rate;
+
+    if(wantedSpec.freq<=0||wantedSpec.channels<=0)
+    {
+        avcodec_free_context(&codecCtx);
+        qDebug()<< "Invalid sample rate or channel count, freq: " << wantedSpec.freq << " channels: " << wantedSpec.channels;
+        return -1;
+    }
+
     return 0;
 }
