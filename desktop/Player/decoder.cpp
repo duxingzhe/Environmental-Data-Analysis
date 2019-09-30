@@ -47,3 +47,27 @@ void Decoder::clearData()
 
     videoClock=0;
 }
+
+void Decoder::setPlayState(Decoder::PlayState state)
+{
+    emit playStateChanged(state);
+    playState=state;
+}
+
+bool Decoder::isRealtime(AVFormatContext *pFormatCtx)
+{
+    if(!strcmp(pFormatCtx->iformat->name, "rtp")
+       || !strcmp(pFormatCtx->iformat->name, "rtsp")
+       || !strcmp(pFormatCtx->iformat->name, "sdp"))
+    {
+        return true;
+    }
+
+    if(pFormatCtx->pb && (!strncmp(pFormatCtx->filename, "rtp:", 4)
+                          || !strncmp(pFormatCtx->filename, "udp:", 4)))
+    {
+        return true;
+    }
+
+    return false;
+}
