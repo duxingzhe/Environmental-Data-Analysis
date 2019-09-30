@@ -17,7 +17,7 @@ public:
     explicit AvPacketQueue();
 
     void enqueue(AVPacket *packet);
-    void dequeue(AVPacket *packet);
+    void dequeue(AVPacket *packet, bool isBlock);
 
     bool isEmpty();
     void empty();
