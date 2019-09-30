@@ -45,6 +45,7 @@ private:
     quint8 *audioBuffer;
     quint32 audioBffuerSize;
     DECLARE_ALIGNED(16, quint8, audioBuffer1)[192000];
+    quint32 audioBufferSize;
     quint32 audioBufferSize1;
     quint32 audioBufferIndex;
 

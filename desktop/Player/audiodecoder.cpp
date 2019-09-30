@@ -218,4 +218,78 @@ void AudioDecoder::emptyAudioData()
     packetQueue.empty();
 }
 
-void
+int AudioDecoder::getVolume()
+{
+    return volume;
+}
+
+void AudioDecoder::setVolume(int volume)
+{
+    this->volume=volume;
+}
+
+double AudioDecoder::getAudioClock()
+{
+    if(codecCtx)
+    {
+        int hwBufSize=audioBufferSize-audioBufferIndex;
+        int bytesPerSec=codecCtx->sample_rate*codecCtx->channels*audioDepth;
+
+        clock-=static_cast<double>(hwBufSize);
+    }
+
+    return clock;
+}
+
+void AudioDecoder::audioCallback(void *userdata, quint8 *stream, int SDL_AudioBufSize)
+{
+    AudioDecoder *decoder=(AudioDecoder *)userdata;
+
+    int decodedSize;
+    /* SDL_BufSize means audio play buffer left size
+     * while it greater than 0, means counld fill data to it
+     */
+    while(SDL_AudioBufSize>0)
+    {
+        if(decoder->isStop)
+        {
+            return;
+        }
+
+        if(decoder->isPause)
+        {
+            SDL_Delay(10);
+            continue;
+        }
+
+        if(decoder->audioBufferIndex>=decoder->audioBufferSize)
+        {
+            decodedSize=decoder->decodeAudio();
+            if(decodedSize<0)
+            {
+                decoder->audioBufferSize=1024;
+                decoder->audioBuffer=nullptr;
+            }
+            else
+            {
+                decoder->audioBufferSize=decodedSize;
+            }
+            decoder->audioBufferIndex=0;
+        }
+
+        int left=decoder->audioBufferSize-decoder->audioBufferIndex;
+        if(left>SDL_AudioBufSize)
+        {
+            left=SDL_AudioBufSize;
+        }
+
+        if(decoder->audioBuffer)
+        {
+            memset(stream, 0, left);
+            SDL_MixAudio(stream, decoder->audioBuffer+decoder->audioBufferIndex, left, decoder->volume);
+        }
+        SDL_AudioBufSize-=left;
+        stream+=left;
+        decoder->audioBufferIndex+=left;
+    }
+}
