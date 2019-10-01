@@ -149,3 +149,64 @@ out:
 
     return ret;
 }
+
+void Decoder::decoderFile(QString file, QString type)
+{
+    qDebug()<<"File name: "<<file<<", type: "<<type;
+    if(playState!=STOP)
+    {
+        isStop=true;
+        while(playState!=STOP)
+        {
+            SDL_Delay(10);
+        }
+        SDL_Delay(100);
+    }
+
+    clearData();
+
+    SDL_Delay(100);
+
+    currentFile=file;
+    currentType=type;
+
+    this->start();
+}
+
+void Decoder::audioFinished()
+{
+    isStop=true;
+    if(currentType=="music")
+    {
+        SDL_Delay(100);
+        emit playStateChanged(Decoder::FINISH);
+    }
+}
+
+void Decoder::stopVideo()
+{
+    if(playState==STOP)
+    {
+        setPlayState(Decoder::STOP);
+        return;
+    }
+
+    gotStop=true;
+    isStop=true;
+    audioDecoder->stopAudio();
+
+    if(currentType=="video")
+    {
+        while(isReadFinished|| isDecodeFinished)
+        {
+            SDL_Delay(10);
+        }
+    }
+    else
+    {
+        while(!isReadFinished)
+        {
+            SDL_Delay(10);
+        }
+    }
+}
