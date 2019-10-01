@@ -210,3 +210,74 @@ void Decoder::stopVideo()
         }
     }
 }
+
+void Decoder::pauseVideo()
+{
+    if(playState==STOP)
+    {
+        return;
+    }
+
+    isPause=!isPause;
+    audioDecoder->pauseAudio(isPause);
+    if(isPause)
+    {
+        av_read_pause(pFormatCtx);
+        setPlayState(PAUSE);
+    }
+    else
+    {
+        av_read_play(pFormatCtx);
+        setPlayState(PLAYING);
+    }
+}
+
+int Decoder::getVolume()
+{
+    return audioDecoder->getVolume();
+}
+
+void Decoder::setVolume(int volume)
+{
+    audioDecoder->setVolume(volume);
+}
+
+double Decoder::getCurrentTime()
+{
+    if(audioIndex>=0)
+    {
+        return audioDecoder->getAudioClock();
+    }
+
+    return 0;
+}
+
+void Decoder::seekProgress(qint64 pos)
+{
+    if(!isSeek)
+    {
+        seekPos=pos;
+        isSeek=true;
+    }
+}
+
+double Decoder::synchronize(AVFrame *frame, double pts)
+{
+    double delay;
+
+    if(pts!=0)
+    {
+        videoClock=pts;
+    }
+    else
+    {
+        pts=videoClock;
+    }
+
+    delay=av_q2d(pCodecCtx->time_base);
+    delay+=frame->repeat_pict*(delay*0.5);
+
+    videoClock+=delay;
+
+    return pts;
+}
