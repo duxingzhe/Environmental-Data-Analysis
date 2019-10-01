@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include "decoder.h"
 
 Decoder::Decoder() :
@@ -70,4 +72,80 @@ bool Decoder::isRealtime(AVFormatContext *pFormatCtx)
     }
 
     return false;
+}
+
+int Decoder::initFilter()
+{
+    int ret;
+
+    AVFilterInOut *out=avfilter_inout_alloc();
+    AVFilterInOut *in=avfilter_inout_alloc();
+
+    enum AVPixelFormat pixFmts[]={AV_PIX_FMT_RGB32, AV_PIX_FMT_NONE};
+
+    if(filterGraph)
+    {
+        avfilter_graph_free(&filterGraph);
+    }
+
+    filterGraph=avfilter_graph_alloc();
+
+    QString filter("pp=hb/vb/dr/al");
+
+    QString args=QString("video_size=%1x%2:pix_fmt=%3:time_base:%4/%5:pixel_aspect=%6/&7")
+            .arg(pCodecCtx->width).arg(pCodecCtx->height).arg(pCodecCtx->pix_fmt)
+            .arg(videoStream->time_base.num).arg(videoStream->time_base.den)
+            .arg(pCodecCtx->sample_aspect_ratio.num).arg(pCodecCtx->sample_aspect_ratio.den);
+
+    ret=avfilter_graph_create_filter(&filterSrcCtx, avfilter_get_by_name("buffer"), "in", args.toLocal8Bit().data(), NULL, filterGraph);
+    if(ret<0)
+    {
+        qDebug()<<"avfilter graph create filter failed, ret: "<<ret;
+        avfilter_graph_free(&filterGraph);
+        goto out;
+    }
+
+    ret=av_opt_set_int_list(&filterSinkCtx, "pix_fmts", pixFmts, AV_PIX_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
+    if(ret<0)
+    {
+        qDebug()<<"av opt set int list failed, ret: "<<ret;
+        avfilter_graph_free(&filterGraph);
+        goto out;
+    }
+
+    out->name=av_strdup("in");
+    out->filter_ctx=filterSrcCtx;
+    out->pad_idx=0;
+    out->next=NULL;
+
+    in->name=av_strdup("out");
+    in->filter_ctx=filterSinkCtx;
+    in->pad_idx=0;
+    in->next=NULL;
+
+    if(filter.isEmpty()||filter.isNull())
+    {
+        ret=avfilter_link(filterSrcCtx, 0, filterSinkCtx, 0);
+        if(ret<0)
+        {
+            qDebug()<<"avfilter link failed, ret: "<<ret;
+            avfilter_graph_free(&filterGraph);
+            goto out;
+        }
+    }
+    else
+    {
+        ret=avfilter_graph_parse_ptr(filterGraph, filter.toLatin1().data(), &in, &out, NULL);
+        if(ret<0)
+        {
+            qDebug()<<"avfilter graph config failed, ret: "<<ret;
+            avfilter_graph_free(&filterGraph);
+        }
+    }
+
+out:
+    avfilter_inout_free(&out);
+    avfilter_inout_free(&in);
+
+    return ret;
 }

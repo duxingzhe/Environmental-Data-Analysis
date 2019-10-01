@@ -78,6 +78,8 @@ private:
     AvPacketQueue videoQueue;
     AvPacketQueue subtitleQueue;
 
+    AVStream *videoStream;
+
     double videoClock;
 
     AudioDecoder *audioDecoder;
