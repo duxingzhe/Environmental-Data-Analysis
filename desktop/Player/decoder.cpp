@@ -418,3 +418,50 @@ int Decoder::videoThread(void *arg)
 
     return 0;
 }
+
+void Decoder::run()
+{
+    AVCodec *pCodec;
+
+    AVPacket pkt, *packet=&pkt;
+
+    int seekIndex;
+    bool realTime;
+
+    pFormatCtx=avformat_alloc_context();
+
+    if(avformat_open_input(&pFormatCtx, currentFile.toLocal8Bit().data(), NULL, NULL)!=0)
+    {
+        qDebug()<<"Open file failed.";
+        return;
+    }
+
+    if(avformat_find_stream_info(pFormatCtx, NULL)<0)
+    {
+        qDebug()<<"Couldn't find stream information.";
+        avformat_free_context(pFormatCtx);
+        return;
+    }
+
+    realTime=isRealtime(pFormatCtx);
+
+    for(unsigned int i=0;i<pFormatCtx->nb_streams;i++)
+    {
+        if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO)
+        {
+            videoIndex=i;
+            qDebug()<<"Find video stream.";
+        }
+
+        if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_AUDIO)
+        {
+            audioIndex=i;
+            qDebug()<<"Find audio stream.";
+        }
+        if(pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_SUBTITLE)
+        {
+            subtitleIndex=i;
+            qDebug()<<"Find subitle stream.";
+        }
+    }
+}
