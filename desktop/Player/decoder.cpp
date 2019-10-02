@@ -281,3 +281,140 @@ double Decoder::synchronize(AVFrame *frame, double pts)
 
     return pts;
 }
+
+int Decoder::videoThread(void *arg)
+{
+    int ret;
+    double pts;
+    AVPacket packet;
+    Decoder *decoder=(Decoder *)arg;
+    AVFrame *pFrame = av_frame_alloc();
+
+    while(true)
+    {
+        if(decoder->isStop)
+        {
+            break;
+        }
+
+        if(decoder->isPause)
+        {
+            SDL_Delay(10);
+            continue;
+        }
+
+        if(decoder->videoQueue.queueSize()<=0)
+        {
+            if(decoder->isReadFinished)
+            {
+                break;
+            }
+            SDL_Delay(1);
+            continue;
+        }
+
+        decoder->videoQueue.dequeue(&packet, true);
+
+        if(!strcmp((char *)packet.data, "FLUSH"))
+        {
+            qDebug()<<"Seek video";
+            avcodec_flush_buffers(decoder->pCodecCtx);
+            av_packet_unref(&packet);
+            continue;
+        }
+
+        ret=avcodec_send_packet(decoder->pCodecCtx, &packet);
+        if((ret<0)&&(ret!=AVERROR(EAGAIN))&&(ret!=AVERROR_EOF))
+        {
+            qDebug()<<"Video send to decoder failed, error code: "<< ret;
+            av_packet_unref(&packet);
+            continue;
+        }
+
+        ret=avcodec_receive_frame(decoder->pCodecCtx, pFrame);
+        if((ret<0)&&(ret!=AVERROR_EOF))
+        {
+            qDebug()<<"Video frame decode failed, error code: "<<ret;
+            av_packet_unref(&packet);
+            continue;
+        }
+
+        if((pts=pFrame->pts)==AV_NOPTS_VALUE)
+        {
+            pts=0;
+        }
+
+        pts*=av_q2d(decoder->videoStream->time_base);
+        pts=decoder->synchronize(pFrame, pts);
+
+        if(decoder->audioIndex>=0)
+        {
+            while(1)
+            {
+                if(decoder->isStop)
+                {
+                    break;
+                }
+                double audioClock=decoder->audioDecoder->getAudioClock();
+                pts=decoder->videoClock;
+
+                if(pts<=audioClock)
+                {
+                    break;
+                }
+                int delayTime=(pts-audioClock)*1000;
+
+                delayTime=delayTime>5?5:delayTime;
+
+                SDL_Delay(delayTime);
+            }
+        }
+
+        if(av_buffersrc_add_frame(decoder->filterSrcCtx, pFrame)<0)
+        {
+            qDebug()<<"av buffersrc add frame failed.";
+            av_packet_unref(&packet);
+            continue;
+        }
+
+        if(av_buffersink_get_frame(decoder->filterSinkCtx, pFrame)<0)
+        {
+            qDebug()<<"av buffersrc add frame failed.";
+            av_packet_unref(&packet);
+            continue;
+        }
+        else
+        {
+            QImage tmpImage(pFrame->data[0], decoder->pCodecCtx->width, decoder->pCodecCtx->height,QImage::Format_RGB32);
+            QImage image=tmpImage.copy();
+            decoder->displayVideo(image);
+        }
+
+        av_frame_unref(pFrame);
+        av_packet_unref(&packet);
+    }
+
+    av_frame_free(&pFrame);
+
+    if(!decoder->isStop)
+    {
+        decoder->isStop=true;
+    }
+
+    qDebug()<<"Video decoer finished.";
+
+    SDL_Delay(100);
+
+    decoder->isDecodeFinished=true;
+
+    if(decoder->gotStop)
+    {
+        decoder->setPlayState(Decoder::STOP);
+    }
+    else
+    {
+        decoder->setPlayState(Decoder::FINISH);
+    }
+
+    return 0;
+}
