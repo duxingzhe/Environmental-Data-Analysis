@@ -493,4 +493,100 @@ void Decoder::run()
     {
         emit gotVideoTime(0);
     }
+
+    if(currentType=="video")
+    {
+        pCodecCtx=avcodec_alloc_context3(NULL);
+        avcodec_parameters_to_context(pCodecCtx, pFormatCtx->streams[videoIndex]->codecpar);
+
+        if((pCodec=avcodec_find_decoder(pCodecCtx->codec_id))==NULL)
+        {
+            qDebug()<<"vdieo decoder not found.";
+            goto fail;
+        }
+
+        if(avcodec_open2(pCodecCtx, pCodec, NULL))
+        {
+            qDebug()<<"vdieo decoder not found.";
+            goto fail;
+        }
+
+        videoStream=pFormatCtx->streams[videoIndex];
+
+        if(initFilter()<0)
+        {
+            goto fail;
+        }
+
+        SDL_CreateThread(&Decoder::videoThread, "video_thread", this);
+    }
+
+    setPlayState(Decoder::PLAYING);
+
+    while(true)
+    {
+        if(isStop)
+        {
+            break;
+        }
+
+        if(isPause)
+        {
+            SDL_Delay(10);
+            continue;
+        }
+
+seek:
+        if(isSeek)
+        {
+            if(currentType=="video")
+            {
+                seekIndex=videoIndex;
+            }
+            else
+            {
+                seekIndex=audioIndex;
+            }
+
+            AVRational avRational=av_get_time_base_q();
+            seekPos=av_rescale_q(seekPos, avRational, pFormatCtx->streams[seekIndex]->time_base);
+
+            if(av_seek_frame(pFormatCtx, seekIndex, seekPos, AVSEEK_FLAG_BACKWARD)<0)
+            {
+                qDebug()<<"Seek failed.";
+            }
+            else
+            {
+                audioDecoder->emptyAudioData();
+                audioDecoder->packetEnqueue(&seekPacket);
+
+                if(currentType=="video")
+                {
+                    videoQueue.empty();
+                    videoQueue.enqueue(&seekPacket);
+                    videoClock=0;
+                }
+            }
+
+            isSeek=false;
+        }
+
+        if(currentType=="video")
+        {
+            if(videoQueue.queueSize()>512)
+            {
+                SDL_Delay(10);
+                continue;
+            }
+        }
+
+        if(av_read_frame(pFormatCtx, packet)<0)
+        {
+            qDebug()<<"Read file completed.";
+            isReadFinished=true;
+            emit readFinished();
+            SDL_Delay(10);
+            break;
+        }
+    }
 }
