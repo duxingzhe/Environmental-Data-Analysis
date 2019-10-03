@@ -91,3 +91,45 @@ void MainWindow::initUI()
 
     ui->videoProgressSlider->installEventFilter(this);
 }
+
+void MainWindow::initFFmpeg()
+{
+
+    avfilter_register_all();
+
+    av_register_all();
+
+    if(avformat_network_init())
+    {
+        qDebug()<<"avformat network init failed.";
+    }
+
+    if(SDL_Init(SDL_INIT_AUDIO|SDL_INIT_TIMER))
+    {
+        qDebug()<<"SDL init failed.";
+    }
+}
+
+void MainWindow::initSlot()
+{
+    connect(ui->btnOpenLocal, SIGNAL(clicked(bool)), this, SLOT(buttonClickSlot()));
+    connect(ui->btnOpenUrl, SIGNAL(clicked(bool)), this, SLOT(buttonClickSlot()));
+    connect(ui->btnStop, SIGNAL(clicked(bool)), this, SLOT(buttonClickSlot()));
+    connect(ui->btnPause, SIGNAL(clicked(bool)), this, SLOT(buttonClickSlot()));
+    connect(ui->btnNext, SIGNAL(clicked(bool)), this, SLOT(buttonClickSlot()));
+    connect(ui->btnPreview, SIGNAL(clicked(bool)), this, SLOT(buttonClickSlot()));
+    connect(ui->lineEdit, SIGNAL(cursorPositionChanged(ini, int)), this, SLOT(editText()));
+
+    connect(menuTimer, SIGNAL(timeout()), this, SLOT(timerSlot()));
+    connect(progressTimer, SIGNAL(timeout()), this, SLOT(timerSlot()));
+
+    connect(ui->videoProgressSlider, SIGNAL(sliderMoved(int)), this, SLOT(seekProgress(int)));
+
+    connect(this, SIGNAL(selectedVideoFile(QString, QString)), decoder, SLOT(decoderFile(QString, QString)));
+    connect(this, SIGNAL(stopVideo()), this, SLOT(stopVideo()));
+    connect(this, SIGNAL(pauseVideo()), this, SLOT(stopVideo()));
+
+    connect(decoder, SIGNAL(playStateChanged(Decoder::PlayState)), this, SLOT(playStateChanged(Decoder::PlayState)));
+    connect(decoder, SIGNAL(gotVideoTime(qint64)), this, SLOT(videoTime(qint64)));
+    connect(decoder, SIGNAL(gotVideo(QImage)), this, SLOT(showVideo(QImage)));
+}
