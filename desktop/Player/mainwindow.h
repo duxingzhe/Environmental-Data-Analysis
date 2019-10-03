@@ -16,7 +16,35 @@ public:
     ~MainWindow();
 
 private:
+    void paintEvent(QPaintEvent *event);
+    void closeEvent(QCloseEvent *event);
+    void changeEvent(QEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseDoubleClickEvent(QMouseEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event);
+
+    void initUi();
+    void initFFmpeg();
+    void initSlot();
+    void initTray();
+
+    QString fileType(QString file);
+    void addPathVideoToList(QString path);
+    void playVideo(QString file);
+    void playNext();
+    void playPreview();
+    void showPlayMenu();
+
+    void setHide(QWidget *widget);
+    void showControl(bool show);
+
+    inline QString getFileNameFromPath(QString path);
+
     Ui::MainWindow *ui;
+
+
 };
 
 #endif // MAINWINDOW_H
