@@ -588,5 +588,56 @@ seek:
             SDL_Delay(10);
             break;
         }
+
+        if(packet->stream_index==videoIndex && currentType=="video")
+        {
+            videoQueue.enqueue(packet);
+        }
+        else if(packet->stream_index==audioIndex)
+        {
+            audioDecoder->packetEnqueue(packet);
+        }
+        else if(packet->stream_index==subtitleIndex)
+        {
+            av_packet_unref(packet);
+        }
+        else
+        {
+            av_packet_unref(packet);
+        }
     }
+
+    while(!isStop)
+    {
+        if(isSeek)
+        {
+            goto seek;
+        }
+
+        SDL_Delay(100);
+    }
+
+fail:
+
+    if(audioIndex>=0)
+    {
+        audioDecoder->closeAudio();
+    }
+    if(currentType=="video")
+    {
+        avcodec_close(pCodecCtx);
+        avcodec_free_context(&pCodecCtx);
+    }
+
+    avformat_close_input(&pFormatCtx);
+    avformat_free_context(pFormatCtx);
+
+    isReadFinished=true;
+
+    if(currentType=="music")
+    {
+        setPlayState(Decoder::STOP);
+    }
+
+    qDebug()<<"Main decoder finished.";
 }
