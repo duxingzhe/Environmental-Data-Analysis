@@ -2,6 +2,13 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QImage>
+#include <QSystemTrayIcon>
+#include <QTimer>
+#include <QVector>
+#include <QList>
+
+#include "decoder.h"
 
 namespace Ui {
 class MainWindow;
@@ -44,6 +51,31 @@ private:
 
     Ui::MainWindow *ui;
 
+    Decoder *decoder;
+    QList<QString> playList;
+
+    QString currentPlay;
+    QString currentPlayType;
+
+    QTimer *menuTimer;
+    QTimer *progressTimer;
+
+    bool menuIsVisible;
+    bool isKeepAspectRatio;
+
+    QImage image;
+
+    bool autoPlay;
+    bool loopPlay;
+    bool closeNotExit;
+
+    Decoder::PlayState playState;
+
+    QVector<QWidget *> hideVector;
+
+    qint64 timeTotal;
+
+    int seekInterval;
 
 };
 
