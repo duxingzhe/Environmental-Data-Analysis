@@ -464,4 +464,33 @@ void Decoder::run()
             qDebug()<<"Find subitle stream.";
         }
     }
+
+    if(currentType=="video")
+    {
+        if(videoIndex<0)
+        {
+            qDebug()<<"Not support this video file, videoIndex: "<<videoIndex << ", audioIndex: "<<audioIndex;
+            avformat_free_context(pFormatCtx);
+            return;
+        }
+    }
+    else
+    {
+        if(audioIndex<0)
+        {
+            qDebug()<<"Not support this audio file, , audioIndex: "<<audioIndex;
+            avformat_free_context(pFormatCtx);
+            return;
+        }
+    }
+
+    if(!realTime)
+    {
+        emit gotVideoTime(pFormatCtx->duration);
+        timeTotal=pFormatCtx->duration;
+    }
+    else
+    {
+        emit gotVideoTime(0);
+    }
 }
