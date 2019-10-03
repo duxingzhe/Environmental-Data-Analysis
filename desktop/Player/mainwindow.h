@@ -32,7 +32,7 @@ private:
     void mouseDoubleClickEvent(QMouseEvent *event);
     bool eventFilter(QObject *obj, QEvent *event);
 
-    void initUi();
+    void initUI();
     void initFFmpeg();
     void initSlot();
     void initTray();
