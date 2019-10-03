@@ -50,3 +50,44 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::initUI()
+{
+    this->setWindowTitle("QtPlayer");
+    this->setWindowIcon(QIcon(":/image/player.ico"));
+    this->centralWidget();
+    this->setMouseTracking(true);
+
+    ui->titleLabel->setAlignment(Qt::AlignCenter);
+
+    ui->labelTime->setStyleSheet("background: #5FFFFFF");
+    ui->labelTime->setText(QString("00:00:00/00:00:00"));
+
+    ui->btnNext->setIcon(QIcon(":/iamge/next.ico"));
+    ui->btnNext->setIconSize(QSize(48,48));
+    ui->btnNext->setStyleSheet("background: transparent;border:none;");
+
+    ui->btnPreview->setIcon(QIcon(":/image/forward.ico"));
+    ui->btnPreview->setIconSize(QSize(48,48));
+    ui->btnPreview->setStyleSheet("background: transparent;border:none;");
+
+    ui->btnStop->setIcon(QIcon(":/image/stop.ico"));
+    ui->btnStop->setIconSize(QSize(48,48));
+    ui->btnStop->setStyleSheet("background: transparent;border:none;");
+
+    ui->btnPause->setIcon(QIcon(":/image/pause.ico"));
+    ui->btnPause->setIconSize(QSize(48,48));
+    ui->btnPause->setStyleSheet("background: transparent;border:none;");
+
+    setHide(ui->btnOpenLocal);
+    setHide(ui->btnOpenUrl);
+    setHide(ui->btnStop);
+    setHide(ui->btnPause);
+    setHide(ui->btnNext);
+    setHide(ui->btnPreview);
+    setHide(ui->lineEdit);
+    setHide(ui->videoProgressSlider);
+    setHide(ui->labelTime);
+
+    ui->videoProgressSlider->installEventFilter(this);
+}

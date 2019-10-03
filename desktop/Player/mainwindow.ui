@@ -20,7 +20,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QLabel" name="titleLable">
+         <widget class="QLabel" name="titleLabel">
           <property name="text">
            <string/>
           </property>
