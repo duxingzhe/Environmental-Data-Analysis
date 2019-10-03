@@ -77,6 +77,28 @@ private:
 
     int seekInterval;
 
+private slots:
+    void buttonClickSlot();
+    void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
+    void timerSlot();
+    void editText();
+    void seekProgress(int value);
+    void videoTime(qint64 time);
+    void playStateChanged(Decoder::PlayState state);
+
+    void setFullScreen();
+    void setKeepRatio();
+    void setAutoPlay();
+    void setLoopPlay();
+    void saveCurrentFrame();
+
+    void showVideo(QImage);
+
+signals:
+    void selectedVideoFile(QString file, QString type);
+    void stopVideo();
+    void pauseVideo();
+
 };
 
 #endif // MAINWINDOW_H
