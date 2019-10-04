@@ -133,3 +133,61 @@ void MainWindow::initSlot()
     connect(decoder, SIGNAL(gotVideoTime(qint64)), this, SLOT(videoTime(qint64)));
     connect(decoder, SIGNAL(gotVideo(QImage)), this, SLOT(showVideo(QImage)));
 }
+
+void MainWindow::initTray()
+{
+    QSystemTrayIcon *trayIcon=new QSystemTrayIcon(this);
+
+    trayIcon->setToolTip(tr("Player"));
+    trayIcon->setIcon(QIcon(":/image/player.ico"));
+    trayIcon->show();
+
+    QAction *minimizeAction=new QAction(tr("最小化 (&I)"), this);
+    connect(minimizeAction, SIGNAL(triggered()), this ,SLOT(hide()));
+    QAction *restoreAction=new QAction(tr("还原 (&R)"), this);
+    connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+    QAction *quitAction=new QAction(tr("退出 (&Q)"));
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+    QMenu *trayIconMenu=new QMenu(this);
+
+    trayIconMenu->addAction(minimizeAction);
+    trayIconMenu->addAction(restoreAction);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(quitAction);
+    trayIcon->setContextMenu(trayIconMenu);
+
+    connect(trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
+}
+
+void MainWindow::paintEvent(QPaintEvent *event)
+{
+    Q_UNUSED(event);
+
+    QPainter painter(this);
+
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
+    int width=this->width();
+    int height=this->height();
+
+    painter.setBrush(Qt::black);
+    painter.drawRect(0, 0, width, height);
+
+    if(isKeepAspectRatio)
+    {
+        QImage img=image.scaled(QSize(width, height), Qt::KeepAspectRatio);
+
+        int x=(this->width()-img.width())/2;
+        int y=(this->height()-img.height())/2;
+
+        painter.drawImage(QPoint(x,y), img);
+    }
+    else
+    {
+        QImage img=image.scaled(QSize(width, height));
+
+        paitner.drawImage(QPoint(0,0), img);
+    }
+}
