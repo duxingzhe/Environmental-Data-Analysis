@@ -1,31 +1,29 @@
-import cartopy.crs as ccrs
-import shapely.geometry as sgeom
-import matplotlib.pyplot as plt
+import numpy as np
+import cartopy.geodesic
 
-osgb=ccrs.OSGB()
-geod=ccrs.Geodetic()
+geod = cartopy.geodesic.Geodesic()
 
-easting=291813.424
-northing=92098.387
+places = {'London': {'lon': -0.1278, 'lat': 51.5074},
+          'Suez': {'lon': 32.5498, 'lat': 29.9668},
+          'Bombay': {'lon': 72.8777, 'lat': 19.0760},
+          'Calcutta': {'lon': 88.3639, 'lat': 22.5726},
+          'Hong Kong': {'lon': 114.1095, 'lat': 22.3964},
+          'Yokohama': {'lon': 139.6380, 'lat': 35.4437},
+          'San Fransisco': {'lon': -122.4194, 'lat': 37.7749},
+          'New York City': {'lon': -74.0060, 'lat': 40.7128},
+         }
 
-lon, lat=geod.transform_point(
-    x=easting, y=northing, src_crs=osgb
-)
+destinations=['London', 'Suez', 'Bombay', 'Calcutta', 'Hong Kong', 'Yokohama',
+              'San Fransisco', 'New York City', 'London']
 
-print(lon, lat)
+waypoints=[(places[place]['lon'], places[place]['lat']) for place in destinations]
 
-new_york=[-74.0060, 40.7128]
-honolulu=[-157.8583, 21.3069]
+# Solve the "inverse" Geodetic problem to compute the distance
+# between two points. This solution is more accurate than
+# the traditional Vincenty formulation.
+distances, azi_0, azi_1 = np.array(geod.inverse(waypoints[:-1], waypoints[1:]).T)
 
-line=sgeom.LineString([new_york, honolulu])
-pc=ccrs.PlateCarree()
+print("Approximate distance of Fogg's proposed route: {:.0f} km".format(distances.sum()/1000))
 
-lines = pc.project_geometry(line, geod)
-
-plt.figure()
-ax = plt.axes(projection=pc)
-ax.add_geometries(
-    [lines], pc,
-    edgecolor='blue', facecolor='none', lw=2)
-ax.coastlines()
-plt.show()
+print('Average speed required over 80 days:{:.1f} km/h '
+      .format(distances.sum() / 1000/(80 * 24)))
