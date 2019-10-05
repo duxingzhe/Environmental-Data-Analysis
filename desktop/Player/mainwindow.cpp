@@ -579,7 +579,7 @@ void MainWindow::buttonClickSlot()
             emit selectedVideoFile(filePath, type);
         }
     }
-    else if(QObject::sender()==ui->btnstop)
+    else if(QObject::sender()==ui->btnStop)
     {
         emit stopVideo();
     }
