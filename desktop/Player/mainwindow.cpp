@@ -704,3 +704,50 @@ void MainWindow::showVideo(QImage image)
     this->image=image;
     update();
 }
+
+void MainWindow::playStateChanged(Decoder::PlayState state)
+{
+    switch(state)
+    {
+    case Decoder::PLAYING:
+        ui->btnPause->setIcon(QIcon(":/image/pause.ico"));
+        playState=Decoder::PLAYING;
+        progressTimer->start();
+        break;
+    case Decoder::STOP:
+        image=QImage(":/image/MUSCI.jpg");
+        ui->btnPause->setIcon(QIcon(":/image/play.ico"));
+        playState=Decoder::STOP;
+        progressTimer->stop();
+        ui->labelTime->setText(QString("00:00:00/00:00:00"));
+        ui->videoProgressSlider->setValue(0);
+        timeTotal=0;
+        update();
+        break;
+    case Decoder::PAUSE:
+        ui->btnPause->setIcon(QIcon(":/image/play.ico"));
+        playState=Decoder::PAUSE;
+        break;
+    case Decoder::FINISH:
+        if(autoPlay)
+        {
+            playNext();
+        }
+        else if(loopPlay)
+        {
+            emit selectedVideoFile(currentPlay, currentPlayType);
+        }
+        else
+        {
+            image=QImage(":/image/MUSIC.jpg");
+            playState=Decoder::STOP;
+            progressTimer->stop();
+            ui->labelTime->setText(QString("00:00:00/00:00:00"));
+            ui->videoProgressSlider->setValue(0);
+            timeTotal=0;
+        }
+        break;
+    default:
+        break;
+    }
+}
