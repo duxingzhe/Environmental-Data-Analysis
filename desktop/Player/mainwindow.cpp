@@ -640,3 +640,67 @@ void MainWindow::setLoopPlay()
     loopPlay=!loopPlay;
     autoPlay=false;
 }
+
+void MainWindow::saveCurrentFrame()
+{
+    QString filename=QFileDialog::getSaveFileName(this, "保存截图", "/", "(*.jpg)");
+    image.save(filename);
+}
+
+void MainWindow::timerSlot()
+{
+    if(QObject::sender()==menuTimer)
+    {
+        if(menuIsVisible&&playState==Decoder::PLAYING)
+        {
+            if(isFullScreen())
+            {
+                QApplication::setOverrideCursor(Qt::BlankCursor);
+            }
+            showControl(false);
+            menuIsVisible=false;
+        }
+    }
+    else if(QObject::sender()==progressTimer)
+    {
+        qint64 currentTime=static_cast<qint64>(decoder->getCurrentTime());
+        ui->videoProgressSlider->setValue(currentTime);
+
+        int hourCurrent=currentTime/60/60;
+        int minCurrent=(currentTime/60)%60;
+        int secCurrent=currentTime%60;
+
+        int hourTotal=timeTotal/60/60;
+        int minTotal=(timeTotal/60)%60;
+        int secTotal=timeTotal%60;
+
+        ui->labelTime->setText(QString("%1:%2:%3/%4:%5:%7")
+                               .arg(hourCurrent, 2, 10, QLatin1Char('0'))
+                               .arg(minCurrent, 2, 10, QLatin1Char('0'))
+                               .arg(secCurrent, 2, 10, QLatin1Char('0'))
+                               .arg(hourTotal, 2, 10, QLatin1Char('0'))
+                               .arg(minTotal, 2, 10, QLatin1Char('0'))
+                               .arg(secTotal, 2, 10, QLatin1Char('0')));
+    }
+}
+
+void MainWindow::videoTime(qint64 time)
+{
+    timeTotal=time/1000000;
+
+    ui->videoProgressSlider->setRange(0, timeTotal);
+
+    int hour=timeTotal/60/60;
+    int min=(timeTotal/60)%60;
+    int sec=timeTotal%60;
+
+    ui->labelTime->setText(QString("00:00:00/%1:%2:%3")
+                           .arg(min, 2, 10, QLatin1Char('0'))
+                           .arg(sec, 2, 10, QLatin1Char('0')));
+}
+
+void MainWindow::showVideo(QImage image)
+{
+    this->image=image;
+    update();
+}
