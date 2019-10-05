@@ -1,12 +1,27 @@
 # -*- coding: utf-8 -*-
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.basemap import Basemap
 from matplotlib.patches import Polygon
 from matplotlib.colors import rgb2hex
 import numpy as np
 import pandas as pd
 
-plt.figure(figsize=(16 ,8))
+plt.figure(figsize=(16, 8))
+m = Basemap(
+    llcrnrlon=77,
+    llcrnrlat=14,
+    urcrnrlon=140,
+    urcrnrlat=51,
+    projection='lcc',
+    lat_1=33,
+    lat_2=45,
+    lon_0=100
+)
+m.drawcountries(linewidth=1.5)
+m.drawcoastlines()
+
+m.readshapefile('gadm36_CHN_shp/gadm36_CHN_1', 'states', drawbounds=True)
 
 df = pd.read_csv('pop.csv')
 new_index_list = []
