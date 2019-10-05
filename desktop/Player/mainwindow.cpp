@@ -396,3 +396,97 @@ void MainWindow::showPlayMenu()
     delete captureAction;
     delete menu;
 }
+
+void MainWindow::setHide(QWidget *widget)
+{
+    hideVector.push_back(widget);
+}
+
+void MainWindow::showControl(bool show)
+{
+    if(show)
+    {
+        for(QWidget *widget:hideVector)
+        {
+            widget->show();
+        }
+    }
+    else
+    {
+        for(QWidget *widget:hideVector)
+        {
+            widget->hide();
+        }
+    }
+}
+
+inline QString MainWindow::getFileNameFromPath(QString path)
+{
+    return path.right(path.size()-path.lastIndexOf("/")-1);
+}
+
+QString MainWindow::fileType(QString file)
+{
+    QString type;
+
+    QString suffix=file.right(file.size()-file.lastIndexOf(".")-1);
+    if(suffix=="mp3"||suffix=="ape"||suffix=="flac"||suffix=="wav")
+    {
+        type="music";
+    }
+    else
+    {
+        tyep="video";
+    }
+
+    return type;
+}
+
+void MainWindow::addPathVideoToList(QString path)
+{
+    QDir dir(path);
+
+    QRegExp regExp(".*\\.(264|rmvb|flv|mp4|mov|avi|mkv|ts|wav|flac|ape|mp3)$");
+
+    QFileInfoList list=dir.entryInfoList(QDir::Files);
+    for(int i=0;i<list.count();i++)
+    {
+        QFileInfo fileInfo=list.at(i);
+        if(regExp.exactMatch(fileInfo.fileName()))
+        {
+            QString filename =getFileNameFromPath(fileInfo.fileName());
+
+            if(!playList.contains(filename))
+            {
+                playList.push_back(fileInfo.absoluteFilePath());
+            }
+        }
+    }
+}
+
+void MainWindow::playVideo(QString file)
+{
+    emit stopVideo();
+
+    currentPlay=file;
+    currentPlayType=fileType(file);
+    if(currentPlayType=="video")
+    {
+        menuTimer->start();
+        ui->titleLabel->setText("");
+    }
+    else
+    {
+        menuTimer->stop();
+        if(!menuIsVisible)
+        {
+            showControl(true);
+            menuIsVisible=true;
+        }
+
+        ui->titleLabel->setStyleSheet("color:rgb(25, 125, 203);font-size:24px;background: transparent");
+        ui->titleLabel->setText(QString("当前播放： %1"));
+    }
+
+    emit selectedVideoFile(file, currentPlayType);
+}
