@@ -494,7 +494,7 @@ void MainWindow::playVideo(QString file)
 void MainWindow::playNext()
 {
     int playIndex=0;
-    int videoNum=playlist.size();
+    int videoNum=playList.size();
 
     if(videoNum<=0)
     {
@@ -520,7 +520,7 @@ void MainWindow::playNext()
     playVideo(nextVideo);
 }
 
-void MainWindow::playReview()
+void MainWindow::playPreview()
 {
     int playIndex=0;
     int videoNum=playList.size();
@@ -550,4 +550,93 @@ void MainWindow::playReview()
     }
 
     playVideo(preVideo);
+}
+
+/******************* slot ************************/
+
+void MainWindow::buttonClickSlot()
+{
+    QString filePath;
+
+    if(QObject::sender()==ui->btnOpenLocal)
+    {
+        filePath=QFileDialog::getOpenFileName(this, "选择播放文件",
+                                              "/", "(*.264 *.mp4 *.rmvb *.avi *.mov *.flv *.mkv *.ts *.mp3 *.flac *.ape *.wav)");
+        if(!filePath.isNull()&&!filePath.isEmpty())
+        {
+            playVideo(filePath);
+
+            QString path=filePath.left(filePath.lastIndexOf("/")+1);
+            addPathVideoToList(path);
+        }
+    }
+    else if(QObject::sender()==ui->btnOpenUrl)
+    {
+        filePath=ui->lineEdit->text();
+        if(!filePath.isNull()&&!filePath.isEmpty())
+        {
+            QString type="video";
+            emit selectedVideoFile(filePath, type);
+        }
+    }
+    else if(QObject::sender()==ui->btnstop)
+    {
+        emit stopVideo();
+    }
+    else if(QObject::sender()==ui->btnPause)
+    {
+        emit pauseVideo();
+    }
+    else if(QObject::sender()==ui->btnPreview)
+    {
+        playPreview();
+    }
+    else if(QObject::sender()==ui->btnNext)
+    {
+        playNext();
+    }
+}
+
+void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch(reason)
+    {
+    case QSystemTrayIcon::DoubleClick:
+        this->showNormal();
+        this->raise();
+        this->activateWindow();
+        break;
+    case QSystemTrayIcon::Trigger:
+    default:
+        break;
+    }
+}
+
+void MainWindow::setFullScreen()
+{
+    if(isFullScreen())
+    {
+        showNormal();
+    }
+    else
+    {
+        showFullScreen();
+    }
+}
+
+void MainWindow::setKeepRatio()
+{
+    isKeepAspectRatio=!isKeepAspectRatio;
+}
+
+void MainWindow::setAutoPlay()
+{
+    autoPlay=!autoPlay;
+    loopPlay=false;
+}
+
+void MainWindow::setLoopPlay()
+{
+    loopPlay=!loopPlay;
+    autoPlay=false;
 }
