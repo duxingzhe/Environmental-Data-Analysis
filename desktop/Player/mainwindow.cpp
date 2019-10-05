@@ -436,7 +436,7 @@ QString MainWindow::fileType(QString file)
     }
     else
     {
-        tyep="video";
+        type="video";
     }
 
     return type;
