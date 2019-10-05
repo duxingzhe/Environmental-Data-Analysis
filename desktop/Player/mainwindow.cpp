@@ -16,6 +16,8 @@ extern "C"
 #include "libavformat/avformat.h"
 }
 
+#define VOLUME_INT 13
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -188,6 +190,103 @@ void MainWindow::paintEvent(QPaintEvent *event)
     {
         QImage img=image.scaled(QSize(width, height));
 
-        paitner.drawImage(QPoint(0,0), img);
+        painter.drawImage(QPoint(0,0), img);
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    is(closeNotExit)
+    {
+        event->ignore();
+        this->hide();
+    }
+}
+
+void MainWindow::changeEvent(QEvent *event)
+{
+    if(event->type()==QEvent::WindowStateChange)
+    {
+        if(this->windowState()==Qt::WindowMinimized)
+        {
+            event->ignore();
+            this->hide();
+        }
+        else if(this->windowState()==Qt::WindowMaximized)
+        {
+
+        }
+    }
+}
+
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
+{
+    if(event->type()==QEvent::MouseButtonPress)
+    {
+        QMouseEvent *mouseEvent=static_cast<QMouseEvent *>(event);
+        if(mouseEvent->button()==Qt::LeftButton)
+        {
+            int duration=ui->videoProgressSlider->maximum()-ui->videoProgressSlider->minimum();
+            int pos=ui->videoProgressSlider->minimum()+duration*(static_cast<double>(mouseEvent->x())/ui->videoProgressSlider->width());
+            if(pos!=ui->videoProgressSlider->sliderPosition())
+            {
+                ui->videoProgressSlider->setValue(pos);
+                decoder->seekProgress(static_cast<qint64>(pos)*1000000);
+            }
+        }
+    }
+    return QObject::eventFilter(object, event);
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event)
+{
+    int progressVal;
+    int volumnVal=decoder->getVolume();
+
+    switch(event->key())
+    {
+    case Qt::Key_Up:
+        if(volumnVal+VOLUME_INT>SDL_MIX_MAXVOLUME)
+        {
+            decoder->setVolume(SDL_MIX_MAXVOLUME);
+        }
+        else
+        {
+            decoder->setVolume(volumnVal+VOLUME_INT);
+        }
+        break;
+    case Qt::Key_Down:
+        if(volumnVal-VOLUME_INT<0)
+        {
+            decoder->setVolume(0);
+        }
+        else
+        {
+            decoder->setVolume(volumnVal-VOLUME_INT);
+        }
+        break;
+    case Qt::Key_Left:
+        if(ui->videoProgressSlider->value()>seekInterval)
+        {
+            progressVal=ui->videoProgressSlider->value()-seekInterval;
+            decoder->seekProgress(static_cast<qint64>(progressVal)*1000000);
+        }
+        break;
+    case Qt::Key_Right:
+        if(ui->videoProgressSlider->value()+seekInterval>ui->videoProgressSlider->maximum())
+        {
+            progressVal=ui->videoProgressSlider->value()+seekInterval;
+            decoder->seekProgress(static_cast<qint64>(progressVal)*1000000);
+        }
+        break;
+    case Qt::Key_Escape:
+        showNormal();
+        break;
+    case Qt::Key_Space:
+        emit pauseVideo();
+        break;
+    default:
+
+        break;
     }
 }
