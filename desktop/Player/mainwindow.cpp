@@ -196,7 +196,7 @@ void MainWindow::paintEvent(QPaintEvent *event)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    is(closeNotExit)
+    if(closeNotExit)
     {
         event->ignore();
         this->hide();
@@ -289,4 +289,110 @@ void MainWindow::keyReleaseEvent(QKeyEvent *event)
 
         break;
     }
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    Q_UNUSED(event);
+
+    if(currentPlayType=="video")
+    {
+        menuTimer->stop();
+        if(!menuIsVisible)
+        {
+            showControl(true);
+            menuIsVisible=true;
+            QApplication::setOverrideCursor(Qt::ArrowCursor);
+        }
+        menuTimer->start();
+    }
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    if(event->buttons()==Qt::RightButton)
+    {
+        showPlayMenu();
+    }
+    else if(event->buttons()==Qt::LeftButton)
+    {
+        emit pauseVideo();
+    }
+}
+
+void MainWindow::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    if(event->buttons()==Qt::LeftButton)
+    {
+        if(isFullScreen())
+        {
+            showNormal();
+        }
+        else
+        {
+            showFullScreen();
+        }
+    }
+}
+
+void MainWindow::showPlayMenu()
+{
+    QMenu *menu=new QMenu;
+
+    QAction *fullSrcAction=new QAction("全屏", this);
+    fullSrcAction->setChecked(true);
+    if(isFullScreen())
+    {
+        fullSrcAction->setChecked(true);
+    }
+
+    QAction *keepRatioAction=new QAction(QStringLiteral("Video Ratio"), this);
+    keepRatioAction->setChecked(true);
+    if(isKeepAspectRatio)
+    {
+        keepRatioAction->setChecked(true);
+    }
+
+    QAction *autoPlayAction=new QAction("连续播放", this);
+    autoPlayAction->setChecked(true);
+    if(autoPlay)
+    {
+        autoPlayAction->setChecked(true);
+    }
+
+    QAction *loopPlayAction=new QAction("循环播放", this);
+    loopPlayAction->setChecked(true);
+    if(loopPlay)
+    {
+        loopPlayAction->setChecked(true);
+    }
+
+    QAction *captureAction=new QAction("截图", this);
+
+    connect(fullSrcAction, SIGNAL(triggered(bool)), this, SLOT(setFullScreen()));
+    connect(keepRatioAction, SIGNAL(triggered(bool)), this, SLOT(setKeepRatio()));
+    connect(autoPlayAction, SIGNAL(triggered(bool)), this, SLOT(setAutoPlay()));
+    connect(loopPlayAction, SIGNAL(triggered(bool)), this, SLOT(setLoopPlay()));
+    connect(captureAction, SIGNAL(triggered(bool)), this, SLOT(saveCurrentFrame()));
+
+    menu->addAction(fullSrcAction);
+    menu->addAction(keepRatioAction);
+    menu->addAction(autoPlayAction);
+    menu->addAction(loopPlayAction);
+    menu->addAction(captureAction);
+
+    menu->exec(QCursor::pos());
+
+    disconnect(fullSrcAction, SIGNAL(triggered(bool)), this, SLOT(setFullScreen()));
+    disconnect(keepRatioAction, SIGNAL(triggered(bool)), this, SLOT(setKeepRatio()));
+    disconnect(autoPlayAction, SIGNAL(triggered(bool)), this, SLOT(setAutoPlay()));
+    disconnect(loopPlayAction, SIGNAL(triggered(bool)), this, SLOT(setLoopPlay()));
+    disconnect(captureAction, SIGNAL(triggered(bool)), this, SLOT(saveCurrentFrame()));
+
+    delete fullSrcAction;
+    delete keepRatioAction;
+    delete autoPlayAction;
+    delete loopPlayAction;
+    delete captureAction;
+    delete menu;
 }
