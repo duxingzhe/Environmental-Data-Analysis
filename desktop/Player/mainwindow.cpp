@@ -490,3 +490,64 @@ void MainWindow::playVideo(QString file)
 
     emit selectedVideoFile(file, currentPlayType);
 }
+
+void MainWindow::playNext()
+{
+    int playIndex=0;
+    int videoNum=playlist.size();
+
+    if(videoNum<=0)
+    {
+        return;
+    }
+
+    int currentIndex=playList.indexOf(currentPlay);
+
+    if(currentIndex!=videoNum-1)
+    {
+        playIndex=currentIndex+1;
+    }
+
+    QString nextVideo=playList.at(playIndex);
+
+    QFile file(nextVideo);
+    if(!file.exists())
+    {
+        playList.removeAt(playIndex);
+        return;
+    }
+
+    playVideo(nextVideo);
+}
+
+void MainWindow::playReview()
+{
+    int playIndex=0;
+    int videoNum=playList.size();
+    int currentIndex=playList.indexOf(currentPlay);
+
+    if(videoNum<=0)
+    {
+        return;
+    }
+
+    if(currentIndex>0)
+    {
+        playIndex=currentIndex-1;
+    }
+    else
+    {
+        playIndex=videoNum-1;
+    }
+
+    QString preVideo=playList.at(playIndex);
+
+    QFile file(preVideo);
+    if(!file.exists())
+    {
+        playList.removeAt(playIndex);
+        return;
+    }
+
+    playVideo(preVideo);
+}
