@@ -65,7 +65,7 @@ void MainWindow::initUI()
     ui->labelTime->setStyleSheet("background: #5FFFFF");
     ui->labelTime->setText(QString("00:00:00/00:00:00"));
 
-    ui->btnNext->setIcon(QIcon(":/iamge/next.ico"));
+    ui->btnNext->setIcon(QIcon(":/image/next.ico"));
     ui->btnNext->setIconSize(QSize(48,48));
     ui->btnNext->setStyleSheet("background: transparent;border:none;");
 
