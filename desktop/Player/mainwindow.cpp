@@ -62,7 +62,7 @@ void MainWindow::initUI()
 
     ui->titleLabel->setAlignment(Qt::AlignCenter);
 
-    ui->labelTime->setStyleSheet("background: #5FFFFFF");
+    ui->labelTime->setStyleSheet("background: #5FFFFF");
     ui->labelTime->setText(QString("00:00:00/00:00:00"));
 
     ui->btnNext->setIcon(QIcon(":/iamge/next.ico"));
@@ -120,7 +120,7 @@ void MainWindow::initSlot()
     connect(ui->btnPause, SIGNAL(clicked(bool)), this, SLOT(buttonClickSlot()));
     connect(ui->btnNext, SIGNAL(clicked(bool)), this, SLOT(buttonClickSlot()));
     connect(ui->btnPreview, SIGNAL(clicked(bool)), this, SLOT(buttonClickSlot()));
-    connect(ui->lineEdit, SIGNAL(cursorPositionChanged(ini, int)), this, SLOT(editText()));
+    connect(ui->lineEdit, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(editText()));
 
     connect(menuTimer, SIGNAL(timeout()), this, SLOT(timerSlot()));
     connect(progressTimer, SIGNAL(timeout()), this, SLOT(timerSlot()));
@@ -128,8 +128,8 @@ void MainWindow::initSlot()
     connect(ui->videoProgressSlider, SIGNAL(sliderMoved(int)), this, SLOT(seekProgress(int)));
 
     connect(this, SIGNAL(selectedVideoFile(QString, QString)), decoder, SLOT(decoderFile(QString, QString)));
-    connect(this, SIGNAL(stopVideo()), this, SLOT(stopVideo()));
-    connect(this, SIGNAL(pauseVideo()), this, SLOT(stopVideo()));
+    connect(this, SIGNAL(stopVideo()), decoder, SLOT(stopVideo()));
+    connect(this, SIGNAL(pauseVideo()), decoder, SLOT(pauseVideo()));
 
     connect(decoder, SIGNAL(playStateChanged(Decoder::PlayState)), this, SLOT(playStateChanged(Decoder::PlayState)));
     connect(decoder, SIGNAL(gotVideoTime(qint64)), this, SLOT(videoTime(qint64)));
@@ -697,6 +697,17 @@ void MainWindow::videoTime(qint64 time)
     ui->labelTime->setText(QString("00:00:00/%1:%2:%3")
                            .arg(min, 2, 10, QLatin1Char('0'))
                            .arg(sec, 2, 10, QLatin1Char('0')));
+}
+
+void MainWindow::seekProgress(int value)
+{
+    decoder->seekProgress(static_cast<qint64>(value)*1000000);
+}
+
+void MainWindow::editText()
+{
+    menuTimer->stop();
+    menuTimer->start();
 }
 
 void MainWindow::showVideo(QImage image)

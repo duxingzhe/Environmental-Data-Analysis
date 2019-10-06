@@ -364,7 +364,7 @@ int AudioDecoder::decodeAudio()
         clock=av_q2d(stream->time_base)*frame->pts;
     }
 
-    qint64 inChannelLayout=(frame->channel_layout && frame->channels==av_get_channel_layout_nb_channels(frame->channels_layout))
+    qint64 inChannelLayout=(frame->channel_layout && frame->channels==av_get_channel_layout_nb_channels(frame->channel_layout))
             ?frame->channel_layout:av_get_default_channel_layout(frame->channels);
     if(frame->format != audioSrcFmt  ||
             inChannelLayout != audioSrcChannelLayout ||
