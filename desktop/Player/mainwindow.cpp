@@ -144,11 +144,11 @@ void MainWindow::initTray()
     trayIcon->setIcon(QIcon(":/image/player.ico"));
     trayIcon->show();
 
-    QAction *minimizeAction=new QAction(tr("最小化 (&I)"), this);
+    QAction *minimizeAction=new QAction(QString("最小化 (&I)"), this);
     connect(minimizeAction, SIGNAL(triggered()), this ,SLOT(hide()));
-    QAction *restoreAction=new QAction(tr("还原 (&R)"), this);
+    QAction *restoreAction=new QAction(QString("还原 (&R)"), this);
     connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
-    QAction *quitAction=new QAction(tr("退出 (&Q)"));
+    QAction *quitAction=new QAction(QString("退出 (&Q)"));
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     QMenu *trayIconMenu=new QMenu(this);
@@ -485,7 +485,7 @@ void MainWindow::playVideo(QString file)
         }
 
         ui->titleLabel->setStyleSheet("color:rgb(25, 125, 203);font-size:24px;background: transparent");
-        ui->titleLabel->setText(QString("当前播放： %1"));
+        ui->titleLabel->setText(QString("当前播放： %1").arg(getFileNameFromPath(file)));
     }
 
     emit selectedVideoFile(file, currentPlayType);
@@ -560,8 +560,9 @@ void MainWindow::buttonClickSlot()
 
     if(QObject::sender()==ui->btnOpenLocal)
     {
-        filePath=QFileDialog::getOpenFileName(this, "选择播放文件",
-                                              "/", "(*.264 *.mp4 *.rmvb *.avi *.mov *.flv *.mkv *.ts *.mp3 *.flac *.ape *.wav)");
+        filePath=QFileDialog::getOpenFileName(
+                    this, "选择播放文件",  "/",
+                    "(*.264 *.mp4 *.rmvb *.avi *.mov *.flv *.mkv *.ts *.mp3 *.flac *.ape *.wav)");
         if(!filePath.isNull()&&!filePath.isEmpty())
         {
             playVideo(filePath);
@@ -674,7 +675,7 @@ void MainWindow::timerSlot()
         int minTotal=(timeTotal/60)%60;
         int secTotal=timeTotal%60;
 
-        ui->labelTime->setText(QString("%1:%2:%3/%4:%5:%7")
+        ui->labelTime->setText(QString("%1:%2:%3/%4:%5:%6")
                                .arg(hourCurrent, 2, 10, QLatin1Char('0'))
                                .arg(minCurrent, 2, 10, QLatin1Char('0'))
                                .arg(secCurrent, 2, 10, QLatin1Char('0'))
@@ -695,6 +696,7 @@ void MainWindow::videoTime(qint64 time)
     int sec=timeTotal%60;
 
     ui->labelTime->setText(QString("00:00:00/%1:%2:%3")
+                           .arg(hour, 2, 10, QLatin1Char('0'))
                            .arg(min, 2, 10, QLatin1Char('0'))
                            .arg(sec, 2, 10, QLatin1Char('0')));
 }
