@@ -312,24 +312,20 @@ int Decoder::videoThread(void *arg)
     AVFrame *pFrame  = av_frame_alloc();
 
     while (true) {
-        if (decoder->isStop)
-        {
+        if (decoder->isStop) {
             break;
         }
 
-        if (decoder->isPause)
-        {
+        if (decoder->isPause) {
             SDL_Delay(10);
             continue;
         }
 
-        if (decoder->videoQueue.queueSize() <= 0)
-        {
+        if (decoder->videoQueue.queueSize() <= 0) {
             /* while video file read finished exit decode thread,
              * otherwise just delay for data input
              */
-            if (decoder->isReadFinished)
-            {
+            if (decoder->isReadFinished) {
                 break;
             }
             SDL_Delay(1);
@@ -339,8 +335,7 @@ int Decoder::videoThread(void *arg)
         decoder->videoQueue.dequeue(&packet, true);
 
         /* flush codec buffer while received flush packet */
-        if (!strcmp((char *)packet.data, "FLUSH"))
-        {
+        if (!strcmp((char *)packet.data, "FLUSH")) {
             qDebug() << "Seek video";
             avcodec_flush_buffers(decoder->pCodecCtx);
             av_packet_unref(&packet);
@@ -348,43 +343,36 @@ int Decoder::videoThread(void *arg)
         }
 
         ret = avcodec_send_packet(decoder->pCodecCtx, &packet);
-        if ((ret < 0) && (ret != AVERROR(EAGAIN)) && (ret != AVERROR_EOF))
-        {
+        if ((ret < 0) && (ret != AVERROR(EAGAIN)) && (ret != AVERROR_EOF)) {
             qDebug() << "Video send to decoder failed, error code: " << ret;
             av_packet_unref(&packet);
             continue;
         }
 
         ret = avcodec_receive_frame(decoder->pCodecCtx, pFrame);
-        if ((ret < 0) && (ret != AVERROR_EOF))
-        {
+        if ((ret < 0) && (ret != AVERROR_EOF)) {
             qDebug() << "Video frame decode failed, error code: " << ret;
             av_packet_unref(&packet);
             continue;
         }
 
-        if ((pts = pFrame->pts) == AV_NOPTS_VALUE)
-        {
+        if ((pts = pFrame->pts) == AV_NOPTS_VALUE) {
             pts = 0;
         }
 
         pts *= av_q2d(decoder->videoStream->time_base);
         pts =  decoder->synchronize(pFrame, pts);
 
-        if (decoder->audioIndex >= 0)
-        {
-            while (1)
-            {
-                if (decoder->isStop)
-                {
+        if (decoder->audioIndex >= 0) {
+            while (1) {
+                if (decoder->isStop) {
                     break;
                 }
 
                 double audioClk = decoder->audioDecoder->getAudioClock();
                 pts = decoder->videoClock;
 
-                if (pts <= audioClk)
-                {
+                if (pts <= audioClk) {
                      break;
                 }
                 int delayTime = (pts - audioClk) * 1000;
@@ -405,9 +393,7 @@ int Decoder::videoThread(void *arg)
             qDebug() << "av buffersrc get frame failed.";
             av_packet_unref(&packet);
             continue;
-        }
-        else
-        {
+        } else {
             QImage tmpImage(pFrame->data[0], decoder->pCodecCtx->width, decoder->pCodecCtx->height, QImage::Format_RGB32);
             /* deep copy, otherwise when tmpImage data change, this image cannot display */
             QImage image = tmpImage.copy();

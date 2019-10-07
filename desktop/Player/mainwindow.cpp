@@ -728,7 +728,7 @@ void MainWindow::playStateChanged(Decoder::PlayState state)
         progressTimer->start();
         break;
     case Decoder::STOP:
-        image=QImage(":/image/MUSCI.jpg");
+        image=QImage(":/image/MUSIC.jpg");
         ui->btnPause->setIcon(QIcon(":/image/play.ico"));
         playState=Decoder::STOP;
         progressTimer->stop();
