@@ -62,14 +62,14 @@ void MainWindow::initUI()
 
     ui->titleLabel->setAlignment(Qt::AlignCenter);
 
-    ui->labelTime->setStyleSheet("background: #5FFFFF");
+    ui->labelTime->setStyleSheet("background: #5FFFFFFF");
     ui->labelTime->setText(QString("00:00:00/00:00:00"));
 
     ui->btnNext->setIcon(QIcon(":/image/next.ico"));
     ui->btnNext->setIconSize(QSize(48,48));
     ui->btnNext->setStyleSheet("background: transparent;border:none;");
 
-    ui->btnPreview->setIcon(QIcon(":/image/forward.ico"));
+    ui->btnPreview->setIcon(QIcon(":/image/backward.ico"));
     ui->btnPreview->setIconSize(QSize(48,48));
     ui->btnPreview->setStyleSheet("background: transparent;border:none;");
 
