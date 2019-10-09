@@ -1,6 +1,6 @@
 #include "imageviewer.h"
 
-imageviewer::imageviewer()
+Imageviewer::Imageviewer()
 {
 
 }

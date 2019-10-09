@@ -2,10 +2,10 @@
 #define IMAGEVIEWER_H
 
 
-class imageviewer
+class Imageviewer
 {
 public:
-    imageviewer();
+    Imageviewer();
 };
 
 #endif // IMAGEVIEWER_H
