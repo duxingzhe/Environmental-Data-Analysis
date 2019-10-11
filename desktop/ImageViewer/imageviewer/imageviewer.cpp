@@ -58,3 +58,81 @@ int ImageViewer::delImageFile(void)
 
     return 0;
 }
+
+int ImageViewer::last(void)
+{
+    if(index<0)
+    {
+        return -1;
+    }
+
+    while(1)
+    {
+        index=index-1;
+        int count=fileInfoList.count();
+        if(index<0)
+        {
+            QMessageBox::information(this, tr("Tip"), tr("This is the first image."));
+            index=count-1;
+        }
+
+        filename.clear();
+        filename.append(path);
+        filename+="/";
+        filename+=fileInfoList.at(index).fileName();
+
+        if(!QFile(filename).exists())
+        {
+            fileInfoList.removeAt(index);
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    angle=0;
+    size=QSize(0,0);
+
+    return upgradeFileInfo(filename, angle, 10);
+}
+
+int QImageViewer::next(void)
+{
+    if(index<0)
+    {
+        return -1;
+    }
+
+    while(-1)
+    {
+        index=index+1;
+        int count=fileInfoList.count();
+        if(index==count)
+        {
+            QMessageBox::information(this, tr("Tip"), tr("This is the last image."));
+            index=0;
+        }
+
+        filename.clear();
+        filename.append(path);
+        filename+="/";
+        filename+=fileInfoList.at(index).fileName();
+
+        if(!QFile(filename).exists())
+        {
+            fileInfoList.removeAt(index);
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    angle=0;
+    size=QSize(0, 0);
+
+    return upgradeFileInfo(filename, angle, 10);
+}
