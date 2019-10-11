@@ -98,7 +98,7 @@ int ImageViewer::last(void)
     return upgradeFileInfo(filename, angle, 10);
 }
 
-int QImageViewer::next(void)
+int ImageViewer::next(void)
 {
     if(index<0)
     {
@@ -256,7 +256,7 @@ int ImageViewer::getFileInfoList(void)
     return 0;
 }
 
-int ImageViewer::getFileCurIndex(vodi)
+int ImageViewer::getFileCurIndex(void)
 {
     QFileInfo info;
     int j;
