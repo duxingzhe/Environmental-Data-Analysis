@@ -29,7 +29,7 @@ public:
     QFileInfoList fileInfoList;
 
     QImage image;
-    QPixmap;
+    QPixmap pixmap;
 
     int openImageFile(const QString &caption, const QString &dir, const QString &filer);
 

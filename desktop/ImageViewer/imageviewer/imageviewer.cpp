@@ -136,3 +136,95 @@ int QImageViewer::next(void)
 
     return upgradeFileInfo(filename, angle, 10);
 }
+
+int ImageViewer::zoomIn(void)
+{
+    return upgradeFileInfo(filename, angle ,12);
+}
+
+int ImageViewer::zoomOut(void)
+{
+    return upgradeFileInfo(filename, angle ,8);
+}
+
+int ImageViewer::spinToRight(void)
+{
+    angle+=1;
+    angle=angle%4;
+
+    return upgradeFileInfo(filename, angle, 10);
+}
+
+int ImageViewer::spinToLeft(void)
+{
+    angle+=3;
+    angle=angle%4;
+
+    return upgradeFileInfo(filename, angle, 10);
+}
+
+void ImageViewer::initImageResource(void)
+{
+    index=-1;
+    angle=0;
+    size=QSize(0, 0);
+
+    filename.clear();
+    path.clear();
+}
+
+int ImageViewer::loadImageResource(void)
+{
+    filename=QFileDialog::getOpenFileName(this, tr("Select iamge:"),
+                                          "C:\\", tr("Images (*.jpg *jpeg *.png *.bmp *.gif"));
+    if(filename.isEmpty())
+    {
+        return -1;
+    }
+
+    getFileInfoList();
+
+    upgradeFileInfo(filename, angle, 10);
+
+    return 10;
+}
+
+int ImageViewer::upgradeFileInfo(QString &filenane, int angle, int sizeScale)
+{
+    QImage imgRotate;
+    QMatrix matrix;
+    QImage imgScaled;
+
+    if(filename.isEmpty())
+    {
+        return -1;
+    }
+
+    fileInfo=QFileInfo(filename);
+    if(!image.load(filename))
+    {
+        return -1;
+    }
+
+    if(size==QSize(0,0))
+    {
+        size=image.size();
+    }
+
+    imgScaled=image.scaled(size.width()*sizeScale/10,
+                             size.height()*sizeScale/10,
+                             Qt::KeepAspectRatio);
+
+    if(sizeScale!=10)
+    {
+        size=imgScaled.size();
+    }
+
+    matrix.rotate(angle*30);
+    imgRotate=imgScaled.transformed(matrix);
+
+    pixmap=QPixmap::fromImage(imgRotate);
+    index=getFileCurIndex();
+
+    return 0;
+}
