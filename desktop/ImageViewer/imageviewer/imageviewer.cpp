@@ -228,3 +228,61 @@ int ImageViewer::upgradeFileInfo(QString &filenane, int angle, int sizeScale)
 
     return 0;
 }
+
+int ImageViewer::getFileInfoList(void)
+{
+    QFileInfo info;
+    QFileInfoList infoList;
+
+    path=QFileInfo(filename).absolutePath();
+    dir=QFileInfo(filename).absoluteDir();
+
+    fileInfoList.clear();
+
+    infoList=dir.entryInfoList(QDir::Files);
+
+    for(int i=0;i<infoList.count();i++)
+    {
+        info=infoList.at(i);
+        QString suffix=info.suffix();
+
+        if(suffix=="jpg"||suffix=="bm"||suffix=="png"
+                ||suffix=="gif"||suffix=="jpeg")
+        {
+            fileInfoList.append(info);
+        }
+    }
+
+    return 0;
+}
+
+int ImageViewer::getFileCurIndex(vodi)
+{
+    QFileInfo info;
+    int j;
+
+    if(fileInfoList.count()<=0)
+    {
+        qDebug()<<"fileInfoList is NULL!";
+        return -1;
+    }
+
+    for(j=0;j<fileInfoList.count();j++)
+    {
+        info=fileInfoList.at(j);
+        if(info.fileName()==fileInfo.fileName())
+        {
+            break;
+        }
+    }
+
+    if(j>=fileInfoList.count())
+    {
+        qDebug()<<"Not found current file!";
+        return -1;
+    }
+
+    index=j;
+
+    return index;
+}
