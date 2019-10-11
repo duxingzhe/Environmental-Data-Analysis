@@ -85,3 +85,31 @@ plt.suptitle('RUC Analysis 120414 2100Z')
 plt.colorbar(cbax, ax=ax, label='T$_{sfc}$ [$^{\circ}$F]')
 
 plt.show()
+
+fig=plt.figure(figsize=(16,9))
+ax=plt.axes(projection=proj)
+cbax=ax.pcolormesh(lon, lat, sfcTdf, transform=ccrs.PlateCarree(),
+                   cmap=cm.gist_ncar)
+ax.streamplot(lon, lat, sfcU, sfcV, transform=ccrs.PlateCarree(),
+              linewidth=1.5, density=2, color='k')
+ax.add_feature(feature.NaturalEarthFeature(
+    category='cultural',
+    name='admin_1_states_provinces_lines',
+    scale='50m',
+    facecolor='none'
+))
+
+ax.add_feature(feature.NaturalEarthFeature(
+    category='physical',
+    name='lakes',
+    scale='50m',
+    facecolor='none'
+))
+
+ax.coastlines('50m')
+ax.add_feature(feature.BORDERS)
+ax.gridlines()
+plt.title('Streamlines and Surface Dewpoint [$^\circ$F]')
+plt.suptitle('RUC Analysis 120414 2100Z')
+plt.colorbar(cbax, ax=ax, label='TD$_{sfc}$ [$^{\circ}$F]')
+plt.show()
