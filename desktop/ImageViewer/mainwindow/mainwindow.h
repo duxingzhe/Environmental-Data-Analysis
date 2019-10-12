@@ -31,6 +31,7 @@ private:
     void initMainWindow(void);
     void initUiComponent(void);
     void setImageViewerWidget(void);
+    void setWindowComponet(void);
     void initImageResource(void);
     void loadImageResource(void);
 

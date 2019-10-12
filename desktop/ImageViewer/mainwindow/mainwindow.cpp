@@ -178,6 +178,108 @@ void MainWindow::setImageViewerWidget(void)
     centralWidget->setLayout(mainLayout);
 }
 
+void MainWindow::setWindowComponet(void)
+{
+    openAction=new QAction(tr("Open"), this);
+    openAction->setShortcut(QKeySequence::Open);
+    openAction->setStatusTip(tr("Open an image."));
+    openAction->setIcon(QIcon(":/iamges/open.png"));
+
+    closeAction=new QAction(tr("Close"), this);
+    closeAction->setShortcut(QKeySequence::Close);
+    closeAction->setStatusTip(tr("Close an image."));
+    closeAction->setIcon(QIcon(":/iamges/close.png"));
+
+    lastAction=new QAction(tr("Last"), this);
+    lastAction->setStatusTip(tr("Last image."));
+    lastAction->setIcon(QIcon(":/iamges/left.png"));
+
+    nextAction=new QAction(tr("Next"), this);
+    nextAction->setStatusTip(tr("Next image."));
+    nextAction->setIcon(QIcon(":/iamges/right.png"));
+
+    toLeftAction=new QAction(tr("LeftSpin"), this);
+    toLeftAction->setStatusTip(tr("To Left."));
+    toLeftAction->setIcon(QIcon(":/iamges/toLeft.png"));
+
+    toRightAction=new QAction(tr("RightSpin"), this);
+    toRightAction->setStatusTip(tr("To Right."));
+    toRightAction->setIcon(QIcon(":/iamges/toRight.png"));
+
+    toEnlargeAction=new QAction(tr("Enlarge"), this);
+    toEnlargeAction->setStatusTip(tr("To Enlarge."));
+    toEnlargeAction->setIcon(QIcon(":/iamges/large.png"));
+
+    toLessenAction=new QAction(tr("Lessen"), this);
+    toLessenAction->setStatusTip(tr("To Lessen."));
+    toLessenAction->setIcon(QIcon(":/iamges/small.png"));
+
+    deleteAction=new QAction(tr("Delete"), this);
+    deleteAction->setShortcut(QKeySequence::Delete);
+    deleteAction->setStatusTip(tr("Delete an image."));
+    deleteAction->setIcon(QIcon(":/iamges/clear.png"));
+
+    QAction *exitAction=new QAction(tr("Exit"), this);
+    exitAction->setShortcut(QKeySequence::Delete);
+    exitAction->setStatusTip(tr("Exit"));
+    exitAction->setIcon(QIcon(":/iamges/quite.png"));
+
+    QAction *aboutQt=new QAction(tr("About Qt"), this);
+    aboutQt->setStatusTip(tr("About Qt"));
+    aboutQt->setIcon(QIcon(":/iamges/Qt.png"));
+
+    QAction *about=new QAction(tr("About ImageViewer"), this);
+    about->setStatusTip(tr("About ImageViewer"));
+    about->setIcon(QIcon(":/iamges/help.png"));
+
+    QMenu *fileMenu=menuBar->addMenu(tr("File"));
+    fileMenu->addAction(openAction);
+    fileMenu->addAction(closeAction);
+    fileMenu->addSeparator();
+    fileMenu->addAction(deleteAction);
+    fileMenu->addSeparator();
+    fileMenu->addAction(exitAction);
+
+    QMenu *operationMenu=menuBar->addMenu(tr("Operate"));
+    operationMenu->addAction(lastAction);
+    operationMenu->addAction(nextAction);
+    operationMenu->addSeparator();
+    operationMenu->addAction(toLeftAction);
+    operationMenu->addAction(toRightAction);
+    operationMenu->addSeparator();
+    operationMenu->addAction(toEnlargeAction);
+    operationMenu->addAction(toLessenAction);
+
+    QMenu *helpMenu=menuBar->addMenu(tr("Help"));
+    helpMenu->addAction(aboutQt);
+    helpMenu->addAction(about);
+
+    toolBar->addAction(openAction);
+    toolBar->addAction(closeAction);
+    toolBar->addAction(lastAction);
+    toolBar->addAction(nextAction);
+    toolBar->addAction(toLeftAction);
+    toolBar->addAction(toRightAction);
+    toolBar->addAction(toEnlargeAction);
+    toolBar->addAction(toLessenAction);
+    toolBar->addAction(deleteAction);
+    toolBar->addAction(about);
+
+    connect(openAction, SIGNAL(triggered(bool)), this, SLOT(openActionTriggered()));
+    connect(closeAction, SIGNAL(triggered(bool)), this, SLOT(closeActionTriggered()));
+    connect(lastAction, SIGNAL(triggered(bool)), this, SLOT(lastActionTriggered()));
+    connect(nextAction, SIGNAL(triggered(bool)), this, SLOT(nextActionTriggered()));
+    connect(toLeftAction, SIGNAL(triggered(bool)), this, SLOT(toLeftActionTriggered()));
+    connect(toRightAction, SIGNAL(triggered(bool)), this, SLOT(toRightActionTriggered()));
+    connect(toEnlargeAction, SIGNAL(triggered(bool)), this, SLOT(toEnlargeActionTriggered()));
+    connect(toLessenAction, SIGNAL(triggered(bool)), this, SLOT(toLessenActionTriggered()));
+    connect(deleteAction, SIGNAL(triggered(bool)), this, SLOT(deleteActionTriggered()));
+
+    connect(about, SIGNAL(triggered(bool)), this, SLOT(aboutTriggered()));
+    connect(aboutQt, SIGNAL(triggered(bool)), this, SLOT(aboutQtTriggered()));
+    connect(exitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
+}
+
 void MainWindow::aboutQtTriggered()
 {
     qApp->aboutQt();
