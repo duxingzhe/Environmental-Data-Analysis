@@ -63,7 +63,7 @@ void MainWindow::lastActionTriggered(void)
     if(ret)
     {
         QMessageBox::information(this, tr("Error"),
-                                 tr("Open an image please."));
+                                 tr("Open an image, please."));
         return ;
     }
     loadImageResource();
@@ -76,7 +76,7 @@ void MainWindow::nextActionTriggered(void)
     {
         QMessageBox::information(this,
                                  tr("Error"),
-                                 tr("Open an image please"));
+                                 tr("Open an image, please"));
         return ;
     }
     loadImageResource();
@@ -89,7 +89,7 @@ void MainWindow::toLeftActionTriggered(void)
     {
         QMessageBox::information(this,
                                  tr("Error"),
-                                 tr("Open an image please"));
+                                 tr("Open an image, please"));
         return ;
     }
     loadImageResource();
@@ -102,8 +102,83 @@ void MainWindow::toRightActionTriggered(void)
     {
         QMessageBox::information(this,
                                  tr("Error"),
-                                 tr("Open an image please"));
+                                 tr("Open an image, please"));
         return ;
     }
     loadImageResource();
+}
+
+void MainWindow::toEnlargeActionTriggered(void)
+{
+    int ret=imageViewer->zoomIn();
+    if(ret)
+    {
+        QMessageBox::information(this,
+                                 tr("Error"),
+                                 tr("Open an image, please"));
+        return ;
+    }
+    loadImageResource();
+}
+
+void MainWindow::toLessenActionTriggered(void)
+{
+    int ret=imageViewer->zoomOut();
+    if(ret)
+    {
+        QMessageBox::information(this,
+                                 tr("Error"),
+                                 tr("Open an image, please"));
+        return ;
+    }
+    loadImageResource();
+}
+
+void MainWindow::deleteActionTriggered(void)
+{
+    if(!QFile(imageViewer->filename).exists())
+    {
+        QMessageBox::information(this, tr("Error"),
+                                 tr("Open an image, please"));
+
+        return ;
+    }
+
+    QMessageBox message(QMessage::Warning, tr("Warning"),
+                        tr("Do you want to delete this image?"),
+                        QMessageBox::Yes|QMessage::No, NULL);
+
+    if(message.exec()==QMessageBox::No)
+    {
+        return ;
+    }
+
+    int ret=imageViewer->delImageFile();
+    if(ret)
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Delete an image failed!"));
+
+        return ;
+    }
+
+    initImageResource();
+}
+
+void MainWindow::setImageViewerWidget(void)
+{
+    imageLabel=new QLabel();
+
+    QScrollArea *imageScrollArea=new QScrollArea();
+    imageScrollArea->setAlignment(Qt::AlignCenter);
+    imageScrollArea->setFrameShape(QFrame::NoFrame);
+    imageScrollArea->setWidget(imageLabel);
+
+    QGridLayout *mainLayout=new QGridLayout();
+    mainLayout->addWidget(imageScrollArea, 0, 0);
+    centralWidget->setLayout(mainLayout);
+}
+
+void MainWindow::aboutQtTriggered()
+{
+    qApp->aboutQt();
 }
