@@ -144,9 +144,9 @@ void MainWindow::deleteActionTriggered(void)
         return ;
     }
 
-    QMessageBox message(QMessage::Warning, tr("Warning"),
+    QMessageBox message(QMessageBox::Warning, tr("Warning"),
                         tr("Do you want to delete this image?"),
-                        QMessageBox::Yes|QMessage::No, NULL);
+                        QMessageBox::Yes|QMessageBox::No, NULL);
 
     if(message.exec()==QMessageBox::No)
     {
