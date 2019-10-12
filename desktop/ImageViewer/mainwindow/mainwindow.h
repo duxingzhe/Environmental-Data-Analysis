@@ -28,7 +28,7 @@ private:
 
     ImageViewer *imageViewer;
 
-    void initMainWidnow(void);
+    void initMainWindow(void);
     void initUiComponent(void);
     void setImageViewerWidget(void);
     void initImageResource(void);
