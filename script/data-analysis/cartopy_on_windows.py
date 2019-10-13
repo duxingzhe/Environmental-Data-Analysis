@@ -61,10 +61,13 @@ sat_lon=sat['lon']
 proj=ccrs.LambertConformal(**lccProjParams)
 fig=plt.figure(figsize=(16,9))
 ax=plt.axes(projection=proj)
-cbax=ax.pcolormesh(lon, lat, sfcTdf, transform=ccrs.PlateCarree(),
-                   cmap=cm.gist_ncar)
-ax.streamplot(lon, lat, sfcU, sfcV, transform=ccrs.PlateCarree(),
-              linewidth=1.5, density=2, color='k')
+cbax=ax.pcolormesh(lon, lat, np.ma.masked_less(h5AbsV/1e-5, 10),
+                   transform=ccrs.PlateCarree(),
+                   cmap=cm.plasma, vmin=10, vmax=80)
+ctax=ax.contour(lon, lat, h5Ht, levels=np.arange(4960, 5960, 40),
+                colors='k', transform=ccrs.PlateCarree(),
+                linewidths=1.25)
+plt.clabel(ctax, inline=True, fmt='%4d')
 ax.add_feature(feature.NaturalEarthFeature(
     category='cultural',
     name='admin_1_states_provinces_lines',
@@ -80,7 +83,8 @@ ax.add_feature(feature.NaturalEarthFeature(
 ax.coastlines('50m')
 ax.add_feature(feature.BORDERS)
 ax.gridlines()
-plt.title('Streamlines and Surface Dewpoint [$^\circ$F]')
+plt.title('500 mb Height [m] and Absolute Vorticity [s$^{-1}$]')
 plt.suptitle('RUC Analysis 120414 2100Z')
-plt.colorbar(cbax, ax=ax, label='TD$_{sfc}$ [$^\circ}$F]')
+cb=plt.colorbar(cbax, ax=ax, label='$\zeta_{ABS}$ [s$^{1}$]')
+cb.set_ticks(np.arange(10, 90, 10))
 plt.show()
