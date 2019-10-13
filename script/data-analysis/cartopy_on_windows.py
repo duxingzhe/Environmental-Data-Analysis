@@ -59,33 +59,6 @@ sat_lat=sat['lat']
 sat_lon=sat['lon']
 
 proj=ccrs.LambertConformal(**lccProjParams)
-
-fig = plt.figure(figsize=(16,9))
-ax = plt.axes(projection = proj)
-cbax = ax.pcolormesh(lon, lat, sfcTf,
-                     transform = ccrs.PlateCarree(),
-                     cmap = cm.gist_ncar) # what are the input coordinates?
-ax.barbs(lon, lat, sfcU, sfcV, length=4.5,
-         sizes=dict(emptybarb=0.25, spacing=0.2, height=0.5),
-         linewidth=0.95, transform=ccrs.PlateCarree(),
-         regrid_shape = 40)
-ctax=ax.contour(lon, lat, MSLP, levels=np.arange(980, 1044, 4),
-                colors='k', transform=ccrs.PlateCarree(),
-                linewidths=2)
-plt.clabel(ctax, inline=True, fmt='%4d')
-ax.add_feature(feature.NaturalEarthFeature(
-    category='cultural', name='admin_1_states_provinces_lines',
-    scale='50m', facecolor='none'
-))
-ax.coastlines('50m')
-ax.add_feature(feature.BORDERS)
-ax.gridlines()
-plt.title('MSLP and Surface Temperature [$^\circ$F]')
-plt.suptitle('RUC Analysis 120414 2100Z')
-plt.colorbar(cbax, ax=ax, label='T$_{sfc}$ [$^{\circ}$F]')
-
-plt.show()
-
 fig=plt.figure(figsize=(16,9))
 ax=plt.axes(projection=proj)
 cbax=ax.pcolormesh(lon, lat, sfcTdf, transform=ccrs.PlateCarree(),
@@ -98,18 +71,16 @@ ax.add_feature(feature.NaturalEarthFeature(
     scale='50m',
     facecolor='none'
 ))
-
 ax.add_feature(feature.NaturalEarthFeature(
     category='physical',
     name='lakes',
     scale='50m',
     facecolor='none'
 ))
-
 ax.coastlines('50m')
 ax.add_feature(feature.BORDERS)
 ax.gridlines()
 plt.title('Streamlines and Surface Dewpoint [$^\circ$F]')
 plt.suptitle('RUC Analysis 120414 2100Z')
-plt.colorbar(cbax, ax=ax, label='TD$_{sfc}$ [$^{\circ}$F]')
+plt.colorbar(cbax, ax=ax, label='TD$_{sfc}$ [$^\circ}$F]')
 plt.show()
