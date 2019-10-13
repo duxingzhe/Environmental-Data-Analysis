@@ -178,7 +178,7 @@ void MainWindow::setImageViewerWidget(void)
     centralWidget->setLayout(mainLayout);
 }
 
-void MainWindow::setWindowComponet(void)
+void MainWindow::setWindowComponent(void)
 {
     openAction=new QAction(tr("Open"), this);
     openAction->setShortcut(QKeySequence::Open);
@@ -283,4 +283,35 @@ void MainWindow::setWindowComponet(void)
 void MainWindow::aboutQtTriggered()
 {
     qApp->aboutQt();
+}
+
+void MainWindow::initUiComponent(void)
+{
+    setWindowComponent();
+
+    setImageViewerWidget();
+}
+
+void MainWindow::initMainWindow(void)
+{
+    menuBar=new QMenuBar(this);
+    setMenuBar(menuBar);
+
+    toolBar=new QToolBar(this);
+    addToolBar(toolBar);
+
+    centralWidget=new QWidget(this);
+    addToolBar(toolBar);
+
+    statusBar=new QStatusBar(this);
+    setStatusBar(statusBar);
+}
+
+void MainWindow::aboutTriggered(void)
+{
+    aboutWidget.setWindowTitle("Help information");
+    aboutWidget.setWindowIcon(QIcon(":/images/help.png"));
+    aboutWidget.setFixedSize(QABOUT_WIDGET_WIDTH, QABOUT_WIDGET_HEIGHT);
+
+    aboutWidget.show();
 }

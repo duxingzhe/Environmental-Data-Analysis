@@ -11,7 +11,7 @@ ImageViewer::ImageViewer(QWidget *parent) : QWidget(parent)
     initImageResource();
 }
 
-ImageViewer:ImageViewer(QWidget *parent, QString &caption, QString &dir,
+ImageViewer::ImageViewer(QWidget *parent, QString &caption, QString &dir,
                         QString &filer)
 {
     this->parent=parent;
@@ -28,7 +28,7 @@ int ImageViewer::openImageFile(const QString &caption, const QString &dir,
                                const QString &filer)
 {
     initImageResource();
-    return loadImageResource(caption, dir, file);
+    return loadImageResource(caption, dir, filer);
 }
 
 int ImageViewer::closeImageFile(void)
@@ -177,6 +177,23 @@ int ImageViewer::loadImageResource(void)
 {
     filename=QFileDialog::getOpenFileName(this, tr("Select iamge:"),
                                           "C:\\", tr("Images (*.jpg *jpeg *.png *.bmp *.gif"));
+    if(filename.isEmpty())
+    {
+        return -1;
+    }
+
+    getFileInfoList();
+
+    upgradeFileInfo(filename, angle, 10);
+
+    return 10;
+}
+
+int ImageViewer::loadImageResource(const QString &caption, const QString &directory,
+                                   const QString &filer)
+{
+    filename=QFileDialog::getOpenFileName(this, caption,
+                                          directory, filer);
     if(filename.isEmpty())
     {
         return -1;
