@@ -30,7 +30,6 @@ void QAbout::exitButtonClicked(void)
 void QAbout::initUiComponent(void)
 {
     int label_w=300, label_h=20;
-    int text_w=300, text_h=120;
     int btn_w=80, btn_h=30;
     int btn_x=QABOUT_WIDGET_WIDTH-btn_w;
     int btn_y=QABOUT_WIDGET_HEIGHT-btn_h;

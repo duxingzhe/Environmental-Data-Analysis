@@ -41,7 +41,7 @@ void MainWindow::openActionTriggered(void)
 {
     int ret=imageViewer->openImageFile(tr("Select image:"),
                                        "C:\\",
-                                       tr("Images (.jpg *.jpeg *.png *.bmp *.gif)"));
+                                       tr("Images (*.jpg *.jpeg *.png *.bmp *.gif)"));
     if(ret)
     {
         QMessageBox::information(this, tr("Error"), tr("Open a file failed!"));
@@ -183,54 +183,54 @@ void MainWindow::setWindowComponent(void)
     openAction=new QAction(tr("Open"), this);
     openAction->setShortcut(QKeySequence::Open);
     openAction->setStatusTip(tr("Open an image."));
-    openAction->setIcon(QIcon(":/iamges/open.png"));
+    openAction->setIcon(QIcon(":/images/open.png"));
 
     closeAction=new QAction(tr("Close"), this);
     closeAction->setShortcut(QKeySequence::Close);
     closeAction->setStatusTip(tr("Close an image."));
-    closeAction->setIcon(QIcon(":/iamges/close.png"));
+    closeAction->setIcon(QIcon(":/images/close.png"));
 
     lastAction=new QAction(tr("Last"), this);
     lastAction->setStatusTip(tr("Last image."));
-    lastAction->setIcon(QIcon(":/iamges/left.png"));
+    lastAction->setIcon(QIcon(":/images/left.png"));
 
     nextAction=new QAction(tr("Next"), this);
     nextAction->setStatusTip(tr("Next image."));
-    nextAction->setIcon(QIcon(":/iamges/right.png"));
+    nextAction->setIcon(QIcon(":/images/right.png"));
 
     toLeftAction=new QAction(tr("LeftSpin"), this);
     toLeftAction->setStatusTip(tr("To Left."));
-    toLeftAction->setIcon(QIcon(":/iamges/toLeft.png"));
+    toLeftAction->setIcon(QIcon(":/images/toLeft.png"));
 
     toRightAction=new QAction(tr("RightSpin"), this);
     toRightAction->setStatusTip(tr("To Right."));
-    toRightAction->setIcon(QIcon(":/iamges/toRight.png"));
+    toRightAction->setIcon(QIcon(":/images/toRight.png"));
 
     toEnlargeAction=new QAction(tr("Enlarge"), this);
     toEnlargeAction->setStatusTip(tr("To Enlarge."));
-    toEnlargeAction->setIcon(QIcon(":/iamges/large.png"));
+    toEnlargeAction->setIcon(QIcon(":/images/large.png"));
 
     toLessenAction=new QAction(tr("Lessen"), this);
     toLessenAction->setStatusTip(tr("To Lessen."));
-    toLessenAction->setIcon(QIcon(":/iamges/small.png"));
+    toLessenAction->setIcon(QIcon(":/images/small.png"));
 
     deleteAction=new QAction(tr("Delete"), this);
     deleteAction->setShortcut(QKeySequence::Delete);
     deleteAction->setStatusTip(tr("Delete an image."));
-    deleteAction->setIcon(QIcon(":/iamges/clear.png"));
+    deleteAction->setIcon(QIcon(":/images/clear.png"));
 
     QAction *exitAction=new QAction(tr("Exit"), this);
     exitAction->setShortcut(QKeySequence::Delete);
     exitAction->setStatusTip(tr("Exit"));
-    exitAction->setIcon(QIcon(":/iamges/quite.png"));
+    exitAction->setIcon(QIcon(":/images/quite.png"));
 
     QAction *aboutQt=new QAction(tr("About Qt"), this);
     aboutQt->setStatusTip(tr("About Qt"));
-    aboutQt->setIcon(QIcon(":/iamges/Qt.png"));
+    aboutQt->setIcon(QIcon(":/images/Qt.png"));
 
     QAction *about=new QAction(tr("About ImageViewer"), this);
     about->setStatusTip(tr("About ImageViewer"));
-    about->setIcon(QIcon(":/iamges/help.png"));
+    about->setIcon(QIcon(":/images/help.png"));
 
     QMenu *fileMenu=menuBar->addMenu(tr("File"));
     fileMenu->addAction(openAction);
@@ -301,7 +301,7 @@ void MainWindow::initMainWindow(void)
     addToolBar(toolBar);
 
     centralWidget=new QWidget(this);
-    addToolBar(toolBar);
+    setCentralWidget(centralWidget);
 
     statusBar=new QStatusBar(this);
     setStatusBar(statusBar);

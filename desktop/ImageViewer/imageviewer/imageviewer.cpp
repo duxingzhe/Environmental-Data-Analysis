@@ -25,10 +25,10 @@ ImageViewer::~ImageViewer(void)
 }
 
 int ImageViewer::openImageFile(const QString &caption, const QString &dir,
-                               const QString &filer)
+                               const QString &filter)
 {
     initImageResource();
-    return loadImageResource(caption, dir, filer);
+    return loadImageResource(caption, dir, filter);
 }
 
 int ImageViewer::closeImageFile(void)
@@ -176,7 +176,7 @@ void ImageViewer::initImageResource(void)
 int ImageViewer::loadImageResource(void)
 {
     filename=QFileDialog::getOpenFileName(this, tr("Select iamge:"),
-                                          "C:\\", tr("Images (*.jpg *jpeg *.png *.bmp *.gif"));
+                                          "C:\\", tr("Images (*.jpg *jpeg *.png *.bmp *.gif)"));
     if(filename.isEmpty())
     {
         return -1;
@@ -190,10 +190,10 @@ int ImageViewer::loadImageResource(void)
 }
 
 int ImageViewer::loadImageResource(const QString &caption, const QString &directory,
-                                   const QString &filer)
+                                   const QString &filter)
 {
     filename=QFileDialog::getOpenFileName(this, caption,
-                                          directory, filer);
+                                          directory, filter);
     if(filename.isEmpty())
     {
         return -1;
@@ -203,10 +203,10 @@ int ImageViewer::loadImageResource(const QString &caption, const QString &direct
 
     upgradeFileInfo(filename, angle, 10);
 
-    return 10;
+    return 0;
 }
 
-int ImageViewer::upgradeFileInfo(QString &filenane, int angle, int sizeScale)
+int ImageViewer::upgradeFileInfo(QString &filename, int angle, int sizeScale)
 {
     QImage imgRotate;
     QMatrix matrix;
@@ -237,7 +237,7 @@ int ImageViewer::upgradeFileInfo(QString &filenane, int angle, int sizeScale)
         size=imgScaled.size();
     }
 
-    matrix.rotate(angle*30);
+    matrix.rotate(angle*90);
     imgRotate=imgScaled.transformed(matrix);
 
     pixmap=QPixmap::fromImage(imgRotate);
@@ -263,7 +263,7 @@ int ImageViewer::getFileInfoList(void)
         info=infoList.at(i);
         QString suffix=info.suffix();
 
-        if(suffix=="jpg"||suffix=="bm"||suffix=="png"
+        if(suffix=="jpg"||suffix=="bmp"||suffix=="png"
                 ||suffix=="gif"||suffix=="jpeg")
         {
             fileInfoList.append(info);
