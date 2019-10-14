@@ -60,32 +60,41 @@ sat_lon=sat['lon']
 
 proj=ccrs.LambertConformal(**lccProjParams)
 
-fig=plt.figure(figsize=(16,9))
-ax=plt.axes(projection=ccrs.Orthographic(central_latitude=25, central_longitude=265))
-cbax=ax.pcolormesh(lon, lat, np.ma.masked_less(h5AbsV/1e-5,10),
-                   transform=ccrs.PlateCarree(),
-                   cmap=cm.plasma, vmin=10, vmax=80)
-ax.contour(lon, lat, h5Ht, levels=np.arange(4960, 5960, 40),
-           colors='k', transform=ccrs.PlateCarree(),
-           linewidths=1.25)
+shp=fiona.open('day1otlk_20120414_1630_torn.shp', 'r')
+shpProj = ccrs.LambertConformal(central_latitude = shp.crs['lat_0'],
+                                central_longitude = shp.crs['lon_0'],
+                                standard_parallels = (shp.crs['lat_1'], shp.crs['lat_2']))
+mp=MultiPolygon([shape(polygon['geometry']) for polygon in shp])
+
+fig = plt.figure(figsize=(16, 9))
+ax = plt.axes(projection = proj)
+ax.add_feature(feature.ShapelyFeature(mp, shpProj), facecolor = TPROBCOLORS,
+               edgecolor = TPROBCOLORS)
 ax.add_feature(feature.NaturalEarthFeature(
-    category='cultural',
-    name='admin_1_states_provinces_lines',
-    scale='50m',
-    facecolor='none'
-))
+        category='cultural',
+        name='admin_1_states_provinces_lines',
+        scale='50m',
+        facecolor='none'))
 ax.add_feature(feature.NaturalEarthFeature(
-    category='physical',
-    name='lakes',
-    scale='50m',
-    facecolor='none'
-))
+        category='physical',
+        name='lakes',
+        scale='50m',
+        facecolor='none'))
 ax.coastlines('50m')
 ax.add_feature(feature.BORDERS)
-ax.gridlines()
-ax.set_global()
-plt.title('500 mb Height [m] and 500 mb Absolute Vorticity [s$^{-1}$]')
-plt.suptitle('RUC Analysis 120414 2100Z')
-cb=plt.colorbar(cbax, ax=ax, label='$\zeta_{ABS}$ [s$^{-1}$]')
-cb.set_ticks(np.arange(10, 90, 10))
+ax.set_extent(EXTENT, ccrs.PlateCarree())
+ax.set_title('120414 1630Z Day 1 Tornado Probabilities')
+
+# rectangular colorfill patches for legend
+tor2 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[5], lw=2)
+tor5 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[4], lw=2)
+tor10 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[3], lw=2)
+tor15 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[2], lw=2)
+tor30 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[1], lw=2)
+tor45 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[0], lw=2)
+
+rects = [tor2, tor5, tor10, tor15, tor30, tor45]
+
+leg = ax.legend(rects, TPRLABELS, loc = 3)
+
 plt.show()
