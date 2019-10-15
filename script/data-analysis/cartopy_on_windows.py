@@ -66,35 +66,27 @@ shpProj = ccrs.LambertConformal(central_latitude = shp.crs['lat_0'],
                                 standard_parallels = (shp.crs['lat_1'], shp.crs['lat_2']))
 mp=MultiPolygon([shape(polygon['geometry']) for polygon in shp])
 
-fig = plt.figure(figsize=(16, 9))
-ax = plt.axes(projection = proj)
-ax.add_feature(feature.ShapelyFeature(mp, shpProj), facecolor = TPROBCOLORS,
-               edgecolor = TPROBCOLORS)
-ax.add_feature(feature.NaturalEarthFeature(
-        category='cultural',
-        name='admin_1_states_provinces_lines',
-        scale='50m',
-        facecolor='none'))
-ax.add_feature(feature.NaturalEarthFeature(
-        category='physical',
-        name='lakes',
-        scale='50m',
-        facecolor='none'))
-ax.coastlines('50m')
-ax.add_feature(feature.BORDERS)
+fig = plt.figure(figsize=(20, 13))
+ax = fig.add_subplot(1,1,1, projection=proj)
+ax.coastlines(resolution='50m', zorder=2, color='black')
+ax.add_feature(feature.NaturalEarthFeature(category='cultural',
+                                           name='admin_1_states_provinces_lines',
+                                           scale='50m', facecolor='none'))
+ax.add_feature(feature.NaturalEarthFeature(category='physical',
+                                           name='lakes',
+                                           scale='50m', facecolor='none'))
+ax.add_feature(feature.BORDERS, linewidth='2', edgecolor='black')
+
+stationplot=StationPlot(ax, stn_lon, stn_lat, transform=ccrs.PlateCarree(), fontsize=12)
+
+stationplot.plot_parameter('NW', stn_T, color='red')
+stationplot.plot_parameter('SW', stn_Td, color='lightgreen')
+stationplot.plot_barb(stn_u, stn_v, color='lightgray')
+
+ax.pcolormesh(sat_lon, sat_lat, sat_gvar,
+              transform=ccrs.PlateCarree(),
+              cmap=cm.gray, vmin=0, vmax=1023, zorder=0)
+
 ax.set_extent(EXTENT, ccrs.PlateCarree())
-ax.set_title('120414 1630Z Day 1 Tornado Probabilities')
-
-# rectangular colorfill patches for legend
-tor2 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[5], lw=2)
-tor5 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[4], lw=2)
-tor10 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[3], lw=2)
-tor15 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[2], lw=2)
-tor30 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[1], lw=2)
-tor45 = mpatches.Rectangle((0,0), 1, 1, ec = 'none', fc = TPROBCOLORS[0], lw=2)
-
-rects = [tor2, tor5, tor10, tor15, tor30, tor45]
-
-leg = ax.legend(rects, TPRLABELS, loc = 3)
-
+plt.title('GOES-13 VIS and Surface Stations -- 2012-04-14 2100 UTC')
 plt.show()
