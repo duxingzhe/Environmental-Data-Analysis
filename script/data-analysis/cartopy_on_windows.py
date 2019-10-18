@@ -1,15 +1,16 @@
 import matplotlib.pyplot as plt
 import numpy as np
-form scipy.cluster.vq import vq as vector_quantization
+from scipy.cluster.vq import vq as vector_quantization
 import skimage.io
 from skimage.morphology import remove_small_objects
 from scipy import ndimage as ndi
 from skimage.morphology import skeletonize
+import cartopy.crs as ccrs
 from itertools import product
 import shapely.geometry as sgeom
 import shapely.ops
 
-atw80d=skimage.io.imread(Around_the_World_in_Eighty_Days_map.png)/255
+atw80d=skimage.io.imread('Around_the_World_in_Eighty_Days_map.png')/255
 
 colors=np.array(
     [[1.,1.,1.],
@@ -22,7 +23,7 @@ atw_nearest_color_idx, error=vector_quantization(
     atw80d.reshape((-1,3),colors)
 )
 
-atw_quantization=colors(atw_nearest_color_idx].reshape(atw80d.shape)
+atw_quantization=colors[atw_nearest_color_idx].reshape(atw80d.shape)
 
 fig,(ax0, ax1)=plt.subplots(2,1, sharex=True, sharey=True)
 ax0.imshow(atw80d)
