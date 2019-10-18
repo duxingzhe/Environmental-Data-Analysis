@@ -1,92 +1,80 @@
-import cartopy.crs as ccrs
-from cartopy import feature
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import cm
-import fiona
-from shapely.geometry import shape, MultiPolygon
-import matplotlib.patches as mpatches
-from metpy.calc import get_wind_components
-from metpy.plots import StationPlot
+form scipy.cluster.vq import vq as vector_quantization
+import skimage.io
+from skimage.morphology import remove_small_objects
+from scipy import ndimage as ndi
+from skimage.morphology import skeletonize
+from itertools import product
+import shapely.geometry as sgeom
+import shapely.ops
 
-MSTOKTS=1.94384
+atw80d=skimage.io.imread(Around_the_World_in_Eighty_Days_map.png)/255
 
-TPROBCOLORS=['purple', 'magenta', 'red', 'yellow', 'brown', 'green']
-TPRLABELS=['2%', '5%', '10%', '15%', '30%', '45%']
-EXTENT=[-105, -90, 30, 45]
-STN_EXTENT=[-105, -90, 30, 45]
+colors=np.array(
+    [[1.,1.,1.],
+     [0.7,0.7,0.7],
+     [0.,0.,0.],
+     [1.,1.,0.],
+     [0.,0.,1.]]
+)
+atw_nearest_color_idx, error=vector_quantization(
+    atw80d.reshape((-1,3),colors)
+)
 
-def KTOF(T):
-    return T*(9/5.)-459.67
+atw_quantization=colors(atw_nearest_color_idx].reshape(atw80d.shape)
 
-ruc=np.load('ruc2anl_130_20120414_2100_000.npz')
-stn_data=np.load('20120414_mesowest_stn.npz')
-sat=np.load('20120414_g13_vis.npz')
-
-lccProjParams = { 'central_latitude'   : 25.0, # same as lat_0 in proj4 string
-                  'central_longitude'  : 265.0, # same as lon_0
-                  'standard_parallels' : (25.0, 25.0) # same as (lat_1, lat_2)
-}
-
-sfcT=ruc['TSFC']
-sfcP=ruc['PSFC']
-sfcTf=KTOF(sfcT)
-sfcTd=ruc['TDSFC']
-sfcTdf=KTOF(sfcTd)
-MSLP=ruc['MSLP']
-sfcU=ruc['USFC']
-sfcV=ruc['VSFC']
-
-h5T=ruc['T500']
-h5Ht=ruc['HGHT500']
-h5U=ruc['U500']
-h5V=ruc['V500']
-h5AbsV=ruc['ABSV500']
-
-lat=ruc['LAT']
-lon=ruc['LON']
-
-stn_lon=stn_data['longitude']
-stn_lat=stn_data['latitude']
-stn_u=stn_data['eastward_wind']
-stn_v=stn_data['northward_wind']
-stn_Td=stn_data['dew_point']
-stn_T=stn_data['air_temperature']
-stn_slp=stn_data['slp']
-
-sat_gvar=sat['gvar10']
-sat_lat=sat['lat']
-sat_lon=sat['lon']
-
-proj=ccrs.LambertConformal(**lccProjParams)
-
-shp=fiona.open('day1otlk_20120414_1630_torn.shp', 'r')
-shpProj = ccrs.LambertConformal(central_latitude = shp.crs['lat_0'],
-                                central_longitude = shp.crs['lon_0'],
-                                standard_parallels = (shp.crs['lat_1'], shp.crs['lat_2']))
-mp=MultiPolygon([shape(polygon['geometry']) for polygon in shp])
-
-fig = plt.figure(figsize=(20, 13))
-ax = fig.add_subplot(1,1,1, projection=proj)
-ax.coastlines(resolution='50m', zorder=2, color='black')
-ax.add_feature(feature.NaturalEarthFeature(category='cultural',
-                                           name='admin_1_states_provinces_lines',
-                                           scale='50m', facecolor='none'))
-ax.add_feature(feature.NaturalEarthFeature(category='physical',
-                                           name='lakes',
-                                           scale='50m', facecolor='none'))
-ax.add_feature(feature.BORDERS, linewidth='2', edgecolor='black')
-
-stationplot=StationPlot(ax, stn_lon, stn_lat, transform=ccrs.PlateCarree(), fontsize=12)
-
-stationplot.plot_parameter('NW', stn_T, color='red')
-stationplot.plot_parameter('SW', stn_Td, color='lightgreen')
-stationplot.plot_barb(stn_u, stn_v, color='lightgray')
-
-ax.pcolormesh(sat_lon, sat_lat, sat_gvar,
-              transform=ccrs.PlateCarree(),
-              cmap=cm.gray, vmin=0, vmax=1023, zorder=0)
-
-ax.set_extent(EXTENT, ccrs.PlateCarree())
-plt.title('GOES-13 VIS and Surface Stations -- 2012-04-14 2100 UTC')
+fig,(ax0, ax1)=plt.subplots(2,1, sharex=True, sharey=True)
+ax0.imshow(atw80d)
+ax1.imshow(atw_quantized)
 plt.show()
+
+track_et_al=np.sum(atw_quantized==0, axis=2)>0
+
+pixel_groups, n_groups=ndi.label(track_et_al)
+group_sizes=np.bincount(pixel_groups.ravel())
+track_size=np.max(group_sizes[1:])
+track_fat=remove_small_objects(track_et_al, min_size=track_szie-1)
+
+def points_to_path(point_coordinates, start_point, track_image):
+    neighbor_idxs=list(product((-1,0,1),(-1,0,1)))
+    neighbor_idx.remove((0,0))
+
+    not_visited=track_image.copy()
+
+    path=np.zeros_like(point_coordinates)
+    path[0]=start
+    npoints=point_coordinates.shape[0]
+    currpoint=start
+
+    for i in range(1, rpoints):
+        not_visited[tuple(currpoint)]=False
+        for neighbor in currpoint+neighbor_idxs:
+            if not_visited[tuplue(neighbor)]:
+                path[i]=neighbor
+                currpoint=neighbor
+                break
+    return path
+
+path_coords=points_to_path(coordinates, start, track)
+
+plt.figure()
+
+ax=plt.axes(projection=ccrs.PlateCarree())
+ax.coastlines()
+xs, ys=pixels_to_data(extent, atw80d.shape,
+                      path_coords[:, 1], path_coords[:, 0])
+
+rob=ccrs.Robinson(central_longitude=11.25)
+ax.plot(xs, ys, tranform=rob)
+plt.show()
+
+track_geom=sgeom.LineString(np.stack([xs, ys], axis=-1))
+
+pc_track_geom=ccrs.PlateCarree().project_geometry(trackgeom, rob)
+
+missing_segment=sgeom.LineString(
+    shapely.ops.nearest_points(*pc_track_geom.geoms)
+)
+
+route=shapely.ops.linemerge(list(pc_track_geom.geoms)+[missing_segment])
