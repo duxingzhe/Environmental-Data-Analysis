@@ -19,7 +19,7 @@ public:
     void startPlay();
 
 signals:
-    void sig_GetOnFrame(QImage);
+    void sig_GetOneFrame(QImage);
     void sig_GetRFrame(QImage);
 
 protected:

@@ -119,6 +119,56 @@ void VideoPlayer::run()
     int y_size=pCodecCtx->width *pCodecCtx->height;
 
     packet=(AVPacket *)malloc(sizeof(AVPacket));
-    av_new_packet(packet, y_size);S
+    av_new_packet(packet, y_size);
 
+    while(1)
+    {
+        if(av_read_frame(pFormatCtx, packet)<0)
+        {
+            break;
+        }
+
+        if(packet->stream_index==videoStream)
+        {
+            ret=avcodec_decode_video2(pCodecCtex, pFrame, &got_picture, packet);
+
+            if(ret<0)
+            {
+                printf("decode error.\n");
+                return ;
+            }
+
+            if(got_picture)
+            {
+                sws_scale(img_convert_ctx, (uint8_t const * const *)pFrame->data,
+                          pFrame->linesize, 0, pCodecCtx->height, pFrameRGB->data,
+                          pFrameRGB->linesize);
+
+                QImage tmpImg((uchar *)out_buffer, pCodecCtx->width, pCodecCtx->height, QImage::Format_RGB32);
+                QImage image=tmpImg.copy();
+                emit sig_GetOneFrame(image);
+
+                for(int i=0;i<pCodecCtx->width;i++)
+                {
+                    for(int j=0;j<pCodecCtx->height;j++)
+                    {
+                        QRgb rgb=image.pixel(i,j);
+                        int r=qRed(rgb);
+                        image.setPixel(i,j, qRgb(r,0,0));
+                    }
+                }
+
+                emit sig_GetRFrame(image);
+            }
+        }
+
+        av_free_packet(packet);
+
+        msleep(0.02);
+    }
+
+    av_free(out_buffer);
+    av_free(pFrameRGB);
+    avcodec_close(pCodecCtx);
+    avformat_close_input(&pFormatCtx);
 }
