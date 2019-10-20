@@ -46,7 +46,7 @@
      <string>红色分量开关</string>
     </property>
     <addaction name="Open_red"/>
-    <addaction name="Close_Red"/>
+    <addaction name="Close_red"/>
    </widget>
    <addaction name="menu"/>
   </widget>
@@ -60,7 +60,7 @@
     <string>Open(&amp;O)</string>
    </property>
   </action>
-  <action name="Close_Red">
+  <action name="Close_red">
    <property name="text">
     <string>Close(&amp;C)</string>
    </property>
