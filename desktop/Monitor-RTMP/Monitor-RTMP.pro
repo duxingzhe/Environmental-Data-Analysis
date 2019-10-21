@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui avwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,15 +17,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    playerwindow.cpp
 
 HEADERS += \
-    mainwindow.h
+    playerwindow.h
 
-FORMS += \
-    mainwindow.ui
+FORMS +=
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+unix:!macx: LIBS += /home/luxuan/Program/qt5.13.1/5.13.1/gcc_64/lib/libQtAVWidgets.so \
+                    /home/luxuan/Program/qt5.13.1/5.13.1/gcc_64/lib/libQtAV.so

@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "playerwindow.h"
 
 #include <QApplication>
 

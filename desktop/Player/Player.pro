@@ -42,6 +42,8 @@ FORMS += \
 
 unix:!macx:
 
+INCLUDEPATH += /usr/local/include/
+LIBS += `sdl2-config --cflags --libs` -lpthread -lavcodec  -lavformat  -lavutil  -lswscale -lswresample -lavdevice -lavfilter -lssl
 
 win32:
 
@@ -53,9 +55,8 @@ LIBS += -L$$PWD/windows/ffmpeg/lib/ -lavcodec \
         -L$$PWD/windows/ffmpeg/lib/ -lpostproc \
         -L$$PWD/windows/ffmpeg/lib/ -lswresample \
         -L$$PWD/windows/ffmpeg/lib/ -lswscale \
-        -L$$PWD/windows/openssl/lib/libcrypto.lib \
-        -L$$PWD/windows/openssl/lib/libssl.lib \
-        -L$$PWD/windows/sdl/lib -lSDL2
+        -L$$PWD/windows/openssl/lib/ -lssl \
+        -L$$PWD/windows/sdl/lib/ -lSDL2
 
 INCLUDEPATH += $$PWD/windows/ffmpeg/include \
                 $$PWD/windows/openssl/include \
@@ -64,6 +65,25 @@ DEPENDPATH += $$PWD/windows/ffmpeg/include \
                 $$PWD/windows/openssl/include \
                 $$PWD/windows/sdl/include
 
+macx:
+
+LIBS += -L$$PWD/mac/ffmpeg/lib/ -lavcodec \
+            -L$$PWD/mac/ffmpeg/lib/ -lavdevice \
+            -L$$PWD/mac/ffmpeg/lib/ -lavfilter \
+            -L$$PWD/mac/ffmpeg/lib/ -lavformat \
+            -L$$PWD/mac/ffmpeg/lib/ -lavutil \
+            -L$$PWD/mac/ffmpeg/lib/ -lpostproc \
+            -L$$PWD/mac/ffmpeg/lib/ -lswresample \
+            -L$$PWD/mac/ffmpeg/lib/ -lswscale \
+            -L$$PWD/mac/openssl/lib/ -lssl \
+            -L$$PWD/mac/sdl/lib/ -lSDL2
+
+INCLUDEPATH += $$PWD/mac/ffmpeg/include \
+                $$PWD/mac/openssl/include \
+                $$PWD/mac/SDL2/include
+DEPENDPATH += $$PWD/mac/ffmpeg/include \
+                $$PWD/mac/openssl/include \
+                $$PWD/mac/SDL2/include
 
 DISTFILES += \
     image/icon.rc
