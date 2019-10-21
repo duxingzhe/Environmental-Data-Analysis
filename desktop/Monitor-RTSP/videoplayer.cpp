@@ -54,7 +54,7 @@ void VideoPlayer::run()
     char option_key2[]="max_delay";
     char option_value2[]="100";
     av_dict_set(&avdic, option_key2, option_value2, 0);
-    char url[]="rtsp://127.0.0.1:8554/test";
+    char url[]="rtsp://127.0.0.1/test";
 
     if(avformat_open_input(&pFormatCtx, url, NULL, &avdic)!=0)
     {
