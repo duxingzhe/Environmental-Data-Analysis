@@ -54,7 +54,7 @@ void VideoPlayer::run()
     char option_key2[]="max_delay";
     char option_value2[]="100";
     av_dict_set(&avdic, option_key2, option_value2, 0);
-    char url[]="rtsp://admin:admin@192.168.1.18:554/h264/ch1/main/av_stream";
+    char url[]="rtsp://127.0.0.1:8554/test";
 
     if(avformat_open_input(&pFormatCtx, url, NULL, &avdic)!=0)
     {
@@ -130,7 +130,7 @@ void VideoPlayer::run()
 
         if(packet->stream_index==videoStream)
         {
-            ret=avcodec_decode_video2(pCodecCtex, pFrame, &got_picture, packet);
+            ret=avcodec_decode_video2(pCodecCtx, pFrame, &got_picture, packet);
 
             if(ret<0)
             {
