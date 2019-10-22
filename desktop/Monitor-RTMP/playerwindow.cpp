@@ -46,3 +46,49 @@ PlayerWindow::PlayerWindow(QWidget *parent)
     connect(m_stopBtn, SIGNAL(clicked()), m_player, SLOT(stop()));
 }
 
+void PlayerWindow::openMedia()
+{
+    QString file="rtmp://162.105.95.64:1935/myapp/artest1";
+    if(file.isEmpty())
+        return;
+    m_player->play(file);
+}
+
+void PlayerWindow::seekBySlider(int value)
+{
+    if(!m_player->isPlaying())
+        return;
+    m_player->seek(qint64(value*m_unit));
+}
+
+void PlayerWindow::seekBySlider()
+{
+    seekBySlider(m_slider->value());
+}
+
+void PlayerWindow::playPause()
+{
+    if(!m_player->isPlaying())
+    {
+        m_player->play();
+        return;
+    }
+    m_player->pause(!m_player->isPaused());
+}
+
+void PlayerWindow::updateSlider(qint64 value)
+{
+    m_slider->setRange(0, int(m_player->duration()/m_unit));
+    m_slider->setValue(int(value/m_unit));
+}
+
+void PlayerWindow::updateSlider()
+{
+    updateSlider(m_player->position());
+}
+
+void PlayerWindow::updateSliderUnit()
+{
+    m_unit=m_player->notifyInterval();
+    updateSlider();
+}
