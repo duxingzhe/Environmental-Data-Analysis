@@ -32,7 +32,7 @@ private Q_SLOTS:
     void updateSliderUnit();
 
 private:
-    QtAV::VideoOutput *m_vo;
+    QtAV::VideoOutput *m_videoOutput;
     QtAV::AVPlayer *m_player;
     QSlider *m_slider;
     QPushButton *m_openBtn;
