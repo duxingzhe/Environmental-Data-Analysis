@@ -48,7 +48,7 @@ PlayerWindow::PlayerWindow(QWidget *parent)
 
 void PlayerWindow::openMedia()
 {
-    QString file="rtmp://162.105.95.64:1935/myapp/artest1";
+    QString file="rtmp://localhost:1935/myapp/mystream";
     if(file.isEmpty())
         return;
     m_player->play(file);
