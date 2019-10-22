@@ -751,7 +751,7 @@ void MainWindow::playStateChanged(Decoder::PlayState state)
             emit selectedVideoFile(currentPlay, currentPlayType);
         }
         else
-        {
+        {           
             image=QImage(":/image/MUSIC.jpg");
             playState=Decoder::STOP;
             progressTimer->stop();
