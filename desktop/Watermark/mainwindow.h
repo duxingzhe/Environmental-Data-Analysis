@@ -3,9 +3,9 @@
 
 #include <QMainWindow>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+namespace Ui{
+class MainWindow;
+}
 
 class MainWindow : public QMainWindow
 {
@@ -17,5 +17,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
 };
-#endif // MAINWINDOW_H
+
+#endif // DIALOG_H
