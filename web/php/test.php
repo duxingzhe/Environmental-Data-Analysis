@@ -17,7 +17,7 @@ if($key=='e900e40bc91d3f9f7f0a99fed68a2e96')
 
     echo "$sql";
 
-#捕获异常
+    #捕获异常
     try{
         $connect = DB::getInstance()->connect($sql);
     }catch(Exception $e){
