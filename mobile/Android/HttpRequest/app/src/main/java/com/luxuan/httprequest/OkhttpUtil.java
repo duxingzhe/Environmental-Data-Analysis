@@ -1,5 +1,7 @@
 package com.luxuan.httprequest;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +37,7 @@ public class OkhttpUtil {
     public String getResponse(String cityName) throws IOException{
         //请求组合创建
         Request request = new Request.Builder()
-                .url("https://www.environment.com/php/test.php?key="+Utils.API+"&cityname="+cityName)
+                .url("http://192.168.0.3/test.php?key="+Utils.API+"&cityname="+cityName)
                 .build();
 
         //发起请求

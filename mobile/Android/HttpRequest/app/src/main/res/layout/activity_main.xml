@@ -8,6 +8,7 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/request"
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:text="请求数据"
@@ -15,6 +16,7 @@
         ></TextView>
 
     <TextView
+        android:id="@+id/result"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         ></TextView>
