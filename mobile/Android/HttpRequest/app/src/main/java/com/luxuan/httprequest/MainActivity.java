@@ -5,8 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 import java.io.IOException;
 
@@ -25,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
             switch(msg.what){
                 case REQUEST_SUCCESS:
                     resultTextView.setText((String)msg.obj);
+                    parseJson((String)msg.obj);
                     break;
                 case REQUEST_FAILED:
                     resultTextView.setText("Request Error");
@@ -76,6 +82,15 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         mHandler.removeCallbacksAndMessages(null);
+    }
+
+    private void parseJson(String jsonString){
+        JSONObject jsonObject= JSON.parseObject(jsonString);
+        JSONArray weatherDataArray= jsonObject.getJSONArray("data");
+        for(int i=0;i<weatherDataArray.size();i++){
+            Weather weather=new Weather(weatherDataArray.getJSONObject(i));
+            Log.d("TAG", weather.toString());
+        }
     }
 
 }
