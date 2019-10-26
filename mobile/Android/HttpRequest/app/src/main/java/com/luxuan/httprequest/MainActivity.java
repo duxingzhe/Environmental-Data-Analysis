@@ -86,10 +86,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void parseJson(String jsonString){
         JSONObject jsonObject= JSON.parseObject(jsonString);
-        JSONArray weatherDataArray= jsonObject.getJSONArray("data");
-        for(int i=0;i<weatherDataArray.size();i++){
-            Weather weather=new Weather(weatherDataArray.getJSONObject(i));
-            Log.d("TAG", weather.toString());
+        String httpStatus=jsonObject.getString("code");
+
+        if(httpStatus.equals(Utils.HTTP_REQUEST_SUCCESS_CODE)) {
+            JSONArray weatherDataArray = jsonObject.getJSONArray("data");
+            for (int i = 0; i < weatherDataArray.size(); i++) {
+                Weather weather = new Weather(weatherDataArray.getJSONObject(i));
+                Log.d("TAG", weather.toString());
+            }
         }
     }
 
