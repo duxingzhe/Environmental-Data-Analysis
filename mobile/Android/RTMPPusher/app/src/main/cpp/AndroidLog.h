@@ -1,0 +1,8 @@
+//
+// Created by Luxuan on 2019/10/26.
+//
+
+#ifndef RTMPPUSHER_ANDROIDLOG_H
+#define RTMPPUSHER_ANDROIDLOG_H
+
+#endif //RTMPPUSHER_ANDROIDLOG_H
