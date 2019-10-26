@@ -1,5 +1,6 @@
 package com.luxuan.httprequest;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 public class Weather {
@@ -35,6 +36,10 @@ public class Weather {
         quality=jsonObject.getString("quality");
     }
 
+    public Weather parseJSONToWeather(String jsonString){
+        Weather weather=(Weather) JSON.parse(jsonString);
+        return weather;
+    }
     @Override
     public String toString(){
         return "city_name: "+cityName+", time: "+time+", rank: "+rank;

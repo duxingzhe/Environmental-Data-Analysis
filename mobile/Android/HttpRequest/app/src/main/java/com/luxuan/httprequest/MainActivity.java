@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         mHandler.removeCallbacksAndMessages(null);
     }
 
+    // 解析JSON数据
     private void parseJson(String jsonString){
         JSONObject jsonObject= JSON.parseObject(jsonString);
         String httpStatus=jsonObject.getString("code");
