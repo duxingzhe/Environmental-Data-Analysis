@@ -14,3 +14,29 @@ LxCallJava::LxCallJava(JavaVM *javaVM, JNIEnv *jniEnv, jobject *jobj)
     jmid_connectSuccess=jniEnv->GetMethodID(jlz, "onConnectSuccess", "()V");
     jmid_connectFail=jniEnv->GetMethodID(jlz, "onConnectFail","(LJava/lang/String;)V");
 }
+
+LxCallJava::~LxCallJava()
+{
+    jniEnv->DeleteGlobalRef(jobj);
+    javaVM=NULL;
+    jniEnv=NULL;
+};
+
+void LxCallJava::onConnectInt(int type)
+{
+    if(type == LX_THREAD_CHILD)
+    {
+        JNIEnv *jniEnv;
+        if(javaVM->AttachCurrentThread(&jniEnv, 0)!=JNI_OK)
+        {
+            return;
+        }
+
+        jniEnv->CallVoidMethod(jobj, jmid_connecting);
+        javaVM->DetachCurrentThread();
+    }
+    else
+    {
+        jniEnv->CallVoidMethod(jobj, jmid_connecting);
+    }
+}

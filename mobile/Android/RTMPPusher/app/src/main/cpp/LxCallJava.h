@@ -8,8 +8,8 @@
 #include <cwchar>
 #include "jni.h"
 
-#define WL_THREAD_MAIN 1
-#define WL_THREAD_CHILD 2
+#define LX_THREAD_MAIN 1
+#define LX_THREAD_CHILD 2
 
 class LxCallJava {
 
