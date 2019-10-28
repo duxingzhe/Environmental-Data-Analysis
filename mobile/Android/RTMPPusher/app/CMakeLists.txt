@@ -14,7 +14,7 @@ add_library( # Sets the name of the library.
              src/main/cpp/lxpush.cpp
              src/main/cpp/lxQueue.cpp
              src/main/cpp/RtmpPush.cpp
-             src/main/cpp/lxCallJava.cpp
+        src/main/cpp/LxCallJava.cpp
 )
 
 add_library( rtmp
