@@ -17,7 +17,7 @@ extern "C"
 class LxQueue {
 
 public:
-    std::queue<RTMPPacket *> queuePackeet;
+    std::queue<RTMPPacket *> queuePacket;
     pthread_mutex_t mutexPacket;
     pthread_cond_t condPacket;
 
