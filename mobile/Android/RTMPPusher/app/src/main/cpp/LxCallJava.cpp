@@ -40,3 +40,31 @@ void LxCallJava::onConnectInt(int type)
         jniEnv->CallVoidMethod(jobj, jmid_connecting);
     }
 }
+
+void LxCallJava::onConnectSuccess()
+{
+    JNIEnv *jnienv;
+    if(javaVM->AttachCurrentThread(&jniEnv, 0)!=JNI_OK)
+    {
+        return;
+    }
+
+    jniEnv->CallVoidMethod(jobj, jmid_connectSuccess);
+    javaVM->DetachCurrentThread();
+}
+
+void LxCallJava::onConnectFail(char *msg)
+{
+    JNIEnv *jniEnv;
+    if(javaVM->AttachCurrentThread(&jniEnv, 0)!=JNI_OK)
+    {
+        return;
+    }
+
+    jstring jmsg=jniEnv->NewStringUTF(msg);
+
+    jniEnv->CallVoidMethod(jobj, jmid_connectFail, jmsg);
+
+    jniEnv->DeleteLocalRef(jmsg);
+    javaVM->DetachCurrentThread();
+}
