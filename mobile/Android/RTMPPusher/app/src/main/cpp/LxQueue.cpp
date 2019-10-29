@@ -42,3 +42,30 @@ RTMPPacket *LxQueue::getRtmpPacket()
     pthread_mutex_unlock(&mutexPacket);
     return p;
 }
+
+void LxQueue::clearQueue()
+{
+    pthread_mutex_lock(&mutexPacket);
+
+    while(true)
+    {
+        if(queuePacket.empty())
+        {
+            break;
+        }
+
+        RTMPPacket *p=queuePacket.front();
+        queuePacket.pop();
+        RTMPPacket_Free(p);
+        p=NULL;
+    }
+
+    pthread_mutex_unlock(&mutexPacket);
+}
+
+void LxQueue::notifyQueue()
+{
+    pthread_mutex_lock(&mutexPacket);
+    pthread_cond_signal(&condPacket);
+    pthread_mutex_unlock(&mutexPacket);
+}
