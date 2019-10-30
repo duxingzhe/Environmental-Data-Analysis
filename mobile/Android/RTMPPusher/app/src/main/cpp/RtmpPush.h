@@ -8,8 +8,8 @@
 #include <malloc.h>
 #include <string.h>
 #include "LxQueue.h"
-#include "phtread.h"
-#inlcude "LxCallaJava.h"
+#include "pthread.h"
+#include "LxCallJava.h"
 
 extern "C"
 {
