@@ -79,3 +79,46 @@ void RtmpPush::init()
     lxCallJava->onConnectInt(LX_THREAD_MAIN);
     pthread_create(&push_thread, NULL, callBackPush, this);
 }
+
+void RtmpPush::pushSPSPPS(char *sps, int sps_len, char *pps, int pps_len)
+{
+
+    int bodysize=sps_len+pps_len+16;
+
+    RTMPPacket *packet=static_cast<RTMPPacket *>(malloc(sizeof(RTMPPacket)));
+    RTMPPacket_Alloc(packet, bodysize);
+    RTMPPacket_Reset(packet);
+
+    char *body=packet->m_body;
+
+    int i=0;
+
+    body[i++]=0x17;
+    body[i++]=0x00;
+    body[i++]=0x00;
+    body[i++]=0x00;
+    body[i++]=0x00;
+
+    body[i++]=0x01;
+    body[i++]=sps[1];
+    body[i++]=sps[2];
+    body[i++]=sps[3];
+
+    memcpy(&body[i],sps, sps_len);
+    i+=sps_len;
+
+    body[i++]=0x01;
+    body[i++]=(pps_len>>8)&0xff;
+    body[i++]=pps_len&0xff;
+    memcpy(&body[i], pps, pps_len);
+
+    packet->m_packetType=RTMP_PACKET_TYPE_VIDEO;
+    packet->m_nBodySize=bodysize;
+    packet->m_nTimeStamp=0;
+    packet->m_hasAbsTimestamp=0;
+    packet->m_nChannel=0x04;
+    packet->m_headerType=RTMP_PACKET_SIZE_MEDIUM;
+    packet->m_nInfoField2=rtmp->m_stream_id;
+
+    queue->putRtmpPacket(packet);
+}
