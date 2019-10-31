@@ -165,7 +165,6 @@ void RtmpPush::pushVideoData(char *data, int data_len, bool keyframe)
     queue->putRtmpPacket(packet);
 }
 
-
 void RtmpPush::pushAudioData(char *data, int data_len)
 {
     int bodysize=data_len+2;
