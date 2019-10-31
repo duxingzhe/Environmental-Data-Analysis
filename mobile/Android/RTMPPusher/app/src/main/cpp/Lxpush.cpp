@@ -78,3 +78,18 @@ Java_com_luxuan_rtmppusher_push_LxPushVideo_pushAudioData(JNIEnv *env, jobject i
     env->ReleaseByteArrayElements(data_,data, 0);
 
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_luxuan_rtmppusher_push_LxPushVideo_pushStop(JNIEnv *env, jobject instance)
+{
+    if(rtmpPush!=NULL)
+    {
+        exit=true;
+        rtmpPush->pushStop();
+        delete(rtmpPush);
+        delete(lxCallJava);
+        rtmpPush=NULL;
+        lxCallJava=NULL;
+    }
+}
