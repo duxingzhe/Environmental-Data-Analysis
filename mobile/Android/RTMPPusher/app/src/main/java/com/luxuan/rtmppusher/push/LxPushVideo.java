@@ -60,5 +60,13 @@ public class LxPushVideo {
         pushStop();
     }
 
+    private native void initPush(String pushUrl);
+
+    private native void pushSPSPPS(byte[] sps, int sps_len, byte[] pps, int pss_len);
+
+    private native void pushVideoData(byte[] data, int data_len, boolean keyframe);
+
+    private native void pushAudioData(byte[] data, int data_len);
+
     private native void pushStop();
 }

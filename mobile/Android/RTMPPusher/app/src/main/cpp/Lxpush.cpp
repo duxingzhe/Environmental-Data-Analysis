@@ -49,6 +49,21 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM* vm, void* reserved)
 {
     javaVM=NULL;
 }
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_luxuan_rtmppusher_push_LxPushVideo_pushSPSPPS(JNIEnv *env, jobject instance, jbyteArray sps_, jint sps_len, jbyteArray pps_, jint pps_len)
+{
+    jbyte *sps=env->GetByteArrayElements(sps_, NULL);
+    jbyte *pps=env->GetByteArrayElements(pps_, NULL);
+
+    if(rtmpPush!=NULL & !exit)
+    {
+        rtmpPush->pushSPSPPS(reinterpret_cast<char *>(sps), sps_len, reinterpret_cast<char *>(pps), pps_len);
+    }
+
+    env->ReleaseByteArrayElements(sps_, sps, 0);
+    env->ReleaseByteArrayElements(pps_, pps, 0);
+}
 
 extern "C"
 JNIEXPORT void JNICALL
