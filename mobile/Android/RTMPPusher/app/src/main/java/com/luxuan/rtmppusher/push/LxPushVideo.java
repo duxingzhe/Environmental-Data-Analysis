@@ -1,5 +1,7 @@
 package com.luxuan.rtmppusher.push;
 
+import android.text.TextUtils;
+
 public class LxPushVideo {
 
     private LxConnectListener lxConnectListener;
@@ -27,6 +29,30 @@ public class LxPushVideo {
     private void onConnectFailed(String msg){
         if(lxConnectListener!=null){
             lxConnectListener.onConnectFailed(msg);
+        }
+    }
+
+    public void initLivePush(String url){
+        if(!TextUtils.isEmpty(url)) {
+            initPush(url);
+        }
+    }
+
+    public void pushSPSPPS(byte[] sps, byte[] pps){
+        if(sps!=null&&pps!=null){
+            pushSPSPPS(sps, sps.length, pps, pps.length);
+        }
+    }
+
+    public void pushVideoData(byte[] data, boolean keyframe){
+        if(data!=null){
+            pushVideoData(data, data.length, keyframe);
+        }
+    }
+
+    public void pushAudioData(byte[] data){
+        if(data!=null){
+            pushAudioData(data, data.length);
         }
     }
 
