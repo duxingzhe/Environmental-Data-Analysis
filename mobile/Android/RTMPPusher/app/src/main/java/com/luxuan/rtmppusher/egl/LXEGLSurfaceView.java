@@ -99,4 +99,67 @@ public abstract class LXEGLSurfaceView extends SurfaceView implements SurfaceHol
         void onSurfaceChanged(int width, int height);
         void onDrawFrame();
     }
+
+    public static class LxEGLThread extends Thread{
+
+        private WeakReference<LXEGLSurfaceView> lxEglSurfaceViewWeakReference;
+        private EglHelper eglHelper=null;
+        private Object object=null;
+
+        private boolean isExit=false;
+        private boolean isCreate=false;
+        private boolean isChange=false;
+        private boolean isStart=false;
+
+        private int width;
+        private int height;
+
+        public LxEGLThread(WeakReference<LXEGLSurfaceView> lxEglSurfaceViewWeakReference){
+            this.lxEglSurfaceViewWeakReference=lxEglSurfaceViewWeakReference;
+        }
+
+        @Override
+        public void run(){
+            super.run();
+
+            isExit=false;
+            isStart=false;
+            object=new Object();
+            eglHelper=new EglHelper();
+            eglHelper.initEgl(lxEglSurfaceViewWeakReference.get().surface, lxEglSurfaceViewWeakReference.get().eglContext);
+
+            while(true){
+                if(isExit){
+                    release();
+                    break;
+                }
+
+                if(isStart){
+                    if(lxEglSurfaceViewWeakReference.get().mRenderMode==RENDERMODE_WHEN_DIRTY){
+                        synchronized(object){
+                            try{
+                                object.wait();
+                            }catch(InterruptedException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }else if(lxEglSurfaceViewWeakReference.get().mRenderMode==RENDERMODE_CONTINUOUSLY){
+                    try{
+                        Thread.sleep(1000/50);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }else {
+                    throw new RuntimeException("mRenderMode is wrong value");
+                }
+            }
+
+            onCreate();
+            onChange(width, heiht);
+            onDraw();
+
+            isStart=true;
+        }
+    }
 }
