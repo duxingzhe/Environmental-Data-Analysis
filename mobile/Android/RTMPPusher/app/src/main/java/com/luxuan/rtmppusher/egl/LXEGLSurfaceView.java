@@ -107,8 +107,8 @@ public abstract class LXEGLSurfaceView extends SurfaceView implements SurfaceHol
         private Object object=null;
 
         private boolean isExit=false;
-        private boolean isCreate=false;
-        private boolean isChange=false;
+        private boolean isCreated=false;
+        private boolean isChanged=false;
         private boolean isStart=false;
 
         private int width;
@@ -163,15 +163,15 @@ public abstract class LXEGLSurfaceView extends SurfaceView implements SurfaceHol
         }
 
         private void onCreate(){
-            if(isCreate&&lxEglSurfaceViewWeakReference.get().lxGLRender!=null){
-                isCreate=false;
+            if(isCreated&&lxEglSurfaceViewWeakReference.get().lxGLRender!=null){
+                isCreated=false;
                 lxEglSurfaceViewWeakReference.get().lxGLRender.onSurfaceCreated();
             }
         }
 
         private void onChange(int width, int height){
-            if(isChange&&lxEglSurfaceViewWeakReference.get().lxGLRender!=null){
-                isChange=false;
+            if(isChanged&&lxEglSurfaceViewWeakReference.get().lxGLRender!=null){
+                isChanged=false;
                 lxEglSurfaceViewWeakReference.get().lxGLRender.onSurfaceChanged(width, height);
             }
         }
