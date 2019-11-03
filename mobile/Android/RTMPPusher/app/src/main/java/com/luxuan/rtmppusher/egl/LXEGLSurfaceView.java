@@ -37,12 +37,12 @@ public abstract class LXEGLSurfaceView extends SurfaceView implements SurfaceHol
         getHolder().addCallback(this);
     }
 
-    public void setRender(LxRender lxGLRender){
+    public void setRender(LxGLRender lxGLRender){
         this.lxGLRender=lxGLRender;
     }
 
     public void setRenderMode(int mRenderMode){
-        if(wlGLRender==null){
+        if(lxGLRender==null){
             throw new RuntimeException("must set render before");
         }
 
@@ -74,7 +74,7 @@ public abstract class LXEGLSurfaceView extends SurfaceView implements SurfaceHol
             surface=holder.getSurface();
         }
 
-        lxEGLThread=new LxEGLThread(new WeakReference(LXEGLSurfaceView)(this));
+        lxEGLThread=new LxEGLThread(new WeakReference<LXEGLSurfaceView>(this));
         lxEGLThread.isCreated=true;
         lxEGLThread.start();
     }
@@ -201,7 +201,7 @@ public abstract class LXEGLSurfaceView extends SurfaceView implements SurfaceHol
 
         public void release(){
             if(eglHelper!=null){
-                eglHelper.destroyEGL();
+                eglHelper.destroyEgl();
                 eglHelper=null;
                 object=null;
                 lxEglSurfaceViewWeakReference=null;

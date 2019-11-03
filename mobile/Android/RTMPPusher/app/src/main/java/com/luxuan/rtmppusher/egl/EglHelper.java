@@ -70,4 +70,32 @@ public class EglHelper {
             throw new RuntimeException("eglMakeCurrent fail");
         }
     }
+
+    public boolean swapBuffers(){
+        if(mEgl!=null){
+            return mEgl.eglSwapBuffers(mEglDisplay, mEglSurface);
+        }else{
+            throw new RuntimeException("egl is null");
+        }
+    }
+
+    public EGLContext getEglContext(){
+        return mEglContext;
+    }
+
+    public void destroyEgl(){
+        if(mEgl!=null){
+            mEgl.eglMakeCurrent(mEglDisplay, EGL10.EGL_NO_SURFACE,
+                    EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
+            mEgl.eglDestroySurface(mEglDisplay, mEglSurface);
+            mEglSurface=null;
+
+            mEgl.eglDestroyContext(mEglDisplay, mEglContext);
+            mEglContext=null;
+
+            mEgl.eglTerminate(mEglDisplay);
+            mEglDisplay=null;
+            mEgl=null;
+        }
+    }
 }
