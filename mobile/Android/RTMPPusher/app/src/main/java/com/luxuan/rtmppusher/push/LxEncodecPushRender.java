@@ -6,6 +6,7 @@ import android.opengl.GLES20;
 
 import com.luxuan.rtmppusher.R;
 import com.luxuan.rtmppusher.egl.LXEGLSurfaceView;
+import com.luxuan.rtmppusher.egl.LxShaderUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -101,7 +102,7 @@ public class LxEncodecPushRender implements LXEGLSurfaceView.LxGLRender {
         GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, vertexData.length *4, fragmentData.length*4, fragmentBuffer);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 
-        bitmapTextureId=LxShaderUtil.loadBitmapTexture(bitmap);
+        bitmapTextureId= LxShaderUtil.loadBitmapTexture(bitmap);
     }
 
     @Override
