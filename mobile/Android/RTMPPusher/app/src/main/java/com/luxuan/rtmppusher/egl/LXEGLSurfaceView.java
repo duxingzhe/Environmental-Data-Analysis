@@ -156,10 +156,65 @@ public abstract class LXEGLSurfaceView extends SurfaceView implements SurfaceHol
             }
 
             onCreate();
-            onChange(width, heiht);
+            onChange(width, height);
             onDraw();
 
             isStart=true;
         }
+
+        private void onCreate(){
+            if(isCreate&&lxEglSurfaceViewWeakReference.get().lxGLRender!=null){
+                isCreate=false;
+                lxEglSurfaceViewWeakReference.get().lxGLRender.onSurfaceCreated();
+            }
+        }
+
+        private void onChange(int width, int height){
+            if(isChange&&lxEglSurfaceViewWeakReference.get().lxGLRender!=null){
+                isChange=false;
+                lxEglSurfaceViewWeakReference.get().lxGLRender.onSurfaceChanged(width, height);
+            }
+        }
+
+        private void onDraw(){
+            if(lxEglSurfaceViewWeakReference.get().lxGLRender!=null&&eglHelper!=null){
+                lxEglSurfaceViewWeakReference.get().lxGLRender.onDrawFrame();
+                if(!isStart){
+                    lxEglSurfaceViewWeakReference.get().lxGLRender.onDrawFrame();
+                }
+                eglHelper.swapBuffers();
+            }
+        }
+
+        private void requestRender(){
+            if(object!=null){
+                synchronized(object){
+                    object.notifyAll();
+                }
+            }
+        }
+
+        public void onDestroy(){
+            isExit=true;
+            requestRender();
+        }
+
+        public void release(){
+            if(eglHelper!=null){
+                eglHelper.destroyEGL();
+                eglHelper=null;
+                object=null;
+                lxEglSurfaceViewWeakReference=null;
+            }
+        }
+
+        public EGLContext getEglContext(){
+            if(eglHelper!=null){
+                return eglHelper.getEglContext();
+            }
+
+            return null;
+        }
     }
+
 }
