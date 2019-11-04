@@ -50,7 +50,7 @@ public class LxEncodecPushRender implements LXEGLSurfaceView.LxGLRender {
         this.context=context;
         this.textureId=textureId;
 
-        bitmap=LxShaderUtil.creatTextImage("Environment", 50, "#000000", "#00000000", 0);
+        bitmap=LxShaderUtil.createTextImage("Environment", 50, "#000000", "#00000000", 0);
 
         float r=1.0f*bitmap.getWidth()/bitmap.getHeight();
         float w=r*0.1f;
