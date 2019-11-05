@@ -101,6 +101,115 @@ public abstract class LxBaseMediaEncoder {
         }
     }
 
+    public static class LxEGLMediaThread extends Thread{
+
+        private WeakReference<LxBaseMediaEncoder> encoder;
+        private EglHelper eglHelper;
+        private Object object;
+
+        private boolean isExit=false;
+        private boolean isCreate=false;
+        private boolean isChange=false;
+        private boolean isStart=false;
+
+        public LxEGLMediaThread(WeakReference<LxBaseMediaEncoder> encoder){
+            this.encoder=encoder;
+        }
+
+        @Override
+        public void run(){
+            super.run();
+            isExit=false;
+            isStart=false;
+            object=new Object();
+            eglHelper=new EglHelper();
+            eglHelper.initEgl(encoder.get().surface, encoder.get().eglContext);
+
+            while(true){
+                if(isExit){
+                    release();
+                    break;
+                }
+
+                if(isStart){
+                    if(encoder.get().mRenderMode==RENDERMODE_WHEN_DIRTY){
+                        synchronized(object){
+                            try{
+                                object.wait();
+                            }catch(InterruptedException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }else if(encoder.get().mRenderMode==RENDERMODE_CONTINUOUSLY){
+                        try{
+                            Thread.sleep(1000/60);
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
+                    }else{
+                        throw new RuntimeException("mRenderMode has wrong value.");
+                    }
+                }
+
+                onCreate();
+                onChange(encoder.get().width, encoder.get().height);
+                onDraw();
+                isStart=true;
+            }
+        }
+
+        private void onCreate(){
+
+            if(isCreate&&encoder.get().lxGLRender!=null){
+                isCreate=false;
+                encoder.get().lxGLRender.onSurfaceCreated();
+            }
+        }
+
+        private void onChange(int width, int height){
+
+            if(isChange&&encoder.get().lxGLRender!=null){
+                isChange=false;
+                encoder.get().lxGLRender.onSurfaceChanged(width, height);
+            }
+        }
+
+        private void onDraw(){
+
+            if(encoder.get().lxGLRender!=null&&eglHelper!=null){
+                encoder.get().lxGLRender.onDrawFrame();
+
+                if(!isStart){
+                    encoder.get().lxGLRender.onDrawFrame();
+                }
+
+                eglHelper.swapBuffers();
+            }
+        }
+
+        private void requestRender(){
+            if(object!=null){
+                synchronized(object){
+                    object.notifyAll();
+                }
+            }
+        }
+
+        private void onDestroy(){
+            isExit=true;
+            requestRender();
+        }
+
+        public void release(){
+            if(eglHelper!=null){
+                eglHelper.destroyEgl();
+                eglHelper=null;
+                object=null;
+                encoder=null;
+            }
+        }
+    }
+
     public interface OnMediaInfoListener{
 
         void onMediaTime(int times);
