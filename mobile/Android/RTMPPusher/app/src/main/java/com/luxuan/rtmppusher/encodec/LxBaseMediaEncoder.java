@@ -2,12 +2,14 @@ package com.luxuan.rtmppusher.encodec;
 
 import android.content.Context;
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.view.Surface;
 
 import com.luxuan.rtmppusher.egl.LXEGLSurfaceView;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import javax.microedition.khronos.egl.EGLContext;
@@ -70,7 +72,7 @@ public abstract class LxBaseMediaEncoder {
         this.width=width;
         this.height=height;
         this.eglContext=eglContext;
-        initMediaEncode(savePath, width, height, sampleRate, channelCount);
+        initMediaEncodec(savePath, width, height, sampleRate, channelCount);
     }
 
     public void startRecord(){
@@ -80,9 +82,9 @@ public abstract class LxBaseMediaEncoder {
             audioExit=false;
             encodecStart=false;
 
-            lxEGLMediaThread=new LxEncodecMediaThread(new WeakReference<LxBaseMediaEncoder>(this));
+            lxEGLMediaThread=new LxEGLMediaThread(new WeakReference<LxBaseMediaEncoder>(this));
             videoEncodecThread=new VideoEncodecThread(new WeakReference<LxBaseMediaEncoder>(this));
-            audioEncodecThread=new VideoEncodecThread(new WeakReference<LxBaseMediaEncoder>(this));
+            audioEncodecThread=new AudioEncodecThread(new WeakReference<LxBaseMediaEncoder>(this));
             lxEGLMediaThread.isCreate=true;
             lxEGLMediaThread.isChange=true;
             videoEncodecThread.start();
@@ -98,6 +100,55 @@ public abstract class LxBaseMediaEncoder {
             videoEncodecThread=null;
             lxEGLMediaThread=null;
             audioEncodecThread=null;
+        }
+    }
+
+    private void initMediaEncodec(String savePath, int width, int height, int sampleRate, int channelCount){
+        try {
+            mediaMuxer = new MediaMuxer(savePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+            initVideoEncodec(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
+            initAudioEncodec(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channelCount);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void initVideoEncodec(String mimeType, int width, int height){
+        try{
+            videoBufferInfo=new MediaCodec.BufferInfo();
+            videoFormat=MediaFormat.createVideoFormat(mimeType, width, height);
+            videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+            videoFormat.setInteger(MediaFormat.KEY_BIT_RATE, width*height*4);
+            videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, 30);
+            videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+
+            videoEncodec=MediaCodec.createEncoderByType(mimeType);
+            videoEncodec.configure(videoFormat, null,null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+            surface=videoEncodec.createInputSurface();
+        }catch(IOException e){
+            e.printStackTrace();
+            videoEncodec=null;
+            videoFormat=null;
+            videoBufferInfo=null;
+        }
+    }
+
+    private void initAudioEncodec(String mimeType, int sampleRate, int channelCount){
+        try{
+            this.sampleRate=sampleRate;
+            audioBufferInfo=new MediaCodec.BufferInfo();
+            audioFormat= MediaFormat.createAudioFormat(mimeType, sampleRate, channelCount);
+            audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, 96000);
+            audioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
+            audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096);
+
+            audioEncodec=MediaCodec.createEncoderByType(mimeType);
+            audioEncodec.configure(audioFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+        }catch(IOException e){
+            e.printStackTrace();
+            audioBufferInfo=null;
+            audioFormat=null;
+            audioEncodec=null;
         }
     }
 
