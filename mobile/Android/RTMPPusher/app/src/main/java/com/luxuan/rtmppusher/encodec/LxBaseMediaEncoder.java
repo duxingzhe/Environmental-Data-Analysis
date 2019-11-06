@@ -306,19 +306,21 @@ public abstract class LxBaseMediaEncoder {
             isExit=false;
             videoEncodec.start();
 
-            while(true){
-                videoEncodec.stop();
-                videoEncodec.release();
-                videoEncodec=null;
-                encoder.get().videoExit=true;
+            while(true) {
+                if (isExit) {
+                    videoEncodec.stop();
+                    videoEncodec.release();
+                    videoEncodec = null;
+                    encoder.get().videoExit = true;
 
-                if(encoder.get().audioExit){
-                    mediaMuxer.stop();
-                    mediaMuxer.release();
-                    mediaMuxer=null;
+                    if (encoder.get().audioExit) {
+                        mediaMuxer.stop();
+                        mediaMuxer.release();
+                        mediaMuxer = null;
+                    }
+                    Log.d("Lx", "录制完成");
+                    break;
                 }
-                Log.d("Lx", "录制完成");
-                break;
             }
 
             int outputBufferIndex=videoEncodec.dequeueOutputBuffer(videoBufferInfo,0);
@@ -360,5 +362,10 @@ public abstract class LxBaseMediaEncoder {
     public interface OnMediaInfoListener{
 
         void onMediaTime(int times);
+    }
+
+    private long getAudioPts(int size, int sampleRate){
+        audioPts+=(long)(1.0*size/(sampleRate*2*2)*1000000.0);
+        return audioPts;
     }
 }
