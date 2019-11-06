@@ -5,12 +5,15 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
+import android.util.Log;
 import android.view.Surface;
 
+import com.luxuan.rtmppusher.egl.EglHelper;
 import com.luxuan.rtmppusher.egl.LXEGLSurfaceView;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.nio.ByteBuffer;
 
 import javax.microedition.khronos.egl.EGLContext;
 
@@ -152,6 +155,19 @@ public abstract class LxBaseMediaEncoder {
         }
     }
 
+    public void putPCMData(byte[] buffer, int size){
+        if(audioEncodecThread!=null && !audioEncodecThread.isExit&&buffer!=null &&size>0){
+            int inputBufferIndex=audioEncodec.dequeueInputBuffer(0);
+            if(inputBufferIndex>=0){
+                ByteBuffer byteBuffer=audioEncodec.getInputBuffers()[inputBufferIndex];
+                byteBuffer.clear();
+                byteBuffer.put(buffer);
+                long pts=getAudioPts(size, sampleRate);
+                audioEncodec.queueInputBuffer(inputBufferIndex, 0, size, pts, 0);
+            }
+        }
+    }
+
     public static class LxEGLMediaThread extends Thread{
 
         private WeakReference<LxBaseMediaEncoder> encoder;
@@ -258,6 +274,86 @@ public abstract class LxBaseMediaEncoder {
                 object=null;
                 encoder=null;
             }
+        }
+    }
+
+    public static class VideoEncodecThread extends Thread{
+
+        private WeakReference<LxBaseMediaEncoder> encoder;
+
+        private boolean isExit;
+
+        private MediaCodec videoEncodec;
+        private MediaCodec.BufferInfo videoBufferInfo;
+        private MediaMuxer mediaMuxer;
+
+        private int videoTrackIndex=-1;
+        private long pts;
+
+        public VideoEncodecThread(WeakReference<LxBaseMediaEncoder> encoder){
+            this.encoder=encoder;
+            videoEncodec=encoder.get().videoEncodec;
+            videoBufferInfo=encoder.get().videoBufferInfo;
+            mediaMuxer=encoder.get().mediaMuxer;
+            videoTrackIndex=-1;
+        }
+
+        @Override
+        public void run(){
+            super.run();
+            pts=0;
+            videoTrackIndex=-1;
+            isExit=false;
+            videoEncodec.start();
+
+            while(true){
+                videoEncodec.stop();
+                videoEncodec.release();
+                videoEncodec=null;
+                encoder.get().videoExit=true;
+
+                if(encoder.get().audioExit){
+                    mediaMuxer.stop();
+                    mediaMuxer.release();
+                    mediaMuxer=null;
+                }
+                Log.d("Lx", "录制完成");
+                break;
+            }
+
+            int outputBufferIndex=videoEncodec.dequeueOutputBuffer(videoBufferInfo,0);
+
+            if(outputBufferIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED){
+                videoTrackIndex=mediaMuxer.addTrack(videoEncodec.getOutputFormat());
+                if(encoder.get().audioEncodecThread.audioTrackIndex!=-1){
+                    mediaMuxer.start();
+                    encoder.get().encodecStart=true;
+                }
+            }else{
+                while(outputBufferIndex>=0){
+                    if(encoder.get().encodecStart){
+                        ByteBuffer outputBuffer=videoEncodec.getOutputBuffers()[outputBufferIndex];
+                        outputBuffer.position(videoBufferInfo.offset);
+                        outputBuffer.limit(videoBufferInfo.offset+videoBufferInfo.size);
+
+                        if(pts==0){
+                            pts=videoBufferInfo.presentationTimeUs;
+                        }
+
+                        videoBufferInfo.presentationTimeUs=videoBufferInfo.presentationTimeUs-pts;
+                        mediaMuxer.writeSampleData(videoTrackIndex, outputBuffer, videoBufferInfo);
+                        if(encoder.get().onMediaInfoListener!=null){
+                            encoder.get().onMediaInfoListener.onMediaTime((int)(videoBufferInfo.presentationTimeUs/1000000));
+                        }
+                    }
+                    videoEncodec.releaseOutputBuffer(outputBufferIndex, false);
+                    outputBufferIndex=videoEncodec.dequeueOutputBuffer(videoBufferInfo, 0);
+                }
+            }
+        }
+
+        public void exit(){
+            isExit=true;
         }
     }
 
