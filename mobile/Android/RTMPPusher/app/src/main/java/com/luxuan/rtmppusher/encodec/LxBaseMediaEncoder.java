@@ -359,6 +359,81 @@ public abstract class LxBaseMediaEncoder {
         }
     }
 
+    public static class AudioEncodecThread extends Thread{
+        private WeakReference<LxBaseMediaEncoder> encoder;
+        private boolean isExit;
+
+        private MediaCodec audioEncodec;
+        private MediaCodec.BufferInfo bufferInfo;
+        private MediaMuxer mediaMuxer;
+
+        private int audioTrackIndex=-1;
+        private long pts;
+
+        public AudioEncodecThread(WeakReference<LxBaseMediaEncoder> encoder){
+            this.encoder=encoder;
+            audioEncodec=encoder.get().audioEncodec;
+            bufferInfo=encoder.get().audioBufferInfo;
+            mediaMuxer=encoder.get().mediaMuxer;
+            audioTrackIndex=-1;
+        }
+
+        @Override
+        public void run(){
+            super.run();
+            pts=0;
+            isExit=false;
+            audioEncodec.start();
+            while(true){
+                if(isExit){
+                    audioEncodec.stop();
+                    audioEncodec.release();
+                    audioEncodec=null;
+
+                    encoder.get().audioExit=true;
+                    if(encoder.get().videoExit){
+                        mediaMuxer.stop();
+                        mediaMuxer.release();
+                        mediaMuxer=null;
+                    }
+                    break;
+                }
+
+                int outputBufferIndex=audioEncodec.dequeueOutputBuffer(bufferInfo, 0);
+                if(outputBufferIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED){
+                    if(mediaMuxer!=null){
+                        audioTrackIndex=mediaMuxer.addTrack(audioEncodec.getOutputFormat());
+                        if(encoder.get().videoEncodecThread.videoTrackIndex!=-1){
+                            mediaMuxer.start();
+                            encoder.get().encodecStart=true;
+                        }
+                    }
+                }else{
+                    while(outputBufferIndex>=0){
+                        if(encoder.get().encodecStart){
+                            ByteBuffer outputBuffer=audioEncodec.getOutputBuffers()[outputBufferIndex];
+                            outputBuffer.position(bufferInfo.offset);
+                            outputBuffer.limit(bufferInfo.offset+bufferInfo.size);
+                            if(pts==0){
+                                pts=bufferInfo.presentationTimeUs;
+                            }
+
+                            bufferInfo.presentationTimeUs=bufferInfo.presentationTimeUs-pts;
+                            mediaMuxer.writeSampleData(audioTrackIndex, outputBuffer, bufferInfo);
+                        }
+
+                        audioEncodec.releaseOutputBuffer(outputBufferIndex, false);
+                        outputBufferIndex=audioEncodec.dequeueOutputBuffer(bufferInfo, 0);
+                    }
+                }
+            }
+        }
+
+        public void exit(){
+            isExit=true;
+        }
+    }
+
     public interface OnMediaInfoListener{
 
         void onMediaTime(int times);
