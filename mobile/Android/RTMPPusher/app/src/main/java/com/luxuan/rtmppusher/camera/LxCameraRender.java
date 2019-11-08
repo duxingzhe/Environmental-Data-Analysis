@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import com.luxuan.rtmppusher.R;
 import com.luxuan.rtmppusher.egl.LXEGLSurfaceView;
 import com.luxuan.rtmppusher.egl.LxShaderUtil;
+import com.luxuan.rtmppusher.util.DisplayUtil;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -60,8 +62,8 @@ public class LxCameraRender implements LXEGLSurfaceView.LxGLRender, SurfaceTextu
 
     public LxCameraRendrer(Context context){
         this.context=context;
-        screenWidth=DisplayUtils.getScreenWidth(context);
-        screenHeight=DisplayUtils.getScreenHeight(context);
+        screenWidth = DisplayUtil.getScreenWidth(context);
+        screenHeight = DisplayUtil.getScreenHeight(context);
 
         lxCameraFboRender=new LxCameraFboRender(context);
         vertexBuffer= ByteBuffer.allocateDirect(vertexData.length *4).order(ByteOrder.nativeOrder())
@@ -143,5 +145,32 @@ public class LxCameraRender implements LXEGLSurfaceView.LxGLRender, SurfaceTextu
         }
 
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
+    }
+
+    public void resetMatrix(){
+        Matrix.setIdentityM(matrix, 0);
+    }
+
+    public void setAngle(float angle, float x, float y, float z){
+        Matrix.rotateM(matrix, 0, angle, x, y, z);
+    }
+
+    @Override
+    public void onSurfaceChanged(int width, int height){
+        this.width=width;
+        this.height=height;
+    }
+
+    @Override
+    public void onFrameAvailable(SurfaceTexture surfaceTexture){
+
+    }
+
+    public int getFboTextureId(){
+        return fboTextureId;
+    }
+
+    public interface OnSurfaceCreateListener{
+        void onSurfaceCreate(SurfaceTexture surfaceTexture);
     }
 }
