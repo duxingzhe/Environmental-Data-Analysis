@@ -2,7 +2,9 @@ package com.luxuan.rtmppusher.camera;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.luxuan.rtmppusher.R;
 import com.luxuan.rtmppusher.egl.LXEGLSurfaceView;
@@ -97,5 +99,49 @@ public class LxCameraRender implements LXEGLSurfaceView.LxGLRender, SurfaceTextu
         GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, vertexData.length*4, fragmentData.length *4, fragmentBuffer);
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 
+        int[] fbos=new int[1];
+        GLES20.glGenBuffers(1, fbos, 0);
+        fboId=fbos[0];
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
+
+        int[] textureIds=new int[1];
+        GLES20.glGenTextures(1, textureIds, 0);
+        fboTextureId=textureIds[0];
+
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fboTextureId);
+
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_REPEAT);
+
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, screenWidth, screenHeight, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, fboTextureId, 0);
+        if(GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER)!=GLES20.GL_FRAMEBUFFER_COMPLETE){
+            Log.e("lx", "fbo wrong");
+        }else{
+            Log.e("lx", "fbo success");
+        }
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+
+        int[] textureIdsEOS=new int[1];
+        GLES20.glGenTextures(1, textureIdsEOS,0);
+        cameraTextureId=textureIdsEOS[0];
+
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, cameraTextureId);
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+        GLES20.glTexParameteri(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+
+        surfaceTexture=new SurfaceTexture(cameraTextureId);
+        surfaceTexture.setOnFrameAvailableListener(this);
+
+        if(onSurfaceCreateListener!=null){
+            onSurfaceCreateListener.onSurfaceCreate(surfaceTexture, fboTextureId);
+        }
+
+        GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, 0);
     }
 }
