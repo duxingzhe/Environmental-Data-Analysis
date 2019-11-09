@@ -201,6 +201,6 @@ public class LxCameraRender implements LXEGLSurfaceView.LxGLRender, SurfaceTextu
     }
 
     public interface OnSurfaceCreateListener{
-        void onSurfaceCreate(SurfaceTexture surfaceTexture);
+        void onSurfaceCreate(SurfaceTexture surfaceTexture, int textureId);
     }
 }
