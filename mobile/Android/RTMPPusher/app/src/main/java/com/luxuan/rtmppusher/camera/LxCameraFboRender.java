@@ -2,7 +2,9 @@ package com.luxuan.rtmppusher.camera;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.opengl.GLES20;
 
+import com.luxuan.rtmppusher.R;
 import com.luxuan.rtmppusher.egl.LxShaderUtil;
 
 import java.nio.ByteBuffer;
@@ -34,8 +36,8 @@ public class LxCameraFboRender {
     };
     private FloatBuffer fragmentBuffer;
 
-    private int porgram;
-    private int vPositioin;
+    private int program;
+    private int vPosition;
     private int fPosition;
     private int textureId;
     private int sampler;
@@ -73,5 +75,31 @@ public class LxCameraFboRender {
         fragmentBuffer=ByteBuffer.allocateDirect(fragmentData.length *4).order(ByteOrder.nativeOrder())
                 .asFloatBuffer().put(fragmentData);
         fragmentBuffer.position(0);
+    }
+
+    public void onCreate(){
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+
+        String vertexSource=LxShaderUtil.getRawResource(context, R.raw.vertex_shader_screen);
+        String fragmentSource=LxShaderUtil.getRawResource(context, R.raw.fragment_shader_screen);
+
+        program=LxShaderUtil.createProgram(vertexSource, fragmentSource);
+
+        vPosition=GLES20.glGetAttribLocation(program, "v_Position");
+        fPosition=GLES20.glGetAttribLocation(program, "f_Position");
+        sampler=GLES20.glGetUniformLocation(program, "sTexture");
+
+        int[] vbos=new int[1];
+        GLES20.glGenBuffers(1, vbos, 0);
+        vboId=vbos[0];
+
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
+        GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, vertexData.length*4+fragmentData.length*4, null,GLES20.GL_STATIC_DRAW);
+        GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, 0, vertexData.length*4, vertexBuffer);
+        GLES20.glBufferSubData(GLES20.GL_ARRAY_BUFFER, vertexData.length*4, fragmentData.length *4, fragmentBuffer);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
+        bitmapTextureId=LxShaderUtil.loadBitmapTexture(bitmap);
     }
 }
