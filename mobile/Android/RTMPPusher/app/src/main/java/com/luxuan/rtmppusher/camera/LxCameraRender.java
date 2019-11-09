@@ -60,7 +60,7 @@ public class LxCameraRender implements LXEGLSurfaceView.LxGLRender, SurfaceTextu
     private int width;
     private int height;
 
-    public LxCameraRendrer(Context context){
+    public LxCameraRender(Context context){
         this.context=context;
         screenWidth = DisplayUtil.getScreenWidth(context);
         screenHeight = DisplayUtil.getScreenHeight(context);
