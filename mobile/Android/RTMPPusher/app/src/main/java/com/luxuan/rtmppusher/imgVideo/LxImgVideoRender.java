@@ -101,8 +101,8 @@ public class LxImgVideoRender implements LXEGLSurfaceView.LxGLRender {
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_REPEAT);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_REPEAT);
 
-        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, screenWidth, screenHeight, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
-        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, fboTextureId, 0);
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, width, height, 0, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, null);
+        GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0, GLES20.GL_TEXTURE_2D, textureId, 0);
         if(GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER)!=GLES20.GL_FRAMEBUFFER_COMPLETE){
             Log.e("lx", "fbo wrong");
         }else{
@@ -117,6 +117,38 @@ public class LxImgVideoRender implements LXEGLSurfaceView.LxGLRender {
 
         GLES20.glViewport(0, 0, width, height);
         lxImgFboRender.onChange(width,height);
+    }
+
+    @Override
+    public void onDrawFrame(){
+
+        imgTextureId=LxShaderUtil.loadTexture(srcImg, context);
+        Log.d("lx", "id is: "+imgTextureId);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
+
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        GLES20.glClearColor(1f, 0f, 0f, 1f);
+
+        GLES20.glUseProgram(program);
+
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, imgTextureId);
+
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vboId);
+
+        GLES20.glEnableVertexAttribArray(vPosition);
+        GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, 0);
+
+        GLES20.glEnableVertexAttribArray(fPosition);
+        GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, vertexData.length *4);
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
+
+        int[] ids=new int[]{imgTextureId};
+        GLES20.glDeleteTextures(1, ids, 0);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+        lxImgFboRender.onDraw(textureId);
     }
 
     public interface OnRenderCreateListener{
