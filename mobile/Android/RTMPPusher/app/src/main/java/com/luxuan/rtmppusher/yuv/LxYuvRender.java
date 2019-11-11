@@ -128,4 +128,64 @@ public class LxYuvRender implements LXEGLSurfaceView.LxGLRender {
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
     }
+
+    @Override
+    public void onSurfaceChanged(int width, int height){
+        Matrix.rotateM(matrix, 0, 180f, 1, 0, 0);
+        GLES20.glViewport(0, 0, width, height);
+        lxYuvFboRender.onChange(width, height);
+    }
+
+    @Override
+    public void onDrawFrame(){
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboId);
+        GLES20.glClearColor(1f, 0f, 0f, 1f);
+
+        if(w>0&&h>0&&y!=null&&u!=null&&v!=null){
+            GLES20.glUseProgram(program);
+            GLES20.glUniformMatrix4fv(u_matrix, 1, false, matrix, 0);
+            GLES20.glEnableVertexAttribArray(vPosition);
+            GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 8, vertexBuffer);
+            GLES20.glEnableVertexAttribArray(fPosition);
+            GLES20.glVertexAttribPointer(fPosition, 2, GLES20.GL_FLOAT, false, 8, textureBuffer);
+
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture_yuv[0]);
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, w, h, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, y);
+            GLES20.glUniform1i(sampler_y, 0);
+
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture_yuv[1]);
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, w/2, h/2, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, u);
+            GLES20.glUniform1i(sampler_u, 1);
+
+            GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture_yuv[2]);
+            GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_LUMINANCE, w/2, h/2, 0, GLES20.GL_LUMINANCE, GLES20.GL_UNSIGNED_BYTE, v);
+            GLES20.glUniform1i(sampler_v, 2);
+
+            y.clear();
+            u.clear();
+            v.clear();
+
+            y=null;
+            u=null;
+            v=null;
+        }
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0 ,4);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+
+        lxYuvFboRender.onDraw(textureId);
+    }
+
+    public void setFrameData(int w, int h, byte[] by, byte[] bu, byte[] bv){
+        this.w=w;
+        this.h=h;
+        this.y=ByteBuffer.wrap(by);
+        this.u=ByteBuffer.wrap(bu);
+        this.v=ByteBuffer.wrap(bv);
+    }
 }
