@@ -2,6 +2,7 @@ package com.luxuan.rtmppusher;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -52,6 +53,35 @@ public class ImageVideoActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void start(View view){
+        wlMusic.setSource(Environment.getExternalStorageDirectory().getAbsolutePath()+"/the girl.m4a");
+        wlMusic.prePared();
+    }
+
+    private void startImgs(){
+        new Thread(new Runnable(){
+
+            @Override
+            public void run(){
+                for(int i=1;i<=257;i++){
+                    int imgSrc=getResources().getIdentifier("img"+i, "drawable","com.luxuan.rtmppusher");
+                    lxImgVideoView.setCurrentImg(imgSrc);
+                    try{
+                        Thread.sleep(80);
+                    }catch(InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+
+                if(lxMediaEncodec!=null){
+                    wlMusic.stop();
+                    lxMediaEncodec.stopRecord();
+                    lxMediaEncodec=null;
+                }
+            }
+        }).start();
     }
 
 }
