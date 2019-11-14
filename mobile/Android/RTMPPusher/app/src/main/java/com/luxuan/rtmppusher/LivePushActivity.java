@@ -2,6 +2,7 @@ package com.luxuan.rtmppusher;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -66,5 +67,18 @@ public class LivePushActivity extends AppCompatActivity {
                 Log.d("lx", msg);
             }
         });
+    }
+
+    public void startPush(View view){
+        start=!start;
+        if(start){
+            lxPushVideo.initLivePush("");
+        }else{
+            if(lxPushEncodec!=null){
+                lxPushEncodec.stopRecord();
+                lxPushVideo.stopPush();
+                lxPushEncodec=null;
+            }
+        }
     }
 }
