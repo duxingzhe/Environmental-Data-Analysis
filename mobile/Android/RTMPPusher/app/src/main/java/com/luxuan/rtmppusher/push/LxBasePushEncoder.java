@@ -70,11 +70,11 @@ public abstract class LxBasePushEncoder {
         this.onMediaInfoListener=onMediaInfoListener;
     }
 
-    public void initEncodec(EGLContext eglContext, String savePath, int width, int height, int sampleRate, int channelCount){
+    public void initEncodec(EGLContext eglContext, int width, int height, int sampleRate, int channelCount){
         this.width=width;
         this.height=height;
         this.eglContext=eglContext;
-        initMediaEncodec(savePath, width, height, sampleRate, channelCount);
+        initMediaEncodec(width, height, sampleRate, channelCount);
     }
 
     public void startRecord(){
@@ -105,14 +105,9 @@ public abstract class LxBasePushEncoder {
         }
     }
 
-    private void initMediaEncodec(String savePath, int width, int height, int sampleRate, int channelCount){
-        try {
-            mediaMuxer = new MediaMuxer(savePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-            initVideoEncodec(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
-            initAudioEncodec(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channelCount);
-        }catch(IOException e){
-            e.printStackTrace();
-        }
+    private void initMediaEncodec(int width, int height, int sampleRate, int channelCount){
+        initVideoEncodec(MediaFormat.MIMETYPE_VIDEO_AVC, width, height);
+        initAudioEncodec(MediaFormat.MIMETYPE_AUDIO_AAC, sampleRate, channelCount);
     }
 
     private void initVideoEncodec(String mimeType, int width, int height){
@@ -284,24 +279,22 @@ public abstract class LxBasePushEncoder {
 
         private MediaCodec videoEncodec;
         private MediaCodec.BufferInfo videoBufferInfo;
-        private MediaMuxer mediaMuxer;
 
-        private int videoTrackIndex=-1;
         private long pts;
+        private byte[] sps;
+        private byte[] pps;
+        private boolean keyFrame=false;
 
         public VideoEncodecThread(WeakReference<LxBasePushEncoder> encoder){
             this.encoder=encoder;
             videoEncodec=encoder.get().videoEncodec;
             videoBufferInfo=encoder.get().videoBufferInfo;
-            mediaMuxer=encoder.get().mediaMuxer;
-            videoTrackIndex=-1;
         }
 
         @Override
         public void run(){
             super.run();
             pts=0;
-            videoTrackIndex=-1;
             isExit=false;
             videoEncodec.start();
 
@@ -311,41 +304,45 @@ public abstract class LxBasePushEncoder {
                     videoEncodec.release();
                     videoEncodec = null;
                     encoder.get().videoExit = true;
-
-                    if (encoder.get().audioExit) {
-                        mediaMuxer.stop();
-                        mediaMuxer.release();
-                        mediaMuxer = null;
-                    }
                     Log.d("Lx", "录制完成");
                     break;
                 }
             }
 
             int outputBufferIndex=videoEncodec.dequeueOutputBuffer(videoBufferInfo,0);
-
+            keyFrame=false;
             if(outputBufferIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED){
-                videoTrackIndex=mediaMuxer.addTrack(videoEncodec.getOutputFormat());
-                if(encoder.get().audioEncodecThread.audioTrackIndex!=-1){
-                    mediaMuxer.start();
-                    encoder.get().encodecStart=true;
-                }
+                ByteBuffer spsb=videoEncodec.getOutputFormat().getByteBuffer("csd-0");
+                sps=new byte[spsb.remaining()];
+                spsb.get(sps, 0, sps.length);
+
+                ByteBuffer ppsb=videoEncodec.getOutputFormat().getByteBuffer("csd-1");
+                pps=new byte[ppsb.remaining()];
+                ppsb.get(pps, 0, pps.length);
             }else{
                 while(outputBufferIndex>=0){
-                    if(encoder.get().encodecStart){
-                        ByteBuffer outputBuffer=videoEncodec.getOutputBuffers()[outputBufferIndex];
-                        outputBuffer.position(videoBufferInfo.offset);
-                        outputBuffer.limit(videoBufferInfo.offset+videoBufferInfo.size);
 
-                        if(pts==0){
-                            pts=videoBufferInfo.presentationTimeUs;
-                        }
+                    ByteBuffer outputBuffer=videoEncodec.getOutputBuffers()[outputBufferIndex];
+                    outputBuffer.position(videoBufferInfo.offset);
+                    outputBuffer.limit(videoBufferInfo.offset+videoBufferInfo.size);
 
-                        videoBufferInfo.presentationTimeUs=videoBufferInfo.presentationTimeUs-pts;
-                        mediaMuxer.writeSampleData(videoTrackIndex, outputBuffer, videoBufferInfo);
+                    if(pts==0){
+                        pts=videoBufferInfo.presentationTimeUs;
+                    }
+
+                    videoBufferInfo.presentationTimeUs=videoBufferInfo.presentationTimeUs-pts;
+                    byte[] data=new byte[outputBuffer.remaining()];
+                    outputBuffer.get(data, 0, data.length);
+
+                    if(videoBufferInfo.flags==MediaCodec.BUFFER_FLAG_KEY_FRAME){
+                        keyFrame=true;
                         if(encoder.get().onMediaInfoListener!=null){
-                            encoder.get().onMediaInfoListener.onMediaTime((int)(videoBufferInfo.presentationTimeUs/1000000));
+                            encoder.get().onMediaInfoListener.onSPSPPSInfo(sps, pps);
                         }
+                    }
+                    if(encoder.get().onMediaInfoListener!=null){
+                        encoder.get().onMediaInfoListener.onVideoInfo(data, keyFrame);
+                        encoder.get().onMediaInfoListener.onMediaTime((int)(videoBufferInfo.presentationTimeUs/1000000));
                     }
                     videoEncodec.releaseOutputBuffer(outputBufferIndex, false);
                     outputBufferIndex=videoEncodec.dequeueOutputBuffer(videoBufferInfo, 0);
@@ -364,17 +361,13 @@ public abstract class LxBasePushEncoder {
 
         private MediaCodec audioEncodec;
         private MediaCodec.BufferInfo bufferInfo;
-        private MediaMuxer mediaMuxer;
 
-        private int audioTrackIndex=-1;
         private long pts;
 
         public AudioEncodecThread(WeakReference<LxBasePushEncoder> encoder){
             this.encoder=encoder;
             audioEncodec=encoder.get().audioEncodec;
             bufferInfo=encoder.get().audioBufferInfo;
-            mediaMuxer=encoder.get().mediaMuxer;
-            audioTrackIndex=-1;
         }
 
         @Override
@@ -389,36 +382,27 @@ public abstract class LxBasePushEncoder {
                     audioEncodec.release();
                     audioEncodec=null;
 
-                    encoder.get().audioExit=true;
-                    if(encoder.get().videoExit){
-                        mediaMuxer.stop();
-                        mediaMuxer.release();
-                        mediaMuxer=null;
-                    }
                     break;
                 }
 
                 int outputBufferIndex=audioEncodec.dequeueOutputBuffer(bufferInfo, 0);
                 if(outputBufferIndex==MediaCodec.INFO_OUTPUT_FORMAT_CHANGED){
-                    if(mediaMuxer!=null){
-                        audioTrackIndex=mediaMuxer.addTrack(audioEncodec.getOutputFormat());
-                        if(encoder.get().videoEncodecThread.videoTrackIndex!=-1){
-                            mediaMuxer.start();
-                            encoder.get().encodecStart=true;
-                        }
-                    }
+
                 }else{
                     while(outputBufferIndex>=0){
-                        if(encoder.get().encodecStart){
-                            ByteBuffer outputBuffer=audioEncodec.getOutputBuffers()[outputBufferIndex];
-                            outputBuffer.position(bufferInfo.offset);
-                            outputBuffer.limit(bufferInfo.offset+bufferInfo.size);
-                            if(pts==0){
-                                pts=bufferInfo.presentationTimeUs;
-                            }
+                        ByteBuffer outputBuffer=audioEncodec.getOutputBuffers()[outputBufferIndex];
+                        outputBuffer.position(bufferInfo.offset);
+                        outputBuffer.limit(bufferInfo.offset+bufferInfo.size);
+                        if(pts==0){
+                            pts=bufferInfo.presentationTimeUs;
+                        }
 
-                            bufferInfo.presentationTimeUs=bufferInfo.presentationTimeUs-pts;
-                            mediaMuxer.writeSampleData(audioTrackIndex, outputBuffer, bufferInfo);
+                        bufferInfo.presentationTimeUs=bufferInfo.presentationTimeUs-pts;
+
+                        byte[] data=new byte[outputBuffer.remaining()];
+                        outputBuffer.get(data, 0, data.length);
+                        if(encoder.get().onMediaInfoListener!=null){
+                            encoder.get().onMediaInfoListener.onAudioInfo(data);
                         }
 
                         audioEncodec.releaseOutputBuffer(outputBufferIndex, false);
@@ -436,6 +420,12 @@ public abstract class LxBasePushEncoder {
     public interface OnMediaInfoListener{
 
         void onMediaTime(int times);
+
+        void onSPSPPSInfo(byte[] sps, byte[] pps);
+
+        void onVideoInfo(byte[] data, boolean keyframe);
+
+        void onAudioInfo(byte[] data);
     }
 
     private long getAudioPts(int size, int sampleRate){
