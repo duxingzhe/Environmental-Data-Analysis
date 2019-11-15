@@ -3,6 +3,7 @@ package com.luxuan.rtmppusher;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -83,5 +84,18 @@ public class VideoActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void record(View view){
+        if(lxMediaEncodec==null){
+            wlMusic.setSource(Environment.getExternalStorageDirectory().getAbsolutePath()+"/不仅仅是喜欢.ogg");
+            wlMusic.prePared();
+            btnRecord.setText("正在录制");
+        }else{
+            lxMediaEncodec.stopRecord();
+            btnRecord.setText("开始录制");
+            lxMediaEncodec=null;
+            wlMusic.stop();
+        }
     }
 }
