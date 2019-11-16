@@ -1,5 +1,6 @@
 package com.luxuan.rtsp.rtcp;
 
+import com.luxuan.rtsp.rtsp.Protocol;
 import com.luxuan.rtsp.rtsp.RtpFrame;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public abstract class BaseSenderReport {
     }
 
     public static BaseSenderReport getInstance(Protocol protocol, int videoSourcePort, int audioSourcePort){
-        return protocol==Protocol.TCP?new SenderReportTcp(): new SenderReportUdp(videoSourcePort, audioSourcePort);
+        return protocol== Protocol.TCP?new SenderReportTcp(): new SenderReportUdp(videoSourcePort, audioSourcePort);
     }
 
     public abstract void setDataStream(OutputStream outputStream, String host);
