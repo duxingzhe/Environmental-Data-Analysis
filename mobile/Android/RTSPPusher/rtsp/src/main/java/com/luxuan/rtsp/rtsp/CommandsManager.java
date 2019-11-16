@@ -97,4 +97,115 @@ public class CommandsManager {
     public int getPort(){
         return port;
     }
+
+    public String getPath(){
+        return path;
+    }
+
+    public byte[] getSps(){
+        return sps;
+    }
+
+    public byte[] getPps(){
+        return pps;
+    }
+
+    public int getSampleRate(){
+        return sampleRate;
+    }
+
+    public int getTrackAudio(){
+        return trackAudio;
+    }
+
+    public int getTrackVideo(){
+        return trackVideo;
+    }
+
+    public Protocol getProtocol(){
+        return protocol;
+    }
+
+    public int[] getAudioClientPorts(){
+        return audioClientPorts;
+    }
+
+    public int[] getVideoClientPorts() {
+        return videoClientPorts;
+    }
+
+    public byte[] getVps(){
+        return vps;
+    }
+
+    public String getUser(){
+        return user;
+    }
+
+    public String getPassword(){
+        return password;
+    }
+
+    public int[] getAudioServerPorts(){
+        return audioServerPorts;
+    }
+
+    public int[] getVideoServerPorts() {
+        return videoServerPorts;
+    }
+
+    public void clear(){
+        sps=null;
+        pps=null;
+        vps=null;
+        retryClear();
+    }
+
+    public void retryClear(){
+        cSeq=0;
+        sessionId=null;
+    }
+
+    private String getSpsString(){
+        return encodeToString(sps);
+    }
+
+    private String getPpsString(){
+        return encodeToString(pps);
+    }
+
+    private String getVpsString(){
+        return encodeToString(vps);
+    }
+
+    private String addHeaders(){
+        return "CSeq: " + (++cSeq) + "\r\n" + (sessionId != null ? "Session: " + sessionId + "\r\n"
+                : "") + (authorization != null ? "Authorization: " + authorization + "\r\n" : "") + "\r\n";
+    }
+
+    private String createBody(){
+        String videoBody="";
+        if(!isOnlyAudio()){
+            videoBody=vps==null?Body.createH264Body(trackVideo, getSpsString(), getPpsString()):
+                    Body.createH265Body(trackVideo, getSpsString(), getPpsString(), getVpsString());
+        }
+
+        return "v=0\r\n"
+                + "o=- "
+                + timeStamp
+                + " "
+                + timeStamp
+                + " IN IP4 "
+                + "127.0.0.1"
+                + "\r\n"
+                + "s=Unnamed\r\n"
+                + "i=N/A\r\n"
+                + "c=IN IP4 "
+                + host
+                + "\r\n"
+                + "t=0 0\r\n"
+                + "a=recvonly\r\n"
+                + videoBody
+                + Body.createAacBody(trackAudio, sampleRate, isStereo);
+    }
 }
