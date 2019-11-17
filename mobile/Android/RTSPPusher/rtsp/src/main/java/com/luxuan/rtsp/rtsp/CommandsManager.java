@@ -1,8 +1,13 @@
 package com.luxuan.rtsp.rtsp;
 
 import android.util.Base64;
+import android.util.Log;
+
+import com.luxuan.rtsp.utils.AuthUtil;
 
 import java.nio.ByteBuffer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommandsManager {
 
@@ -207,5 +212,81 @@ public class CommandsManager {
                 + "a=recvonly\r\n"
                 + videoBody
                 + Body.createAacBody(trackAudio, sampleRate, isStereo);
+    }
+
+    private String createAuth(String authResponse){
+        Pattern authPattern= Pattern.compile("realm=\"(.+)\",\\s+nonce=\"(\\w+)\"", Pattern.CASE_INSENSITIVE);
+
+        Matcher matcher=authPattern.matcher(authResponse);
+
+        if(matcher.find()){
+            Log.i(TAG, "using digest auth");
+            String realm=matcher.group(1);
+            String nonce=matcher.group(2);
+            String hash1= AuthUtil.getMd5Hash(user+":"+realm+":"+password);
+            String hash2=AuthUtil.getMd5Hash("ANNOUNCE:rtsp://"+host+":"+port+path);
+            String hash3=AuthUtil.getMd5Hash(hash1+":"+nonce+":"+hash2);
+
+            return "Digest username=\""
+                    + user
+                    + "\",realm=\""
+                    + realm
+                    + "\",nonce=\""
+                    + nonce
+                    + "\",uri=\"rtsp://"
+                    + host
+                    + ":"
+                    + port
+                    + path
+                    + "\",response=\""
+                    + hash3
+                    + "\"";
+        }else{
+            //basic auth
+            Log.i(TAG, "using basic auth");
+            String data=user+":"+password;
+            String base64Data=Base64.encodeToString(data.getBytes(), Base64.DEFAULT);
+            return "Basic "+base64Data;
+        }
+    }
+
+    public String createOptions(){
+        String options = "OPTIONS rtsp://" + host + ":" + port + path + " RTSP/1.0\r\n" + addHeaders();
+        Log.i(TAG, options);
+        return options;
+    }
+
+    public String createSetup(int track){
+        int[] udpPorts=track==trackVideo?videoClientPorts:audioClientPorts;
+
+        String params=(protocol==Protocol.UDP)?("UDP;unicast;client_port=" + udpPorts[0] + "-" + udpPorts[1] + ";mode=record")
+                : ("TCP;interleaved=" + 2 * track + "-" + (2 * track + 1) + ";mode=record");
+        String setup="SETUP rtsp://"
+                + host
+                + ":"
+                + port
+                + path
+                + "/trackID="
+                + track
+                + " RTSP/1.0\r\n"
+                + "Transport: RTP/AVP/"
+                + params
+                + "\r\n"
+                + addHeaders();
+        Log.i(TAG, setup);
+        return setup;
+    }
+
+    public String createRecord(){
+        String record="RECORD rtsp://"
+                + host
+                + ":"
+                + port
+                + path
+                + " RTSP/1.0\r\n"
+                + "Range: npt=0.000-\r\n"
+                + addHeaders();
+        Log.i(TAG, record);
+        return record;
     }
 }
