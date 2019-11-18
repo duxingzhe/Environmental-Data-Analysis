@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.luxuan.rtsp.utils.AuthUtil;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -288,5 +290,125 @@ public class CommandsManager {
                 + addHeaders();
         Log.i(TAG, record);
         return record;
+    }
+
+    public String createAnnounce(){
+        String body=createBody();
+        String announce="ANNOUNCE rtsp://"
+                + host
+                + ":"
+                + port
+                + path
+                + " RTSP/1.0\r\n"
+                + "CSeq: "
+                + (++cSeq)
+                + "\r\n"
+                + "Content-Length: "
+                + body.length()
+                + "\r\n"
+                + (authorization == null ? "" : "Authorization: " + authorization  + "\r\n")
+                + "Content-Type: application/sdp\r\n\r\n"
+                + body;
+        Log.i(TAG, announce);
+        return announce;
+    }
+
+    public String createAnnounceWithAuth(String authResponse){
+        authorization=createAuth(authResponse);
+        Log.i("Auth", authorization);
+        String body=createBody();
+        String announceAuth= "ANNOUNCE rtsp://"
+                + host
+                + ":"
+                + port
+                + path
+                + " RTSP/1.0\r\n"
+                + "CSeq: "
+                + (++cSeq)
+                + "\r\n"
+                + "Content-Length: "
+                + body.length()
+                + "\r\n"
+                + "Authorization: "
+                + authorization
+                + "\r\n"
+                + "Content-Type: application/sdp\r\n\r\n"
+                + body;
+        Log.i(TAG, announceAuth);
+        return announceAuth;
+    }
+
+    public String createTeardown(){
+        String teardown= "TEARDOWN rtsp://" + host + ":" + port + path + " RTSP/1.0\r\n" + addHeaders();
+        Log.i(TAG, teardown);
+        return teardown;
+    }
+
+    public static String createPause(){
+        return "";
+    }
+
+    public static String createPlay(){
+        return "";
+    }
+
+    public static String createGetParameter(){
+        return "";
+    }
+
+    public static String createSetParameter(){
+        return "";
+    }
+
+    public static String createRedirect(){
+        return "";
+    }
+
+    public String getResponse(BufferedReader reader, ConnectCheckRtsp connectCheckRtsp, boolean isAudio, boolean checkStatus){
+        try{
+            String response="";
+            String line;
+
+            while((line=reader.readLine())!=null){
+                if(line.contains("Session")){
+                    Pattern rtspPattern=Pattern.compile("Session: (\\w+)");
+                    Matcher matcher=rtspPattern.matcher(line);
+                    if(matcher.find()){
+                        sessionId=matcher.group(1);
+                    }
+
+                    sessionId=line.split(":")[0].split(":")[1].trim();
+                }
+
+                if(line.contains("server_port")){
+                    Pattern rtspPattern=Pattern.compile("server_port=([0-9]+)-([0-9]+)");
+                    Matcher matcher=rtspPattern.matcher(line);
+                    if(matcher.find()){
+                        if(isAudio){
+                            audioServerPorts[0]=Integer.parseInt(matcher.group(1));
+                            audioServerPorts[1]=Integer.parseInt(matcher.group(2));
+                        }else{
+                            videoServerPorts[0]=Integer.parseInt(matcher.group(1));
+                            videoServerPorts[1]=Integer.parseInt(matcher.group(2));
+                        }
+                    }
+                }
+                response+=line+"\n";
+
+                if(line.length()<3) {
+                    break;
+                }
+            }
+
+            if(checkStatus&&getResponseStatus(response)!=200){
+                connectCheckerRtsp.onConnectionFailedRtsp("Error configure stream, "+response);
+            }
+
+            Log.i(TAG, response);
+            return response;
+        }catch(IOException e){
+            Log.e(TAG," read error", e);
+            return null;
+        }
     }
 }
