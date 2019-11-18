@@ -4,6 +4,7 @@ import android.util.Base64;
 import android.util.Log;
 
 import com.luxuan.rtsp.utils.AuthUtil;
+import com.luxuan.rtsp.utils.ConnectCheckerRtsp;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -364,7 +365,7 @@ public class CommandsManager {
         return "";
     }
 
-    public String getResponse(BufferedReader reader, ConnectCheckRtsp connectCheckRtsp, boolean isAudio, boolean checkStatus){
+    public String getResponse(BufferedReader reader, ConnectCheckerRtsp connectCheckerRtsp, boolean isAudio, boolean checkStatus){
         try{
             String response="";
             String line;
@@ -409,6 +410,15 @@ public class CommandsManager {
         }catch(IOException e){
             Log.e(TAG," read error", e);
             return null;
+        }
+    }
+
+    public int getResponseStatus(String response){
+        Matcher matcher=Pattern.compile("RTSP/\\d.\\d (\\d+) (\\w+)", Pattern.CASE_INSENSITIVE).matcher(response);
+        if(matcher.find()){
+            return Integer.parseInt(matcher.group(1));
+        }else{
+            return -1;
         }
     }
 }
