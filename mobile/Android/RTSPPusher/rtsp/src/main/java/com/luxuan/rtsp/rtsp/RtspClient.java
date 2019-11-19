@@ -1,5 +1,6 @@
 package com.luxuan.rtsp.rtsp;
 
+import android.media.MediaCodec;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -189,5 +190,111 @@ public class RtspClient {
     public void disconnect(){
         handler.removeCallbacks(runnable);
         disconnect(true);
+    }
+
+    private void disconnect(final boolean clear){
+        if(streaming){
+            rtspSender.stop();
+        }
+        streaming=false;
+        thread=new Thread(new Runnable(){
+
+            @Override
+            public void run(){
+                try{
+                    if(writer!=null){
+                        writer.write(commandsManager.createTeardown());
+                        writer.flush();
+                        if(clear){
+                            commandsManager.clear();
+                        }else{
+                            commandsManager.retryClear();
+                        }
+                    }
+
+                    if(connectionSocket!=null){
+                        connectionSocket.close();
+                    }
+                }catch(IOException e){
+                    if(clear){
+                        commandsManager.clear();
+                    }else{
+                        commandsManager.retryClear();
+                    }
+                    Log.e(TAG,"disconnect error", e);
+                }
+            }
+        });
+        thread.start();
+
+        if(clear){
+            retry=0;
+            connectCheckerRtsp.onDisconnectRtsp();
+        }
+    }
+
+    public void sendVideo(ByteBuffer h264Buffer, MediaCodec.BufferInfo info){
+        if(isStreaming()&&!commandsManager.isOnlyAudio()){
+            rtspSender.sendVideoFrame(h264Buffer, info);
+        }
+    }
+
+    public void sendAudio(ByteBuffer aacBuffer, MediaCodec.BufferInfo info){
+        if(isStreaming()){
+            rtspSender.sendAudioFrame(aacBuffer, info);
+        }
+    }
+
+    public void reconnect(long delay){
+        retry--;
+        disconnect(false);
+        runnable=new Runnable(){
+
+            @Override
+            public void run(){
+                connect();
+            }
+        };
+        handler.postDelayed(runnable, delay);
+    }
+
+    public long getDroppedAudioFrames(){
+        return rtspSender.getDroppedAudioFrames();
+    }
+
+    public long getDroppedVideoFrames(){
+        return rtspSender.getDroppedVideoFrames();
+    }
+
+    public void resetSentAudioFrames(){
+        return rtspSender.resetSentAudioFrames();
+    }
+
+    public void resetSentVideoFrames(){
+        return rtspSender.resetSentVideoFrames();
+    }
+
+    public void resetDroppedAudioFrames(){
+        return rtspSender.resetDroppedAudioFrames();
+    }
+
+    public void resetDroppedVideoFrames(){
+        return rtspSender.resetDroppedVideoFrames();
+    }
+
+    public void resizeCache(int newSize) throws RuntimeException {
+        rtspSender.resizeCache(newSize);
+    }
+
+    public int getCacheSize(){
+        return rtspSender.getCacheSize();
+    }
+
+    public long getSentAudioFrames(){
+        return rtspSender.getSentAudioFrames();
+    }
+
+    public long getSentVideoFrames(){
+        return rtspSender.getSentVideoFrames();
     }
 }
