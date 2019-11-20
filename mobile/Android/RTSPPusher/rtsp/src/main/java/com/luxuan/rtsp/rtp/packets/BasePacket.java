@@ -38,7 +38,7 @@ public abstract class BasePacket {
         byte[] buffer=new byte[size];
         buffer[0]=(byte)Integer.parseInt("10000000", 2);
         buffer[1]=(byte)RtpConstants.payloadType;
-        setLongsSSRC(buffer, ssrc);
+        setLongSSRC(buffer, ssrc);
         requestBuffer(buffer);
         return buffer;
     }
@@ -53,5 +53,21 @@ public abstract class BasePacket {
             buffer[end]=(byte)(n%256);
             n>>=8;
         }
+    }
+
+    public void updateSeq(byte[] buffer){
+        setLong(buffer, ++seq, 2, 4);
+    }
+
+    public void markPacket(byte[] buffer){
+        buffer[1]|=0x80;
+    }
+
+    private void setLongSSRC(byte[] buffer, int ssrc){
+        setLong(buffer, ssrc, 8, 12);
+    }
+
+    private void requestBuffer(byte[] buffer){
+        buffer[1]&=0x7F;
     }
 }
