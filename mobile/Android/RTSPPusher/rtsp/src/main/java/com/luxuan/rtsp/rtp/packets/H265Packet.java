@@ -91,4 +91,20 @@ public class H265Packet extends BasePacket {
             }
         }
     }
+
+    private void setSpsPpsVps(byte[] sps, byte[] pps, byte[] vps){
+        stapA=new byte[sps.length+pps.length+6];
+
+        stapA[0]=48<<1;
+        stapA[1]=1;
+
+        stapA[2]=(byte)(sps.length&0xFF);
+        stapA[3]=(byte)(sps.length&0xFF);
+
+        stapA[sps.length+4]=(byte)(pps.length>>8);
+        stapA[sps.length+5]=(byte)(pps.length&0xFF);
+
+        System.arraycopy(sps, 0, stapA, 5, sps.length);
+        System.arraycopy(pps, 0, stapA, 6+sps.length, pps.length);
+    }
 }
