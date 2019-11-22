@@ -94,8 +94,9 @@ public class CodecUtil {
                             if(audioCapabilities.getSupportedSampleRateRanges()!=null&&
                                     audioCapabilities.getSupportedSampleRates().length>0){
                                 info+="Supported sample rate: \n";
-                                for(int sampleRate: audioCapabilities.getSupportedSampleRates())
-                                    info+=sampleRate+"\n";
+                                for(int sampleRate: audioCapabilities.getSupportedSampleRates()) {
+                                    info += sampleRate + "\n";
+                                }
                             }
                         }catch(Exception e){
                             e.printStackTrace();
@@ -202,5 +203,44 @@ public class CodecUtil {
         }
 
         return mediaCodecInfoList;
+    }
+
+    public static List<MediaCodecInfo> getAllDecoders(String mime){
+        List<MediaCodecInfo> mediaCodecInfoList=new ArrayList<>();
+        List<MediaCodecInfo> mediaCodecInfos=getAllCodecs(true);
+        for(MediaCodecInfo mediaCodecInfo: mediaCodecInfos){
+            if(!mediaCodecInfo.isEncoder()){
+                continue;
+            }
+
+            String[] types=mediaCodecInfo.getSupportedTypes();
+            for(String type: types){
+                if(type.equalsIgnoreCase(mime)){
+                    mediaCodecInfoList.add(mediaCodecInfo);
+                }
+            }
+        }
+
+        return mediaCodecInfoList;
+    }
+
+    private static List<MediaCodecInfo> filterBrokenCodecs(List<MediaCodecInfo> codecs){
+        List<MediaCodecInfo> listFilter=new ArrayList<>();
+        for(MediaCodecInfo mediaCodecInfo : codecs){
+            if(isValid(mediaCodecInfo.getName())){
+                listFilter.add(mediaCodecInfo);
+            }
+        }
+
+        return listFilter;
+    }
+
+    private static boolean isValid(String name){
+        if((name.equals("OMX.qcom.video.encoder.avc")||name.equals("c2.qti.avc.encoder"))
+                &&Build.MODEL.equals("Pixel 3a")){
+            return false;
+        }else{
+            return true;
+        }
     }
 }
