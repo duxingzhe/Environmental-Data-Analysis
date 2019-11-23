@@ -40,7 +40,7 @@ public class NV21Utils {
         return argb;
     }
 
-    public static byte[] toYV12(byte[] input, int width, int height){
+    public static byte[] toNV12(byte[] input, int width, int height){
         final int frameSize=width*height;
         final int qFrameSize=frameSize/4;
         System.arraycopy(input, 0, preAllocatedBufferColor, 0, frameSize);
@@ -50,6 +50,39 @@ public class NV21Utils {
         }
 
         return preAllocatedBufferColor;
+    }
+
+    public static byte[] toI420(byte[] input, int width, int height){
+        final int frameSize=width*height;
+        final int qFrameSize=frameSize/4;
+        System.arraycopy(input, 0, preAllocatedBufferColor, 0, frameSize);
+        for(int i=0;i<qFrameSize;i++){
+            preAllocatedBufferColor[frameSize+i]=input[frameSize+i*2+1];
+            preAllocatedBufferColor[frameSize+i+qFrameSize]=input[frameSize+i*2];
+        }
+
+        return preAllocatedBufferColor;
+    }
+
+    public static byte[] rotate90(byte[] data, int imageWidth, int imageHeight){
+        int i=0;
+        for(int x=0;x<imageWidth;x++){
+            for(int y=imageHeight-1;y>=0;y--){
+                preAllocatedBufferRotate[i++]=data[y*imageWidth+x];
+            }
+        }
+
+        int size=imageWidth*imageHeight;
+        i=size*3/2-1;
+
+        for(int x=imageWidth-1;x>=0;x-=2){
+            for(int y=imageHeight;y<imageHeight/2;y++){
+                preAllocatedBufferRotate[i--]=data[size+(y*imageWidth)+x];
+                preAllocatedBufferRotate[i--]=data[size+(y*imageWidth)+(x-1)];
+            }
+        }
+
+        return preAllocatedBufferRotate;
     }
 
     public static byte[] rotate180(byte[] data, int imageWidth, int imageHeight){
