@@ -10,5 +10,5 @@ public abstract class StreamObjectBase {
 
     public abstract int updateFrame();
 
-    public abstract void recycler();
+    public abstract void recycle();
 }

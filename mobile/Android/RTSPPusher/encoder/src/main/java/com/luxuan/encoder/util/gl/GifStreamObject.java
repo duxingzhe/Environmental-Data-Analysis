@@ -3,6 +3,8 @@ package com.luxuan.encoder.util.gl;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.luxuan.encoder.util.gl.gif.GifDecoder;
+
 import java.io.IOException;
 import java.io.InputStream;
 
