@@ -99,4 +99,96 @@ public class GifDecoder {
         this.bitmapProvider=provider;
         header=new GifHeader();
     }
+
+    public GifDecoder(){
+        this(new SimpleBitmapProvider());
+    }
+
+    public int getWidth(){
+        return header.width;
+    }
+
+    public int getHeight(){
+        return header.height;
+    }
+
+    public ByteBuffer getData(){
+        return rawData;
+    }
+
+    public int getStatus(){
+        return status;
+    }
+
+    public boolean advance(){
+        if(header.frameCount<=0){
+            return false;
+        }
+
+        if(framePointer==getFrameCount()-1){
+            loopIndex++;
+        }
+
+        if(header.loopCount!=LOOP_FOREVER&&loopIndex>header.loopCount){
+            return false;
+        }
+
+        framePointer=(framePointer+1)%header.frameCount;
+
+        return true;
+    }
+
+    public int getDelay(int n){
+        int delay=-1;
+        if((n>=0)&&(n<header.frameCount)){
+            delay=header.frames.get(n).delay;
+        }
+
+        return delay;
+    }
+
+    public int getNextDelay(){
+        if(header.frameCount<=0||framePointer<0){
+            return 0;
+        }
+
+        return getDelay(framePointer);
+    }
+
+    public int getFrameCount(){
+        return header.frameCount;
+    }
+
+    public int getCurrentFrameIndex(){
+        return framePointer;
+    }
+
+    public boolean setFrameIndex(int frame){
+        if (frame < INITIAL_FRAME_POINTER || frame >= getFrameCount()){
+            return false;
+        }
+
+        framePointer=frame;
+        return true;
+    }
+
+    public void resetFrameIndex(){
+        framePointer=INITIAL_FRAME_POINTER;
+    }
+
+    public void resetLoopIndex(){
+        loopIndex=0;
+    }
+
+    public int getLoopCount(){
+        return header.loopCount;
+    }
+
+    public int getLoopIndex(){
+        return loopIndex;
+    }
+
+    public int getByteSize(){
+        return rawData.limit()+mainPixels.length+(mainScratch.length*BYTES_PER_INTEGER);
+    }
 }
