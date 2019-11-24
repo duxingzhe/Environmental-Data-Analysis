@@ -1,6 +1,7 @@
 package com.luxuan.encoder.util.gl.gif;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,7 +14,7 @@ public class GifDecoder {
 
     public static final int STATUS_OK=0;
 
-    public static final int STATUS_FOMRAT_ERROR=1;
+    public static final int STATUS_FORMAT_ERROR=1;
 
     public static final int STATUS_OPEN_ERROR=2;
 
@@ -190,5 +191,44 @@ public class GifDecoder {
 
     public int getByteSize(){
         return rawData.limit()+mainPixels.length+(mainScratch.length*BYTES_PER_INTEGER);
+    }
+
+    public synchronized Bitmap getNextFrame(){
+        if(header.frameCount<=0||framePointer<0){
+            if(Log.isLoggable(TAG, Log.DEBUG)){
+                Log.d(TAG, "unable to decode frame, frameCount="
+                        + header.frameCount
+                        + " framePointer="
+                        + framePointer);
+            }
+            status=STATUS_FORMAT_ERROR;
+        }
+        if(status==STATUS_FORMAT_ERROR||status==STATUS_OPEN_ERROR){
+            if(Log.isLoggable(TAG, Log.DEBUG)){
+                Log.d(TAG,"Unable to decode frame, status="+status);
+            }
+
+            return null;
+        }
+
+        status=STATUS_OK;
+
+        GifFrame currentFrame=header.frames.get(framePointer);
+        GifFrame previous=null;
+        int previousFrame=framePointer-1;
+        if(previousFrame>=0){
+            previousFrame=header.frames.get(previousFrame);
+        }
+
+        act=currentFrame.lct!=null?currentFrame.lct:header.gct;
+        if(act==null){
+            if(Log.isLoggable(TAG, Log.DEBUG)){
+                Log.d(TAG, "No Valid Color Table for frame #"+framePointer);
+            }
+
+            status=STATUS_FORMAT_ERROR;
+
+            return null;
+        }
     }
 }
