@@ -686,4 +686,15 @@ public class GifDecoder {
 
         return blockSize;
     }
+
+    private Bitmap getNextBitmap(){
+        Bitmap.Config config=isFirstFrameTransparent?Bitmap.Config.ARGB_8888:Bitmap.Config.RGB_565;
+        Bitmap result=bitmapProvider.obtain(downSampledWidth, downSampledHeight, config);
+        setAlpha(result);
+        return result;
+    }
+
+    private void setAlpha(Bitmap bitmap){
+        bitmap.setHasAlpha(true);
+    }
 }
