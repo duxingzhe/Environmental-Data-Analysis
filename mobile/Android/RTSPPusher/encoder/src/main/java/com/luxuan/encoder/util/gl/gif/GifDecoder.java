@@ -6,7 +6,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class GifDecoder {
 
@@ -66,7 +70,7 @@ public class GifDecoder {
     private int loopIndex;
     private GifHeader header;
     private BitmapProvider bitmapProvider;
-    private Bitmap preivousImage;
+    private Bitmap previousImage;
     private boolean savePrevious;
     private int status;
     private int sampleSize;
@@ -230,5 +234,107 @@ public class GifDecoder {
 
             return null;
         }
+
+        if(currentFrame.transparency){
+            System.arraycopy(act, 0, pct, 0, act.length);
+
+            act=pct;
+
+            act[currentFrame.transIndex]=0;
+        }
+
+        return setPixels(currentFrame, previousFrame);
+    }
+
+    public int read(InputStream is, int contentLength){
+        if(is!=null){
+            try{
+                int capacity=(contentLength>0)?(contentLength+4096):16384;
+                ByteArrayOutputStream buffer=new ByteArrayOutputStream(capacity);
+                int nRead;
+                byte[] data=new byte[16384];
+                while((nRead=is.read(data, 0, data.length))!=-1){
+                    buffer.write(data, 0, nRead);
+                }
+                buffer.flush();
+                read(buffer.toByteArray());
+            }catch(IOException e){
+                Log.w(TAG, "Error reading data from stream", e);
+            }
+        }else{
+            status=STATUS_OPEN_ERROR;
+        }
+
+        try{
+            if(is!=null){
+                is.close();
+            }
+        }catch(IOException e){
+            Log.w(TAG, "Error closing stream", e);
+        }
+
+        return status;
+    }
+
+    public void clear(){
+        header=null;
+        if(mainPixels!=null){
+            bitmapProvider.release(mainPixels);
+        }
+        if(mainScratch!=null){
+            bitmapProvider.release(mainScratch);
+        }
+        if(previousImage!=null){
+            bitmapProvider.release(previousImage);
+        }
+        previousImage=null;
+        rawData=null;
+        isFirstFrameTransparent=false;
+        if(block!=null){
+            bitmapProvider.release(block);
+        }
+        if(workBuffer!=null){
+            bitmapProvider.release(workBuffer);
+        }
+    }
+
+    public synchronized void setData(GifHeader header, byte[] data){
+        setData(header, ByteBuffer.wrap(data));
+    }
+
+    public synchronized void setData(GifHeader header, ByteBuffer buffer){
+        setData(header, buffer, 1);
+    }
+
+    public synchronized void setData(GifHeader header, ByteBuffer buffer, int sampleSize){
+        if(sampleSize<=0){
+            throw new IllegalArgumentException("Sample size must be >=0, not: "+sampleSize);
+        }
+
+        sampleSize=Integer.highestOneBit(sampleSize);
+        this.status=STATUS_OK;
+        this.header=header;
+        isFirstFrameTransparent=false;
+        framePointer=INITIAL_FRAME_POINTER;
+        resetLoopIndex();
+
+        rawData=buffer.asReadOnlyBuffer();
+        rawData.position(0);
+        rawData.order(ByteOrder.LITTLE_ENDIAN);
+
+        savePrevious=false;
+        for(GifFrame frame: header.frames){
+            if(frame.dispose==DISPOSAL_PREVIOUS){
+                savePrevious=true;
+                break;
+            }
+        }
+
+        this.sampleSize=sampleSize;
+        downSampledWidth=header.width/sampleSize;
+        downSampledHeight=header.height/sampleSize;
+
+        mainPixels=bitmapProvider.obtainByteArray(header.width*header.height);
+        mainScratch=bitmapProvider.obtainIntArray(downSampledWidth*downSampledHeight);
     }
 }
