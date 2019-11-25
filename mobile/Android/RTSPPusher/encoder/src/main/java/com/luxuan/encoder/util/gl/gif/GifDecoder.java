@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public class GifDecoder {
 
@@ -336,5 +337,129 @@ public class GifDecoder {
 
         mainPixels=bitmapProvider.obtainByteArray(header.width*header.height);
         mainScratch=bitmapProvider.obtainIntArray(downSampledWidth*downSampledHeight);
+    }
+
+    public synchronized int read(byte[] data){
+        this.header=getHeaderParser().setData(data).parseHeader();
+        if(data!=null){
+            setData(header, data);
+        }
+
+        return status;
+    }
+
+    private Bitmap setPixels(GifFrame currentFrame, GifFrame previousFrame){
+        final int[] dest=mainScratch;
+
+        if(previousFrame==null){
+            Arrays.fill(dest, 0);
+        }
+
+        if(previousFrame!=null &&previousFrame.dispose>=DISPOSAL_UNSPECIFIED){
+            if(previousFrame.dispose==DISPOSAL_BACKGROUND){
+                int c=0;
+                if(!currentFrame.transparency){
+                    c=header.bgColor;
+                    if(currentFrame.lct!=null&& header.bgIndex==currentFrame.transIndex){
+                        c=0;
+                    }
+                }else if(framePointer==0){
+                    isFirstFrameTransparent=true;
+                }
+
+                fillRect(dest, previousFrame, c);
+            }else if(previousFrame.dispose==DISPOSAL_PREVIOUS){
+                if(previousImage==null){
+                    fillRect(dest, previousFrame, 0);
+                }else{
+                    int downSampledIH=previousFrame.ih/sampleSize;
+                    int downSampledIY=previousFrame.iy/sampleSize;
+                    int downSampledIW=previousFrame.iw/sampleSize;
+                    int downSampledIX=previousFrame.ix/sampleSize;
+                    int topLeft=downSampledIY*downSampledWidth+downSampledIX;
+                    previousImage.getPixels(dest, topLeft, downSampledWidth, downSampledIX, downSampledIY, downSampledIW,
+                            downSampledIH);
+                }
+            }
+        }
+
+        decodeBitmapData(currentFrame);
+        int downSampledIH=currentFrame.ih/sampleSize;
+        int downSampledIY=currentFrame.iy/sampleSize;
+        int downSampledIW=currentFrame.iw/sampleSize;
+        int downSampledIX=currentFrame.ix/sampleSize;
+
+        int pass=1;
+        int inc=8;
+        int iline=0;
+        boolean isFirstFrame=framePointer==0;
+
+        for(int i=0;i<downSampledIH;i++){
+            int line=i;
+            if(currentFrame.interlace){
+                if(iline>=downSampledIH){
+                    pass+;
+                    switch(pass){
+                        case 2:
+                            iline=4;
+                            break;
+                        case 3:
+                            iline=2;
+                            inc=4;
+                            break;
+                        case 4:
+                            iline=1;
+                            inc=2;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                line=iline;
+                iline+=inc;
+            }
+
+            line+=downSampledIY;
+            if(line<downSampledHeight){
+                int k=line*downSampledWidth;
+                int dx=k+downSampledIX;
+                int dlim=dx+downSampledIW;
+
+                if(k+downSampledWidth<dlim){
+                    dlim=k+downSampledWidth;
+                }
+
+                int sx=i*sampleSize*currentFrame.iw;
+                int maxPositionInSource=sx+((dlim-dx)*sampleSize);
+                while(dx<dlim){
+                    int averageColor;
+                    if(sampleSize==1){
+                        int currentColorIndex=((int)mainPixels[sx])&0x000000ff;
+                        averageColor=act[currentColorIndex];
+                    }else{
+                        averageColor=averageColorsNear(sx, maxPositionInSource, currentFrame.iw);
+                    }
+                    if(averageColor!=0){
+                        dest[dx]=averageColor;
+                    }else if(!isFirstFrameTransparent && isFirstFrame){
+                        isFirstFrameTransparent=true;
+                    }
+
+                    sx+=sampleSize;
+                    dx++;
+                }
+            }
+        }
+
+        if(savePrevious&&(currentFrame.dispose==DISPOSAL_UNSPECIFIED||currentFrame.dispose==DISPOSAL_NONE)){
+            if(previousImage==null){
+                previousImage=getNextBitmap();
+            }
+            previousImage.setPixels(dest, 0, downSampledWidth, 0, 0, downSampledWidth, downSampledHeight);
+        }
+
+        Bitmap result=getNextBitmap();
+        result.setPixels(dest, 0, downSampledWidth, 0, 0, downSampledWidth, downSampledHeight);
+        return result;
     }
 }
