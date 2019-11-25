@@ -581,7 +581,109 @@ public class GifDecoder {
                     oldCode=NULL_CODE;
                     continue;
                 }
+
+                if(code>available){
+                    status=STATUS_PARTIAL_DECODE;
+                    break;
+                }
+
+                if(code==endOfInformation){
+                    break;
+                }
+
+                if(oldCode==NULL_CODE){
+                    pixelStack[top++]=suffix[code];
+                    oldCode=code;
+                    first=code;
+                    continue;
+                }
+
+                inCode=code;
+                if(code>=available){
+                    pixelStack[top++]=(byte)first;
+                    code=oldCode;
+                }
+                while(code>=clear){
+                    pixelStack[top++]=suffix[code];
+                    code=prefix[code];
+                }
+                first=((int)suffix[code])&0xff;
+                pixelStack[top++]=(byte)first;
+
+                if(available<MAX_STACK_SIZE){
+                    prefix[available]=(short)oldCode;
+                    suffix[available]=(byte)first;
+                    available++;
+                    if(((available&codeMask)==0)&&(available<MAX_STACK_SIZE)){
+                        codeSize++;
+                        codeMask+=available;
+                    }
+                }
+                oldCode=inCode;
+
+                while(top>0){
+                    mainPixels[pi++]=pixelStack[--top];
+                    i++;
+                }
             }
         }
+
+        for(i=pi;i<npix;i++){
+            mainPixels[i]=0;
+        }
+    }
+
+    private void readChunkIfNeeded(){
+        if(workBufferSize>workBufferPosition){
+            return;
+        }
+
+        if(workBuffer==null){
+            workBuffer=bitmapProvider.obtainByteArray(WORK_BUFFER_SIZE);
+        }
+
+        workBufferPosition=0;
+        workBufferSize=Math.min(rawData.remaining(), WORK_BUFFER_SIZE);
+        rawData.get(workBuffer, 0, workBufferSize);
+    }
+
+    private int readByte(){
+        try{
+            readChunkIfNeeded();
+            return workBuffer[workBufferPosition++]&0xFF;
+        }catch(Exception e){
+            status=STATUS_FORMAT_ERROR;
+            return 0;
+        }
+    }
+
+    private int readBlock(){
+        int blockSize=readByte();
+        if(blockSize>0){
+            try{
+                if(block==null){
+                    block=bitmapProvider.obtainByteArray(255);
+                }
+                final int remaining=workBufferSize-workBufferPosition;
+                if(remaining>=blockSize){
+                    System.arraycopy(workBuffer, workBufferPosition, block, 0, blockSize);
+                    workBufferPosition+=blockSize;
+                }else if(rawData.remaining()+remaining>=blockSize){
+                    System.arraycopy(workBuffer, workBufferPosition, block, 0, remaining);
+                    workBufferPosition=workBufferSize;
+                    readChunkIfNeeded();
+                    final int secondHalfRemaining=blockSize-remaining;
+                    System.arraycopy(workBuffer, 0, block, remaining, secondHalfRemaining);
+                    workBufferPosition+=secondHalfRemaining;
+                }else{
+                    status=STATUS_FORMAT_ERROR;
+                }
+            }catch(Exception e){
+                Log.w(TAG, "Error reading block", e);
+                status=STATUS_FORMAT_ERROR;
+            }
+        }
+
+        return blockSize;
     }
 }
