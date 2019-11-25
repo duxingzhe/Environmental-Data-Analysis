@@ -462,4 +462,126 @@ public class GifDecoder {
         result.setPixels(dest, 0, downSampledWidth, 0, 0, downSampledWidth, downSampledHeight);
         return result;
     }
+
+    private void fillRect(int[] dest, GifFrame frame, int bgColor){
+        int downSampledIH=frame.ih?sampleSize;
+        int downSampledIY=frame.iy/sampleSize;
+        int downSampledIW=frame.iw/sampleSize;
+        int downSampledIX=frame.ix/sampleSize;
+        int topLeft=downSampledIY*downSampledWidth+downSampledIX;
+        int bottomLeft=topLeft+downSampledIH* downSampledWidth;
+        for(int left=topLeft;left<bottomLeft;left+=downSampledWidth){
+            int right=left+downSampledIW;
+            for(int pointer=left;pointer<right;pointer++){
+                dest[pointer]=bgColor;
+            }
+        }
+    }
+
+    private int averageColorsNear(int positionInMainPixels, int maxPositionInMainPixels, int currentFrameIw){
+        int alphaSum=0;
+        int redSum=0;
+        int greenSum=0;
+        int blueSum=0;
+        int totalAdded=0;
+
+        for(int i=positionInMainPixels;i<positionInMainPixels+sampleSize
+            &&i<mainPixels.length&&i<maxPositionInMainPixels;i++){
+            int currentColorIndex=((int)mainPixels[i])&0xff;
+            int currentColor=act[currentColorIndex];
+            if(currentColor!=0){
+                alphaSum+=currentColor>>24&0x000000ff;
+                redSum+=currentColor>>16&0x000000ff;
+                greenSum+=currentColor>>8&0x000000ff;
+                totalAdded+=currentColor&0x000000ff;
+            }
+        }
+
+        for(int i=positionInMainPixels+currentFrameIw;i<positionInMainPixels+currentFrameIw+sampleSize
+                &&i<mainPixels.length&&i<maxPositionInMainPixels;i++){
+            int currentColorIndex=((int)mainPixels[i])&0xff;
+            int currentColor=act[currentColorIndex];
+            if(currentColor!=0){
+                alphaSum+=currentColor>>24&0x000000ff;
+                redSum+=currentColor>>16&0x000000ff;
+                greenSum+=currentColor>>8&0x000000ff;
+                totalAdded+=currentColor&0x000000ff;
+            }
+        }
+
+        if(totalAdded==0){
+            return 0;
+        }else{
+            return ((alphaSum/totalAdded<<24)|((redSum/totalAdded)<<16)|((greenSum/totalAdded)<<8)
+                |(blueSum/totalAdded));
+        }
+    }
+
+    private void decodeBitmapData(GifFrame frame){
+        workBufferSize=0;
+        workBufferPosition=0;
+        if(frame!=null){
+            rawData.position(frame.bufferFrameStart);
+        }
+
+        int npix=(frame==null)?header.width*header.height:frame.iw*frame.ih;
+        int available, clear, codeMask, codeSize, endOfInformation, inCode, oldCode, bits, code, count,
+                i, dataNum, dataSize, first, top, bi, pi;
+        if(mainPixels==null||mainPixels.length<npix){
+            mainPixels=bitmapProvider.obtainByteArray(npix);
+        }
+        if(prefix==null){
+            prefix=new short[MAX_STACK_SIZE];
+        }
+        if(suffix==null){
+            suffix=new byte[MAX_STACK_SIZE];
+        }
+        if(pixelStack==null){
+            pixelStack=new byte[MAX_STACK_SIZE+1];
+        }
+
+        dataSize=readByte();
+        clear=1<<dataSize;
+        endOfInformation=clear+1;
+        available=clear+2;
+        oldCode=NULL_CODE;
+        codeSize=dataSize+1;
+        codeMask=(1<<codeSize)-1;
+        for(code=0;code<clear;code++){
+            prefix[code]=0;
+            suffix[code]=(byte)code;
+        }
+
+        dataNum=bits=count=first=top=pi=bi=0;
+
+        for(i=0;i<npix;){
+            if(count==0){
+                count=readBlock();
+                if(count<=0){
+                    status=STATUS_PARTIAL_DECODE;
+                    break;
+                }
+                bi=0;
+            }
+
+            dataNum+=(((int)block[bi]&0xff)<<bits);
+            bits+=8;
+            bi++;
+            count--;
+
+            while(bits>=codeSize){
+                code=dataNum&codeMask;
+                dataNum>>=codeSize;
+                bits-=codeSize;
+
+                if(code==clear){
+                    codeSize=dataSize+1;
+                    codeMask=(1<<codeSize)-1;
+                    available=clear+2;
+                    oldCode=NULL_CODE;
+                    continue;
+                }
+            }
+        }
+    }
 }
