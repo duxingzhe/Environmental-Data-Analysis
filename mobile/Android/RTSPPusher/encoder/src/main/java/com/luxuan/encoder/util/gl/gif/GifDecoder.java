@@ -409,7 +409,7 @@ public class GifDecoder {
             int line=i;
             if(currentFrame.interlace){
                 if(iline>=downSampledIH){
-                    pass+;
+                    pass++;
                     switch(pass){
                         case 2:
                             iline=4;

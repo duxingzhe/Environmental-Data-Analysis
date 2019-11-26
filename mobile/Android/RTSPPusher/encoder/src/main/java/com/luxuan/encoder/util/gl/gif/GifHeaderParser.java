@@ -1,5 +1,8 @@
 package com.luxuan.encoder.util.gl.gif;
 
+import android.util.Log;
+
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -210,7 +213,7 @@ public class GifHeaderParser {
             header.status=GifDecoder.STATUS_FORMAT_ERROR;
             return;
         }
-        resdLSD();
+        readLSD();
         if(header.gctFlag&&!err()){
             header.gct=readColorTable(header.gctSize);
             header.bgColor=header.gct[header.bgIndex];
@@ -237,6 +240,73 @@ public class GifHeaderParser {
             header.status=GifDecoder.STATUS_FORMAT_ERROR;
         }
         return currentByte;
+    }
+
+    private int[] readColorTable(int ncolors){
+        int nbytes=3*ncolors;
+        int[] tab=null;
+        byte[] c=new byte[nbytes];
+
+        try{
+            rawData.get(c);
+
+            tab=new int[MAX_BLOCK_SIZE];
+            int i=0;
+            int j=0;
+            while(i<ncolors){
+                int r=((int)c[j++])&0xff;
+                int g=((int)c[j++])&0xff;
+                int b=((int)c[j++])&0xff;
+
+                tab[i++]=0xff000000|(r<<16)|(g<<8)|b;
+            }
+        }catch(BufferUnderflowException e){
+            if(Log.isLoggable(TAG, Log.DEBUG)){
+                Log.d(TAG,"Format Error Reading Color Table", e);
+            }
+            header.status=GifDecoder.STATUS_FORMAT_ERROR;
+        }
+
+        return tab;
+    }
+
+    private void skipImageData(){
+        read();
+        skip();
+    }
+
+    private void skip(){
+        try{
+            int blockSize;
+            do{
+                blockSize=read();
+                rawData.position(rawData.position()+blockSize);
+            }while(blockSize>0);
+        }catch(IllegalArgumentException e){
+
+        }
+    }
+
+    private int readBlock(){
+        blockSize=read();
+        int n=0;
+        if(blockSize>0){
+            int count=0;
+            try{
+                while(n<blockSize){
+                    count=blockSize-n;
+                    rawData.get(block, n, count);
+                    n+=count;
+                }
+            }catch(Exception e){
+                if(Log.isLoggable(TAG, Log.DEBUG)){
+                    Log.d(TAG,"Error Reading Block n: "+n+" count: "+count+" blockSize: "+blockSize, e);
+                }
+                header.status=GifDecoder.STATUS_FORMAT_ERROR;
+            }
+        }
+
+        return n;
     }
 
     private int readShort(){
