@@ -107,12 +107,12 @@ cur为红，parent为红，pParent为黑，uncle不存在/uncle为黑
 parent为pParent的左孩子，cur为parent的左孩子，则进行右单旋转；
 
 parent为pParent的右孩子，cur为parent的右孩子，则进行左单旋转；
-p、g变色–p变黑，g变红。
+parent、grandparent变色–parent变黑，grandparent变红。
 
 第三种情况
 cur为红，p为红，g为黑，u不存在/u为黑
-p为g的左孩子，cur为p的右孩子，则针对p做左单旋转
+parent为grandparent的左孩子，cur为parent的右孩子，则针对p做左单旋转
 则转换成了情况2
 
-p为g的右孩子，cur为p的左孩子，则针对p做右单旋转
+parent为grandparent的右孩子，cur为parent的左孩子，则针对p做右单旋转
 则转换成了情况2
