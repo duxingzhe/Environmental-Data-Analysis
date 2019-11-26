@@ -130,7 +130,121 @@ public class GifHeaderParser {
     }
 
     private void readGraphicControlExt(){
+        read();
 
+        int packed=read();
+
+        header.currentFrame.dispose=(packed&0x1c)>>2;
+        if(header.currentFrame.dispose==0){
+
+            header.currentFrame.dispose=1;
+        }
+
+        header.currentFrame.transparency=(packed&1)!=0;
+
+        int delayInHundredthsOfASecond=readShort();
+
+        if(delayInHundredthsOfASecond<MIN_FRAME_DELAY){
+            delayInHundredthsOfASecond=DEFAULT_FRAME_DELAY;
+        }
+
+        header.currentFrame.delay=delayInHundredthsOfASecond*10;
+        header.currentFrame.transIndex=read();
+
+        read();
+    }
+
+    private void readBitmap(){
+        header.currentFrame.ix=readShort();
+        header.currentFrame.iy=readShort();
+        header.currentFrame.iw=readShort();
+        header.currentFrame.ih=readShort();
+
+        int packed=read();
+
+        boolean lctFlag=(packed&0x80)!=0;
+        int lctSize=(int)Math.pow(2, (packed&0x07)+1);
+
+        header.currentFrame.interlace=(packed&0x40)!=0;
+
+        if(lctFlag){
+            header.currentFrame.lct=readColorTable(lctSize);
+        }else{
+            header.currentFrame.lct=null;
+        }
+
+        header.currentFrame.bufferFrameStart=rawData.position();
+
+        skipImageData();
+
+        if(err()){
+            return;
+        }
+
+        header.frameCount++;
+
+        header.frames.add(header.currentFrame);
+    }
+
+    private void readNetscapeExt(){
+        do{
+            readBlock();
+            if(block[0]==1){
+                int b1=((int)block[1])&0xff;
+                int b2=((int)block[2])&0xff;
+
+                header.loopCount=(b2<<8)|b1;
+                if(header.loopCount==0){
+                    header.loopCount=GifDecoder.LOOP_FOREVER;
+                }
+            }
+        }while((blockSize>0)&&!err());
+    }
+
+    private void readHeader(){
+        String id="";
+        for(int i=0;i<6;i++){
+            id+=(char)read();
+        }
+        if(!id.startsWith("GIF")){
+            header.status=GifDecoder.STATUS_FORMAT_ERROR;
+            return;
+        }
+        resdLSD();
+        if(header.gctFlag&&!err()){
+            header.gct=readColorTable(header.gctSize);
+            header.bgColor=header.gct[header.bgIndex];
+        }
+    }
+
+    private void readLSD(){
+        header.width=readShort();
+        header.height=readShort();
+
+        int packed=read();
+        header.gctFlag=(packed&0x80)!=0;
+
+        header.gctSize=2<<(packed&7);
+        header.bgIndex=read();
+        header.pixelAspect=read();
+    }
+
+    private int read(){
+        int currentByte=0;
+        try{
+            currentByte=rawData.get()&0xFF;
+        }catch(Exception e){
+            header.status=GifDecoder.STATUS_FORMAT_ERROR;
+        }
+        return currentByte;
+    }
+
+    private int readShort(){
+        return rawData.getShort();
+    }
+
+    private boolean err(){
+        return header.status!=GifDecoder.STATUS_OK;
     }
 
 }
