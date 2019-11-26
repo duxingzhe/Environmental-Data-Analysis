@@ -88,7 +88,11 @@ public class GifDecoder {
 
         byte[] obtainByteArray(int size);
 
+        int[] obtainIntArray(int size);
+
         void release(int[] array);
+
+        void release(byte[] array);
     }
 
     public GifDecoder(BitmapProvider provider, GifHeader gifHeader, ByteBuffer rawData){
@@ -219,10 +223,10 @@ public class GifDecoder {
         status=STATUS_OK;
 
         GifFrame currentFrame=header.frames.get(framePointer);
-        GifFrame previous=null;
-        int previousFrame=framePointer-1;
-        if(previousFrame>=0){
-            previousFrame=header.frames.get(previousFrame);
+        GifFrame previousFrame=null;
+        int previousIndex=framePointer-1;
+        if(previousIndex>=0){
+            previousFrame=header.frames.get(previousIndex);
         }
 
         act=currentFrame.lct!=null?currentFrame.lct:header.gct;
@@ -337,6 +341,13 @@ public class GifDecoder {
 
         mainPixels=bitmapProvider.obtainByteArray(header.width*header.height);
         mainScratch=bitmapProvider.obtainIntArray(downSampledWidth*downSampledHeight);
+    }
+
+    private GifHeaderParser getHeaderParser(){
+        if(parser==null){
+            parser=new GifHeaderParser();
+        }
+        return parser;
     }
 
     public synchronized int read(byte[] data){
@@ -464,7 +475,7 @@ public class GifDecoder {
     }
 
     private void fillRect(int[] dest, GifFrame frame, int bgColor){
-        int downSampledIH=frame.ih?sampleSize;
+        int downSampledIH=frame.ih/sampleSize;
         int downSampledIY=frame.iy/sampleSize;
         int downSampledIW=frame.iw/sampleSize;
         int downSampledIX=frame.ix/sampleSize;
