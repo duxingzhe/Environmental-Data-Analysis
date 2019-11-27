@@ -2,6 +2,9 @@ package com.luxuan.encoder.util.gl;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.opengl.EGL14;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.util.Log;
@@ -9,6 +12,7 @@ import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 
 public class GlUtil {
 
@@ -100,5 +104,42 @@ public class GlUtil {
             str="";
         }
         return str;
+    }
+
+    public static void checkGlError(String op){
+        int error=GLES20.glGetError();
+        if(error!=GLES20.GL_NO_ERROR){
+            Log.e(TAG, op+": glError "+error);
+            throw new RuntimeException(op+": glError "+error);
+        }
+    }
+
+    public static void checkEglError(String msg){
+        int error= EGL14.eglGetError();
+        if(error!=EGL14.EGL_SUCCESS){
+            throw new RuntimeException(msg+": EGL error: 0x"+Integer.toHexString(error));
+        }
+    }
+
+    public static Bitmap getBitmap(int originalWidth, int originalHeight, int finalWidth, int finalHeight){
+
+        ByteBuffer buffer= ByteBuffer.allocateDirect(originalWidth*originalHeight*4);
+        GLES20.glReadPixels(0, 0, originalWidth, originalHeight, GLES20.GL_RGBA,
+                GLES20.GL_UNSIGNED_BYTE, buffer);
+
+        Bitmap bitmap = Bitmap.createBitmap(originalWidth, originalHeight, Bitmap.Config.ARGB_8888);
+
+        bitmap.copyPixelsFromBuffer(buffer);
+        bitmap=Bitmap.createScaledBitmap(bitmap, finalWidth, finalHeight, false);
+
+        return flipVerticalBitmap(bitmap, finalWidth, finalHeight);
+    }
+
+    private static Bitmap flipVerticalBitmap(Bitmap bitmap, int width, int height){
+        float cx=width/2f;
+        float cy=height/2f;
+        Matrix matrix=new Matrix();
+        matrix.postScale(1f, -1f, cx, cy);
+        return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
     }
 }
