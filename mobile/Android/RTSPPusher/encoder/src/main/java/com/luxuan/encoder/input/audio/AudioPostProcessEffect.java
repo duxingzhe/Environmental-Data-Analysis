@@ -46,7 +46,7 @@ public class AudioPostProcessEffect {
         }
     }
 
-    public void releaseAcousticEchoCanceler(){
+    public void releaseEchoCanceler(){
         if(acousticEchoCanceler!=null){
             acousticEchoCanceler.setEnabled(false);
             acousticEchoCanceler.release();
