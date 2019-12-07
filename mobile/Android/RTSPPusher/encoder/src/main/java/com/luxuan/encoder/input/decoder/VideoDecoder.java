@@ -3,6 +3,8 @@ package com.luxuan.encoder.input.decoder;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
+import android.util.Log;
+import android.view.Surface;
 
 import java.io.IOException;
 
@@ -53,6 +55,55 @@ public class VideoDecoder {
             mime="";
             videoFormat=null;
             return false;
+        }
+    }
+
+    public boolean prepareVideo(Surface surface){
+        try{
+            videoDecoder=MediaCodec.createDecoderByType(mime);
+            videoDecoder.configure(videoFormat, surface, null, 0);
+            return true;
+        }catch(IOException e){
+            Log.e(TAG, "Prepare decoder error:", e);
+            return false;
+        }
+    }
+
+    public void start(){
+        decoding=true;
+        videoDecoder.start();
+        thread=new Thread(new Runnable(){
+
+            @Override
+            public void run(){
+                decodeVideo();
+            }
+        });
+        thread.start();
+    }
+
+    public void stop(){
+        decoding=false;
+        seekTime=0;
+        if(thread!=null){
+            thread.interrupt();
+            try{
+                thread.join(100);
+            }catch(InterruptedException e){
+                thread.interrupt();
+            }
+            thread=null;
+        }
+
+        if(videoDecoder!=null){
+            videoDecoder.stop();
+            videoDecoder.release();
+            videoDecoder=null;
+        }
+
+        if(videoExtractor!=null){
+            videoExtractor.release();
+            videoExtractor=null;
         }
     }
 }
