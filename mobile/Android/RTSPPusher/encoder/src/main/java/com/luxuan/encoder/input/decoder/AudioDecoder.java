@@ -188,4 +188,46 @@ public class AudioDecoder {
             }
         }
     }
+
+    public double getTime(){
+        if(decoding){
+            return audioExtractor.getSampleTime()/10E5;
+        }else{
+            return 0;
+        }
+    }
+
+    public void moveTo(double time){
+        audioExtractor.seekTo((long)(time*10E5), MediaExtractor.SEEK_TO_CLOSEST_SYNC);
+        seekTime=audioExtractor.getSampleTime();
+        startMs=System.currentTimeMillis();
+    }
+
+    public void setLoopMode(boolean loopMode){
+        this.loopMode=loopMode;
+    }
+
+    public void mute(){
+        muted=true;
+    }
+
+    public void unMute(){
+        muted=false;
+    }
+
+    public boolean isMuted(){
+        return muted;
+    }
+
+    public int getSampleRate(){
+        return sampleRate;
+    }
+
+    public boolean isStereo(){
+        return isStereo;
+    }
+
+    public double getDuration(){
+        return duration/10E5;
+    }
 }
