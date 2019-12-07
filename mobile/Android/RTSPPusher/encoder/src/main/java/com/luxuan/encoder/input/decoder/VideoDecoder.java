@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.Surface;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class VideoDecoder {
 
@@ -16,7 +17,7 @@ public class VideoDecoder {
     private LoopFileInterface loopFileInterface;
     private MediaExtractor videoExtractor;
     private MediaCodec videoDecoder;
-    private MediaCodec.BufferInfo videoInfonew = new MediaCodec.BufferInfo();
+    private MediaCodec.BufferInfo videoInfo = new MediaCodec.BufferInfo();
     private boolean decoding;
     private Thread thread;
     private MediaFormat videoFormat;
@@ -105,5 +106,76 @@ public class VideoDecoder {
             videoExtractor.release();
             videoExtractor=null;
         }
+    }
+
+    private void decodeVideo(){
+        ByteBuffer[] inputBuffers=videoDecoder.getInputBuffers();
+        startMs=System.currentTimeMillis();
+        while(decoding){
+            int inputIndex=videoDecoder.dequeueInputBuffer(10000);
+            if(inputIndex>=0){
+                ByteBuffer buffer=inputBuffers[inputIndex];
+                int sampleSize=videoExtractor.readSampleData(buffer, 0);
+                if(sampleSize<0){
+                    videoDecoder.queueInputBuffer(inputIndex,0,0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+                }else{
+                    videoDecoder.queueInputBuffer(inputIndex, 0, sampleSize, videoExtractor.getSampleTime(), 0);
+                    videoExtractor.advance();
+                }
+            }
+
+            int outputIndex=videoDecoder.dequeueOutputBuffer(videoInfo, 10000);
+            if(outputIndex>=0){
+                while(videoExtractor.getSampleTime()/1000>System.currentTimeMillis()-startMs+seekTime){
+                    try{
+                        Thread.sleep(10);
+                    }catch(InterruptedException e){
+                        thread.interrupt();
+                        return;
+                    }
+                }
+                videoDecoder.releaseOutputBuffer(outputIndex, videoInfo.size!=0);
+            }
+
+            if((videoInfo.flags&MediaCodec.BUFFER_FLAG_END_OF_STREAM)!=0){
+                seekTime=0;
+                Log.i(TAG, "end of file out");
+                if(loopMode){
+                    loopFileInterface.onReset(true);
+                }else{
+                    videoDecoderInterface.onVideoDecoderFinished();
+                }
+            }
+        }
+    }
+
+    public double getTime(){
+        if(decoding){
+            return videoExtractor.getSampleTime()/10E5;
+        }else{
+            return 0;
+        }
+    }
+
+    public void moveTo(double time){
+        videoExtractor.seekTo((long)(time*10E5), MediaExtractor.SEEK_TO_CLOSEST_SYNC);
+        seekTime=videoExtractor.getSampleTime()/1000;
+        startMs=System.currentTimeMillis();
+    }
+
+    public void setLoopMode(boolean loopMode){
+        this.loopMode=loopMode;
+    }
+
+    public int getWidth(){
+        return width;
+    }
+
+    public int getHeight(){
+        return height;
+    }
+
+    public double getDuration(){
+        return duration/10E5;
     }
 }
