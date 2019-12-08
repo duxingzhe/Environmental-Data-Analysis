@@ -5,11 +5,15 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.luxuan.encoder.BaseEncoder;
+import com.luxuan.encoder.Frame;
 import com.luxuan.encoder.input.audio.GetMicrophoneData;
 import com.luxuan.encoder.util.CodecUtil;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +30,7 @@ public class AudioEncoder extends BaseEncoder implements GetMicrophoneData {
         this.getAacData=getAacData;
     }
 
-    public boolean preprareAudioEncoder(int bitRate, int sampleRate, boolean isStereo, int maxInputSize){
+    public boolean prepareAudioEncoder(int bitRate, int sampleRate, boolean isStereo, int maxInputSize){
         this.sampleRate=sampleRate;
         isBufferMode=true;
         try{
@@ -62,4 +66,76 @@ public class AudioEncoder extends BaseEncoder implements GetMicrophoneData {
             return false;
         }
     }
+
+    public boolean prepareAudioEncoder(){
+        return prepareAudioEncoder(bitRate, sampleRate, isStereo, 0);
+    }
+
+    @Override
+    public void start(boolean resetTs){
+        presentTimeUs=System.nanoTime()/1000;
+        codec.start();
+        running=true;
+        Log.i(TAG, "started");
+    }
+
+    @Override
+    protected void stopImp(){
+        Log.i(TAG, "stopped");
+    }
+
+    @Override
+    protected Frame getInputFrame() throws InterruptedException {
+        return null;
+    }
+
+    @Override
+    protected void checkBuffer(@NonNull ByteBuffer byteBuffer, @NonNull MediaCodec.BufferInfo bufferInfo){
+
+    }
+
+    @Override
+    protected void sendBuffer(@NonNull ByteBuffer byteBuffer, @NonNull MediaCodec.BufferInfo bufferInfo){
+        getAacData.getAacData(byteBuffer, bufferInfo);
+    }
+
+    @Override
+    public void inputPCMData(Frame frame){
+        if(running){
+            try{
+                getDataFromEncoder(frame);
+            }catch(IllegalStateException e){
+                Log.i(TAG, "Encoding error", e);
+            }
+        }else{
+            Log.i(TAG, "frame discarded");
+        }
+    }
+
+    @Override
+    protected MediaCodecInfo chooseEncoder(String mime){
+        List<MediaCodecInfo> mediaCodecInfoList=CodecUtil.getAllEncoders(mime);
+        for(MediaCodecInfo mediaCodecInfo : mediaCodecInfoList){
+            String name=mediaCodecInfo.getName().toLowerCase();
+            if(!name.contains("omx.google")){
+                return mediaCodecInfo;
+            }
+        }
+
+        if(mediaCodecInfoList.size()>0){
+            return mediaCodecInfoList.get(0);
+        }else{
+            return null;
+        }
+    }
+
+    public void setSampleRate(int sampleRate){
+        this.sampleRate=sampleRate;
+    }
+
+    @Override
+    public void formatChanged(@NonNull MediaCodec mediaCodec, @NonNull MediaFormat mediaFormat){
+        getAacData.onAudioFormat(mediaFormat);
+    }
+
 }
