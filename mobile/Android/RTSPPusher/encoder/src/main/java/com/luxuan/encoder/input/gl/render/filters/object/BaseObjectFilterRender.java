@@ -1,8 +1,13 @@
 package com.luxuan.encoder.input.gl.render.filters.object;
 
+import android.opengl.Matrix;
+
 import com.luxuan.encoder.input.gl.Sprite;
+import com.luxuan.encoder.input.gl.TextureLoader;
 import com.luxuan.encoder.util.gl.StreamObjectBase;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 public abstract class BaseObjectFilterRender {
@@ -35,4 +40,18 @@ public abstract class BaseObjectFilterRender {
     protected float alpah=1f;
     protected boolean shouldLoad=false;
 
+    public BaseObjectFilterRender(){
+        squareVertexDataFilter= ByteBuffer.allocateDirect(squareVertexDataFilter.length*FLOAT_SIZE_BYTES)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        squareVertex.put(squareVertexDataFilter).position(0);
+        sprite=new Sprite();
+        float[] vertices=sprite.getTransformedVertices();
+        squareVertexObject=ByteBuffer.allocateDirect(vertices.length*FLOAT_SIZE_BYTES)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
+        squareVertexObject.put(vertices);
+        Matrix.setIdentityM(MVPMatrix, 0);
+        Matrix.setIdentityM(STMatrix, 0);
+    }
 }
