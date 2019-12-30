@@ -4,13 +4,14 @@ import android.opengl.Matrix;
 
 import com.luxuan.encoder.input.gl.Sprite;
 import com.luxuan.encoder.input.gl.TextureLoader;
+import com.luxuan.encoder.input.gl.render.filters.BaseFilterRender;
 import com.luxuan.encoder.util.gl.StreamObjectBase;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public abstract class BaseObjectFilterRender {
+public abstract class BaseObjectFilterRender extends BaseFilterRender {
 
     //rotation matrix
     private final float[] squareVertexDataFilter = {
@@ -41,7 +42,7 @@ public abstract class BaseObjectFilterRender {
     protected boolean shouldLoad=false;
 
     public BaseObjectFilterRender(){
-        squareVertexDataFilter= ByteBuffer.allocateDirect(squareVertexDataFilter.length*FLOAT_SIZE_BYTES)
+        squareVertex= ByteBuffer.allocateDirect(squareVertexDataFilter.length*FLOAT_SIZE_BYTES)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
         squareVertex.put(squareVertexDataFilter).position(0);
