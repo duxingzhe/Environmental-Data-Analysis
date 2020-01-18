@@ -1,11 +1,14 @@
 package com.luxuan.encoder.input.gl.render.filters.object;
 
 import android.content.Context;
+import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import com.luxuan.encoder.R;
 import com.luxuan.encoder.input.gl.Sprite;
 import com.luxuan.encoder.input.gl.TextureLoader;
 import com.luxuan.encoder.input.gl.render.filters.BaseFilterRender;
+import com.luxuan.encoder.util.gl.GlUtil;
 import com.luxuan.encoder.util.gl.StreamObjectBase;
 
 import java.nio.ByteBuffer;
@@ -29,11 +32,11 @@ public abstract class BaseObjectFilterRender extends BaseFilterRender {
     private int aTextureObjectHandle=-1;
     private int uMVPMatrixHandle=-1;
     private int uSTMatrixHandle=-1;
-    private int uSamplerHandler=-1;
-    private int uObjectHandler=-1;
+    private int uSamplerHandle=-1;
+    private int uObjectHandle=-1;
     protected int uAlphaHandle=-1;
 
-    private FloatBuffer sqaureVertexObject;
+    private FloatBuffer squareVertexObject;
 
     protected int[] streamObjectTextureId=new int[]{-1};
     protected TextureLoader textureLoader=new TextureLoader();
@@ -59,6 +62,50 @@ public abstract class BaseObjectFilterRender extends BaseFilterRender {
 
     @Override
     protected void initGlFilter(Context context){
+        String vertexShader= GlUtil.getStringFromRaw(context, R.raw.object_vertex);
+        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.object_fragment);
 
+        program=GlUtil.createProgram(vertexShader, fragmentShader);
+        aPositionHandle= GLES20.glGetAttribLocation(program, "aPosition");
+        aTextureHandle=GLES20.glGetAttribLocation(program, "aTextureCoord");
+        aTextureObjectHandle=GLES20.glGetAttribLocation(program, "aTuextureObjectCoord");
+        uMVPMatrixHandle=GLES20.glGetUniformLocation(program, "uMVPMatrix");
+        uSTMatrixHandle=GLES20.glGetUniformLocation(program, "uSample");
+        uObjectHandle=GLES20.glGetUniformLocation(program, "uObject");
+        uAlphaHandle=GLES20.glGetUniformLocation(program, "uAlpha");
+    }
+
+    @Override
+    protected void drawFilter(){
+        if(shouldLoad){
+            streamObjectTextureId=textureLoader.load();
+            shouldLoad=false;
+        }
+
+        GLES20.glUseProgram(program);
+
+        squareVertex.position(SQUARE_VERTEX_DATA_POS_OFFSET);
+        GLES20.glVertexAttribPointer(aPositionHandle, 3, GLES20.GL_FLOAT, false,
+                SQUARE_VERTEX_DATA_STRIDE_BYTES, squareVertex);
+
+        squareVertex.position(SQUARE_VERTEX_DATA_DV_OFFSET);
+        GLES20.glVertexAttribPointer(aPositionHandle, 2, GLES20.GL_FLOAT, false,
+                SQUARE_VERTEX_DATA_STRIDE_BYTES, squareVertex);
+
+        squareVertexObject.position(SQUARE_VERTEX_DATA_POS_OFFSET);
+        GLES20.glVertexAttribPointer(aPositionHandle, 2, GLES20.GL_FLOAT, false,
+                SQUARE_VERTEX_DATA_STRIDE_BYTES, squareVertex);
+
+        GLES20.glEnableVertexAttribArray(aTextureObjectHandle);
+
+        GLES20.glUniformMatrix4fv(uMVPMatrixHandle, 1, false, MVPMatrix, 0);
+        GLES20.glUniformMatrix4fv(uSTMatrixHandle, 1, false, STMatrix, 0);
+
+        GLES20.glUniform1i(uSamplerHandle, 4);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, previousTextureId);
+
+        GLES20.glUniform1i(uObjectHandle, 0);
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
     }
 }

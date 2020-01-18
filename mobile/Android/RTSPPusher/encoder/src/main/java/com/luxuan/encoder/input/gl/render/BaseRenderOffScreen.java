@@ -14,7 +14,7 @@ public abstract class BaseRenderOffScreen {
     public static final int FLOAT_SIZE_BYTES=4;
     public static final int SQUARE_VERTEX_DATA_STRIDE_BYTES=5*FLOAT_SIZE_BYTES;
     public static final int SQUARE_VERTEX_DATA_POS_OFFSET=0;
-    public static final int SQUARE_VERTEX_DATA_UV_OFFSET=3;
+    public static final int SQUARE_VERTEX_DATA_DV_OFFSET=3;
 
     protected float[] MVPMatrix=new float[16];
     protected float[] STMatrix=new float[16];
