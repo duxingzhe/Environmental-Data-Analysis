@@ -30,12 +30,12 @@ public abstract class BaseRenderOffScreen {
 
     public abstract void release();
 
-    public void getTextureId(){
-        return renderHandler.getTextureId()[0];
+    public int getTextureId(){
+        return renderHandler.getTexId()[0];
     }
 
     protected void initFBO(int width, int height){
-        initFBO(width, height, renderHandler.getFboId(), renderHandler.getRboId(), renderHandler.getTextureId());
+        initFBO(width, height, renderHandler.getFboId(), renderHandler.getRboId(), renderHandler.getTexId());
     }
 
     protected void initFBO(int width, int height, int[] fboId, int[] rboId, int[] textureId){

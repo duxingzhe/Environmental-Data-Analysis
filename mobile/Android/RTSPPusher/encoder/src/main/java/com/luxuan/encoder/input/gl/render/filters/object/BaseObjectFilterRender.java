@@ -1,5 +1,6 @@
 package com.luxuan.encoder.input.gl.render.filters.object;
 
+import android.content.Context;
 import android.opengl.Matrix;
 
 import com.luxuan.encoder.input.gl.Sprite;
@@ -54,5 +55,10 @@ public abstract class BaseObjectFilterRender extends BaseFilterRender {
         squareVertexObject.put(vertices);
         Matrix.setIdentityM(MVPMatrix, 0);
         Matrix.setIdentityM(STMatrix, 0);
+    }
+
+    @Override
+    protected void initGlFilter(Context context){
+
     }
 }
