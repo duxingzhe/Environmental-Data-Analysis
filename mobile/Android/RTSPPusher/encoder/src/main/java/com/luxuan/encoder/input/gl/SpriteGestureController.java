@@ -1,4 +1,4 @@
 package com.luxuan.encoder.input.gl;
 
-public class SprieGestureController {
+public class SpriteGestureController {
 }

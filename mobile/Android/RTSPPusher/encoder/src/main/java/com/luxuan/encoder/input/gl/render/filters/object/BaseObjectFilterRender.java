@@ -1,8 +1,11 @@
 package com.luxuan.encoder.input.gl.render.filters.object;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.luxuan.encoder.R;
 import com.luxuan.encoder.input.gl.Sprite;
@@ -10,6 +13,7 @@ import com.luxuan.encoder.input.gl.TextureLoader;
 import com.luxuan.encoder.input.gl.render.filters.BaseFilterRender;
 import com.luxuan.encoder.util.gl.GlUtil;
 import com.luxuan.encoder.util.gl.StreamObjectBase;
+import com.luxuan.encoder.util.gl.TranslateTo;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -40,9 +44,9 @@ public abstract class BaseObjectFilterRender extends BaseFilterRender {
 
     protected int[] streamObjectTextureId=new int[]{-1};
     protected TextureLoader textureLoader=new TextureLoader();
-    protected StreamObjectBase streamObjectBase;
+    protected StreamObjectBase streamObject;
     private Sprite sprite;
-    protected float alpah=1f;
+    protected float alpha=1f;
     protected boolean shouldLoad=false;
 
     public BaseObjectFilterRender(){
@@ -107,5 +111,52 @@ public abstract class BaseObjectFilterRender extends BaseFilterRender {
 
         GLES20.glUniform1i(uObjectHandle, 0);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+    }
+
+    @Override
+    public void release(){
+        GLES20.glDeleteProgram(program);
+
+        new Handler(Looper.getMainLooper()).post(new Runnable(){
+
+            @Override
+            public void run(){
+                GLES20.glDeleteTextures(streamObjectTextureId.length, streamObjectTextureId, 0);
+                streamObjectTextureId=new int[]{-1};
+            }
+        });
+
+        sprite.reset();
+        if(streamObject!=null){
+            streamObject.recycle();
+        }
+    }
+
+    public void setAlpha(float alpha){
+        this.alpha=alpha;
+    }
+
+    public void setScale(float scaleX, float scaleY){
+        sprite.scale(scaleX, scaleY);
+        squareVertexObject.put(sprite.getTransformedVertices()).position(0);
+    }
+
+    public void setPosition(TranslateTo positionTo){
+        sprite.translate(positionTo);
+        squareVertexObject.put(sprite,getTransformedVertices()).position(0);
+    }
+
+    public PointF getScale(){
+        return sprite.getScale();
+    }
+
+    public PointF getPosition(){
+        return sprite.getTranslation();
+    }
+
+    public void setDefaultScale(int streamWidth, int streamHeight){
+        sprite.scale(streamObject.getWidth()*100/streamWidth,
+                streamObject.getHeight()*100/streamHeight);
+        squareVertexObject.put(sprite.getTransformedVertices()).position(0);
     }
 }
