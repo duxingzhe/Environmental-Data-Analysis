@@ -143,7 +143,7 @@ public abstract class BaseObjectFilterRender extends BaseFilterRender {
 
     public void setPosition(TranslateTo positionTo){
         sprite.translate(positionTo);
-        squareVertexObject.put(sprite,getTransformedVertices()).position(0);
+        squareVertexObject.put(sprite.getTransformedVertices()).position(0);
     }
 
     public PointF getScale(){
