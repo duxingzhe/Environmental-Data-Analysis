@@ -65,7 +65,7 @@ public class AnalogTVFilterRender extends BaseFilterRender {
                 SQUARE_VERTEX_DATA_STRIDE_BYTES, squareVertex);
         GLES20.glEnableVertexAttribArray(aPositionHandle);
 
-        squareVertex.position(SQUARE_VERTEX_DATA_DV_OFFSET);
+        squareVertex.position(SQUARE_VERTEX_DATA_UV_OFFSET);
         GLES20.glVertexAttribPointer(aTextureHandle, 2, GLES20.GL_FLOAT, false,
                 SQUARE_VERTEX_DATA_STRIDE_BYTES, squareVertex);
         GLES20.glEnableVertexAttribArray(aTextureHandle);
