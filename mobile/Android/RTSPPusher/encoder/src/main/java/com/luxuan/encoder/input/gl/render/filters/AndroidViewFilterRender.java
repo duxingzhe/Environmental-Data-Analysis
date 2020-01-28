@@ -15,6 +15,7 @@ import android.view.View;
 
 import com.luxuan.encoder.R;
 import com.luxuan.encoder.util.gl.GlUtil;
+import com.luxuan.encoder.util.gl.TranslateTo;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -120,5 +121,89 @@ public class AndroidViewFilterRender extends BaseFilterRender {
         GLES20.glUniform1i(uSamplerViewHandle, 5);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE5);
         GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, viewId[0]);
+    }
+
+    @Override
+    public void release(){
+        GLES20.glDeleteProgram(program);
+    }
+
+    public View getView(){
+        return view;
+    }
+
+    public void setView(final View view){
+        this.view=view;
+        if(view!=null){
+            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            viewX=view.getMeasuredWidth();
+            viewY=view.getMeasuredHeight();
+        }
+    }
+
+    public void setPosition(float x, float y){
+        int previewX=getPreviewWidth();
+        int previewY=getPreviewHeight();
+        this.positionX=previewX*x/100f;
+        this.positionY=previewY*y/100f;
+    }
+
+    public void setPosition(TranslateTo positionTo){
+        int previewX=getPreviewWidth();
+        int previewY=getPreviewHeight();
+        switch(positionTo){
+            case TOP:
+                this.positionX=previewX/2f-(viewX/2f);
+                this.positionY=0f;
+                break;
+            case LEFT:
+                this.positionX=0f;
+                this.positionY=previewY/2f-(viewY/2f);
+                break;
+            case RIGHT:
+                this.positionX=previewX-viewX;
+                this.positionY=previewY/2f-(viewY/2f);
+                break;
+            case BOTTOM:
+                this.positionX=previewX/2f-(viewX/2f);
+                this.positionY=previewY-viewY;
+                break;
+            case CENTER:
+                this.positionX=previewX/2f-(viewX/2f);
+                this.positionY=previewY/2f-(viewY/2f);
+                break;
+            case TOP_RIGHT:
+                this.positionX=previewX-viewX;
+                this.positionY=0;
+                break;
+            case BOTTOM_LEFT:
+                this.positionX=0;
+                this.positionY=previewY-viewY;
+                break;
+            case BOTTOM_RIGHT:
+                this.positionX=previewX-viewX;
+                this.positionY=previewY-viewY;
+                break;
+            case TOP_LEFT:
+            default:
+                this.positionX=0;
+                this.positionY=0;
+                break;
+        }
+    }
+
+    public void setRotation(int rotation){
+        if(rotation<0){
+            this.rotation=0;
+        }else if(rotation>360){
+            this.rotation=360;
+        }else{
+            this.rotation=rotation;
+        }
+    }
+
+    public void setScale(float scaleX, float scaleY){
+        this.scaleX=scaleX;
+        this.scaleY=scaleY;
     }
 }
