@@ -10,7 +10,7 @@ import com.luxuan.encoder.util.gl.GlUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class BrightnessFilterRender extends BaseFilterRender {
+public class CartoonFilterRender extends BaseFilterRender {
 
     //rotation matrix
     private final float[] squareVertexDataFilter = {
@@ -27,11 +27,11 @@ public class BrightnessFilterRender extends BaseFilterRender {
     private int uMVPMatrixHandle = -1;
     private int uSTMatrixHandle = -1;
     private int uSamplerHandle = -1;
-    private int uBrightnessHandle=-1;
+    private int uCartoonHandle = -1;
 
-    private float brightness=0.5f;
+    private float cartoon=0.007f;
 
-    public BrightnessFilterRender(){
+    public CartoonFilterRender(){
         squareVertex= ByteBuffer.allocateDirect(squareVertexDataFilter.length * FLOAT_SIZE_BYTES)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         squareVertex.put(squareVertexDataFilter).position(0);
@@ -39,10 +39,11 @@ public class BrightnessFilterRender extends BaseFilterRender {
         Matrix.setIdentityM(STMatrix, 0);
     }
 
+
     @Override
     protected void initGlFilter(Context context){
         String vertexShader= GlUtil.getStringFromRaw(context, R.raw.simple_vertex);
-        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.brightness_fragment);
+        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.cartoon_fragment);
 
         program=GlUtil.createProgram(vertexShader, fragmentShader);
         aPositionHandle= GLES20.glGetAttribLocation(program, "aPosition");
@@ -50,12 +51,12 @@ public class BrightnessFilterRender extends BaseFilterRender {
         uMVPMatrixHandle=GLES20.glGetUniformLocation(program, "uMVPMatrix");
         uSTMatrixHandle=GLES20.glGetUniformLocation(program, "uSTMatrix");
         uSamplerHandle=GLES20.glGetUniformLocation(program, "uSampler");
-        uBrightnessHandle=GLES20.glGetUniformLocation(program, "uBrightness");
+        uCartoonHandle=GLES20.glGetUniformLocation(program, "uCartoon");
     }
 
 
     @Override
-    protected void drawFilter(){
+    protected void drawFilter() {
         GLES20.glUseProgram(program);
 
         squareVertex.position(SQUARE_VERTEX_DATA_POS_OFFSET);
@@ -68,9 +69,9 @@ public class BrightnessFilterRender extends BaseFilterRender {
                 SQUARE_VERTEX_DATA_STRIDE_BYTES, squareVertex);
         GLES20.glEnableVertexAttribArray(aTextureHandle);
 
-        GLES20.glUniformMatrix4fv(uMVPMatrixHandle,1,false, MVPMatrix, 0);
-        GLES20.glUniformMatrix4fv(uSTMatrixHandle, 1,false, MVPMatrix, 0);
-        GLES20.glUniform1f(uBrightnessHandle, brightness);
+        GLES20.glUniformMatrix4fv(uMVPMatrixHandle, 1, false, MVPMatrix, 0);
+        GLES20.glUniformMatrix4fv(uSTMatrixHandle, 1, false, STMatrix, 0);
+        GLES20.glUniform1f(uCartoonHandle, cartoon);
 
         GLES20.glUniform1i(uSamplerHandle, 4);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
@@ -78,15 +79,15 @@ public class BrightnessFilterRender extends BaseFilterRender {
     }
 
     @Override
-    public void release(){
+    public void release() {
         GLES20.glDeleteProgram(program);
     }
 
-    public void setBrightness(float brightness){
-        this.brightness=brightness;
+    public float getCartoon(){
+        return cartoon;
     }
 
-    public float getBrightness(){
-        return brightness;
+    public void setCartoon(float cartoon){
+        this.cartoon=cartoon;
     }
 }
