@@ -10,7 +10,7 @@ import com.luxuan.encoder.util.gl.GlUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class BlurFilterRender extends BaseFilterRender{
+public class CircleFilterRender extends BaseFilterRender {
 
     //rotation matrix
     private final float[] squareVertexDataFilter = {
@@ -27,15 +27,18 @@ public class BlurFilterRender extends BaseFilterRender{
     private int uMVPMatrixHandle = -1;
     private int uSTMatrixHandle = -1;
     private int uSamplerHandle = -1;
-    private int uBlurHandle=-1;
+    private int uCenterHandle=-1;
     private int uRadiusHandle=-1;
+    private int uResolutionHandle=-1;
 
-    private float blur=10f;
-    private float radius=0.03f;
+    private float xCenter=0.5f;
+    private float yCenter=0.5f;
+    private float radius=0.5f;
 
-    public BlurFilterRender(){
-        squareVertex= ByteBuffer.allocateDirect(squareVertexDataFilter.length * FLOAT_SIZE_BYTES)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer();
+    public CircleFilterRender() {
+        squareVertex = ByteBuffer.allocateDirect(squareVertexDataFilter.length * FLOAT_SIZE_BYTES)
+                .order(ByteOrder.nativeOrder())
+                .asFloatBuffer();
         squareVertex.put(squareVertexDataFilter).position(0);
         Matrix.setIdentityM(MVPMatrix, 0);
         Matrix.setIdentityM(STMatrix, 0);
@@ -43,21 +46,22 @@ public class BlurFilterRender extends BaseFilterRender{
 
     @Override
     protected void initGlFilter(Context context){
-        String vertexShader= GlUtil.getStringFromRaw(context, R.raw.simple_vertex);
-        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.black_fragment);
+        String vertexShader = GlUtil.getStringFromRaw(context, R.raw.simple_vertex);
+        String fragmentShader = GlUtil.getStringFromRaw(context, R.raw.circle_fragment);
 
-        program=GlUtil.createProgram(vertexShader, fragmentShader);
-        aPositionHandle= GLES20.glGetAttribLocation(program, "aPosition");
-        aTextureHandle=GLES20.glGetAttribLocation(program, "aTextureCoord");
-        uMVPMatrixHandle=GLES20.glGetUniformLocation(program, "uMVPMatrix");
-        uSTMatrixHandle=GLES20.glGetUniformLocation(program, "uSTMatrix");
-        uSamplerHandle=GLES20.glGetUniformLocation(program, "uSampler");
-        uBlurHandle=GLES20.glGetUniformLocation(program, "uBlur");
+        program = GlUtil.createProgram(vertexShader, fragmentShader);
+        aPositionHandle = GLES20.glGetAttribLocation(program, "aPosition");
+        aTextureHandle = GLES20.glGetAttribLocation(program, "aTextureCoord");
+        uMVPMatrixHandle = GLES20.glGetUniformLocation(program, "uMVPMatrix");
+        uSTMatrixHandle = GLES20.glGetUniformLocation(program, "uSTMatrix");
+        uSamplerHandle = GLES20.glGetUniformLocation(program, "uSampler");
+        uCenterHandle=GLES20.glGetUniformLocation(program, "uCenter");
         uRadiusHandle=GLES20.glGetUniformLocation(program, "uRadius");
+        uResolutionHandle=GLES20.glGetUniformLocation(program, "uResolution");
     }
 
     @Override
-    protected void drawFilter(){
+    protected void drawFilter() {
         GLES20.glUseProgram(program);
 
         squareVertex.position(SQUARE_VERTEX_DATA_POS_OFFSET);
@@ -70,10 +74,12 @@ public class BlurFilterRender extends BaseFilterRender{
                 SQUARE_VERTEX_DATA_STRIDE_BYTES, squareVertex);
         GLES20.glEnableVertexAttribArray(aTextureHandle);
 
-        GLES20.glUniformMatrix4fv(uMVPMatrixHandle,1,false, MVPMatrix, 0);
-        GLES20.glUniformMatrix4fv(uSTMatrixHandle, 1,false, MVPMatrix, 0);
-        GLES20.glUniform1f(uBlurHandle, blur);
+        GLES20.glUniformMatrix4fv(uMVPMatrixHandle, 1, false, MVPMatrix, 0);
+        GLES20.glUniformMatrix4fv(uSTMatrixHandle, 1, false, STMatrix, 0);
+
         GLES20.glUniform1f(uRadiusHandle, radius);
+        GLES20.glUniform2f(uCenterHandle, xCenter, yCenter);
+        GLES20.glUniform2f(uResolutionHandle, getWidth(), getHeight());
 
         GLES20.glUniform1i(uSamplerHandle, 4);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
@@ -85,19 +91,12 @@ public class BlurFilterRender extends BaseFilterRender{
         GLES20.glDeleteProgram(program);
     }
 
-    public int getBlur(){
-        return (int)blur;
-    }
-
-    public void setBlur(int blur){
-        this.blur=blur;
-    }
-
-    public float getRadius(){
-        return radius;
+    public void setCenter(float x, float y){
+        xCenter=x/100;
+        yCenter=y/100;
     }
 
     public void setRadius(float radius){
-       this.radius=radius;
+        this.radius=radius;
     }
 }
