@@ -43,7 +43,7 @@ public class GlitchFilterRender extends BaseFilterRender {
     @Override
     protected void initGlFilter(Context context){
         String vertexShader= GlUtil.getStringFromRaw(context, R.raw.simple_vertex);
-        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.analog_tv_fragment);
+        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.glitch_fragment);
 
         program=GlUtil.createProgram(vertexShader, fragmentShader);
         aPositionHandle= GLES20.glGetAttribLocation(program, "aPosition");
