@@ -10,7 +10,8 @@ import com.luxuan.encoder.util.gl.GlUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class GreyScaleFilterRender extends BaseFilterRender {
+public class HalftoneLinesFilterRender extends BaseFilterRender {
+
 
     //rotation matrix
     private final float[] squareVertexDataFilter = {
@@ -27,8 +28,20 @@ public class GreyScaleFilterRender extends BaseFilterRender {
     private int uMVPMatrixHandle=-1;
     private int uSTMatrixHandle=-1;
     private int uSamplerHandle=-1;
+    private int uResolutionHandle=-1;
+    private int uModeHandle=-1;
+    private int uRowsHandle=-1;
+    private int uRotationHandle=-1;
+    private int uAntialiasHandle=-1;
+    private int uSampleDistHandle=-1;
 
-    public GreyScaleFilterRender(){
+    private float mode=1f;
+    private float rows=40f;
+    private float rotation=0f;
+    private float antialias=0.2f;
+    private float[] sampleDist=new float[]{2f, 2f};
+
+    public HalftoneLinesFilterRender(){
         squareVertex= ByteBuffer.allocateDirect(squareVertexDataFilter.length*FLOAT_SIZE_BYTES)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
@@ -40,7 +53,7 @@ public class GreyScaleFilterRender extends BaseFilterRender {
     @Override
     protected void initGlFilter(Context context){
         String vertexShader= GlUtil.getStringFromRaw(context, R.raw.simple_vertex);
-        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.grey_scale_fragment);
+        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.halftone_lines_fragment);
 
         program=GlUtil.createProgram(vertexShader, fragmentShader);
         aPositionHandle= GLES20.glGetAttribLocation(program, "aPosition");
@@ -48,6 +61,12 @@ public class GreyScaleFilterRender extends BaseFilterRender {
         uMVPMatrixHandle= GLES20.glGetUniformLocation(program, "uMVPMatrix");
         uSTMatrixHandle= GLES20.glGetUniformLocation(program, "uSTMatrix");
         uSamplerHandle=GLES20.glGetUniformLocation(program, "uSampler");
+        uResolutionHandle=GLES20.glGetUniformLocation(program, "uResolution");
+        uModeHandle=GLES20.glGetUniformLocation(program, "uMode");
+        uRowsHandle=GLES20.glGetUniformLocation(program, "uRows");
+        uRotationHandle=GLES20.glGetUniformLocation(program, "uRotation");
+        uAntialiasHandle=GLES20.glGetUniformLocation(program, "uAntialias");
+        uSampleDistHandle=GLES20.glGetUniformLocation(program, "uSampleDist");
     }
 
     @Override
@@ -67,6 +86,13 @@ public class GreyScaleFilterRender extends BaseFilterRender {
         GLES20.glUniformMatrix4fv(uMVPMatrixHandle, 1, false, MVPMatrix, 0);
         GLES20.glUniformMatrix4fv(uSTMatrixHandle, 1, false, MVPMatrix, 0);
 
+        GLES20.glUniform2f(uResolutionHandle, getWidth(), getHeight());
+        GLES20.glUniform1f(uModeHandle, mode);
+        GLES20.glUniform1f(uRowsHandle, rows);
+        GLES20.glUniform1f(uRotationHandle, rotation);
+        GLES20.glUniform1f(uAntialiasHandle, antialias);
+        GLES20.glUniform2f(uSampleDistHandle, sampleDist[0], sampleDist[1]);
+
         GLES20.glUniform1i(uSamplerHandle, 4);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, previousTextureId);
@@ -75,5 +101,51 @@ public class GreyScaleFilterRender extends BaseFilterRender {
     @Override
     public void release(){
         GLES20.glDeleteProgram(program);
+    }
+
+    public float getMode() {
+        return mode;
+    }
+
+    public void setMode(float mode) {
+        if(mode<1){
+            this.mode=1;
+        }else if(mode>7){
+            this.mode=7;
+        }else {
+            this.mode = mode;
+        }
+    }
+
+    public float getRows() {
+        return rows;
+    }
+
+    public void setRows(float rows) {
+        this.rows = rows;
+    }
+
+    public float getRotation() {
+        return rotation;
+    }
+
+    public void setRotation(float rotation) {
+        this.rotation = rotation;
+    }
+
+    public float getAntialias() {
+        return antialias;
+    }
+
+    public void setAntialias(float antialias) {
+        this.antialias = antialias;
+    }
+
+    public float[] getSampleDist() {
+        return sampleDist;
+    }
+
+    public void setSampleDist(float[] sampleDist) {
+        this.sampleDist = sampleDist;
     }
 }
