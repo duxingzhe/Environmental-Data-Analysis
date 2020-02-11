@@ -10,7 +10,7 @@ import com.luxuan.encoder.util.gl.GlUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class MoneyFilterRender extends BaseFilterRender {
+public class PolygonizationFilterRender extends BaseFilterRender {
 
     //rotation matrix
     private final float[] squareVertexDataFilter = {
@@ -29,7 +29,7 @@ public class MoneyFilterRender extends BaseFilterRender {
     private int uSamplerHandle = -1;
     private int uResolutionHandle = -1;
 
-    public MoneyFilterRender() {
+    public PolygonizationFilterRender() {
         squareVertex = ByteBuffer.allocateDirect(squareVertexDataFilter.length * FLOAT_SIZE_BYTES)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
@@ -41,7 +41,7 @@ public class MoneyFilterRender extends BaseFilterRender {
     @Override
     protected void initGlFilter(Context context) {
         String vertexShader = GlUtil.getStringFromRaw(context, R.raw.simple_vertex);
-        String fragmentShader = GlUtil.getStringFromRaw(context, R.raw.money_fragment);
+        String fragmentShader = GlUtil.getStringFromRaw(context, R.raw.polygonization_fragment);
 
         program = GlUtil.createProgram(vertexShader, fragmentShader);
         aPositionHandle = GLES20.glGetAttribLocation(program, "aPosition");
