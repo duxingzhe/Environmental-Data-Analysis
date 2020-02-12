@@ -10,7 +10,7 @@ import com.luxuan.encoder.util.gl.GlUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class RainbowFilterRender extends BaseFilterRender {
+public class RGBSaturationFilterRender extends BaseFilterRender {
 
     //rotation matrix
     private final float[] squareVertexDataFilter = {
@@ -27,11 +27,11 @@ public class RainbowFilterRender extends BaseFilterRender {
     private int uMVPMatrixHandle=-1;
     private int uSTMatrixHandle=-1;
     private int uSamplerHandle=-1;
-    private int uTimeHandle=-1;
+    private int uRGBSaturationHandle=-1;
 
-    private long START_TIME=System.currentTimeMillis();
+    private float r=1f, g=1f, b=1f;
 
-    public RainbowFilterRender(){
+    public RGBSaturationFilterRender(){
         squareVertex= ByteBuffer.allocateDirect(squareVertexDataFilter.length*FLOAT_SIZE_BYTES)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
@@ -43,7 +43,7 @@ public class RainbowFilterRender extends BaseFilterRender {
     @Override
     protected void initGlFilter(Context context){
         String vertexShader= GlUtil.getStringFromRaw(context, R.raw.simple_vertex);
-        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.rainbow_fragment);
+        String fragmentShader=GlUtil.getStringFromRaw(context, R.raw.rgb_saturation_fragment);
 
         program=GlUtil.createProgram(vertexShader, fragmentShader);
         aPositionHandle= GLES20.glGetAttribLocation(program, "aPosition");
@@ -51,7 +51,7 @@ public class RainbowFilterRender extends BaseFilterRender {
         uMVPMatrixHandle= GLES20.glGetUniformLocation(program, "uMVPMatrix");
         uSTMatrixHandle= GLES20.glGetUniformLocation(program, "uSTMatrix");
         uSamplerHandle=GLES20.glGetUniformLocation(program, "uSampler");
-        uTimeHandle=GLES20.glGetUniformLocation(program, "uTime");
+        uRGBSaturationHandle=GLES20.glGetUniformLocation(program, "uRGBSaturation");
     }
 
     @Override
@@ -71,9 +71,7 @@ public class RainbowFilterRender extends BaseFilterRender {
         GLES20.glUniformMatrix4fv(uMVPMatrixHandle, 1, false, MVPMatrix, 0);
         GLES20.glUniformMatrix4fv(uSTMatrixHandle, 1, false, MVPMatrix, 0);
 
-        float time=((float) (System.currentTimeMillis()-START_TIME))/1000.0f;
-
-        GLES20.glUniform1f(uTimeHandle, time);
+        GLES20.glUniform3f(uRGBSaturationHandle, r, g, b);
         GLES20.glUniform1i(uSamplerHandle, 4);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, previousTextureId);
@@ -82,5 +80,23 @@ public class RainbowFilterRender extends BaseFilterRender {
     @Override
     public void release(){
         GLES20.glDeleteProgram(program);
+    }
+
+    public float getR() {
+        return r;
+    }
+
+    public float getG() {
+        return g;
+    }
+
+    public float getB() {
+        return b;
+    }
+
+    public void setRGBSaturation(int r, int g, int b){
+        this.r=r;
+        this.g=g;
+        this.b=b;
     }
 }
