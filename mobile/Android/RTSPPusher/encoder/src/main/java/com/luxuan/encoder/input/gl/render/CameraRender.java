@@ -8,6 +8,7 @@ import android.opengl.Matrix;
 import android.view.Surface;
 
 import com.luxuan.encoder.R;
+import com.luxuan.encoder.input.video.CameraHelper;
 import com.luxuan.encoder.util.gl.GlUtil;
 
 import java.nio.ByteBuffer;
@@ -31,7 +32,7 @@ public class CameraRender extends BaseRenderOffScreen {
     public CameraRender(){
         Matrix.setIdentityM(MVPMatrix, 0);
         Matrix.setIdentityM(STMatrix, 0);
-        float[] vertex=CameraHelper.getVerticesData();
+        float[] vertex= CameraHelper.getVerticesData();
         squareVertex= ByteBuffer.allocateDirect(vertex.length*FLOAT_SIZE_BYTES)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         squareVertex.put(vertex).position(0);
