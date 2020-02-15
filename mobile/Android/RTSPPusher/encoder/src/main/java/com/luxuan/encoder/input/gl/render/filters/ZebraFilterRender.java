@@ -10,7 +10,7 @@ import com.luxuan.encoder.util.gl.GlUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class TemperatureFilterRender extends BaseFilterRender {
+public class ZebraFilterRender extends BaseFilterRender {
 
     //rotation matrix
     private final float[] squareVertexDataFilter = {
@@ -27,11 +27,13 @@ public class TemperatureFilterRender extends BaseFilterRender {
     private int uMVPMatrixHandle = -1;
     private int uSTMatrixHandle = -1;
     private int uSamplerHandle = -1;
-    private int uTemperatureHandle=-1;
+    private int uTimeHandle=-1;
+    private int uLevelsHandle=-1;
 
-    private float temperature=0.8f;
+    private long START_TIME=System.currentTimeMillis();
+    private float levels= 8f;
 
-    public TemperatureFilterRender() {
+    public ZebraFilterRender() {
         squareVertex = ByteBuffer.allocateDirect(squareVertexDataFilter.length * FLOAT_SIZE_BYTES)
                 .order(ByteOrder.nativeOrder())
                 .asFloatBuffer();
@@ -51,7 +53,8 @@ public class TemperatureFilterRender extends BaseFilterRender {
         uMVPMatrixHandle = GLES20.glGetUniformLocation(program, "uMVPMatrix");
         uSTMatrixHandle = GLES20.glGetUniformLocation(program, "uSTMatrix");
         uSamplerHandle = GLES20.glGetUniformLocation(program, "uSampler");
-        uTemperatureHandle = GLES20.glGetUniformLocation(program, "uTemperature");
+        uTimeHandle = GLES20.glGetUniformLocation(program, "uTime");
+        uLevelsHandle = GLES20.glGetUniformLocation(program, "uLevels");
     }
 
     @Override
@@ -71,7 +74,9 @@ public class TemperatureFilterRender extends BaseFilterRender {
         GLES20.glUniformMatrix4fv(uMVPMatrixHandle, 1, false, MVPMatrix, 0);
         GLES20.glUniformMatrix4fv(uSTMatrixHandle, 1, false, STMatrix, 0);
 
-        GLES20.glUniform1f(uTemperatureHandle, temperature);
+        float time=((float)(System.currentTimeMillis()-START_TIME))/1000f;
+        GLES20.glUniform1f(uTimeHandle, time);
+        GLES20.glUniform1f(uLevelsHandle, levels);
 
         GLES20.glUniform1i(uSamplerHandle, 4);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
@@ -83,19 +88,11 @@ public class TemperatureFilterRender extends BaseFilterRender {
         GLES20.glDeleteProgram(program);
     }
 
-    public float getTemperature() {
-        return temperature;
+    public float getLevels() {
+        return levels;
     }
 
-    public void setTemperature(float temperature) {
-        if(temperature<0.0f){
-            this.temperature=0.0f;
-        }else if(temperature>1.0f){
-            this.temperature=1.0f;
-        }else {
-            this.temperature = temperature;
-        }
-
-        this.temperature=2.0f*this.temperature-1.0f;
+    public void setLevels(float levels) {
+        this.levels = levels;
     }
 }
