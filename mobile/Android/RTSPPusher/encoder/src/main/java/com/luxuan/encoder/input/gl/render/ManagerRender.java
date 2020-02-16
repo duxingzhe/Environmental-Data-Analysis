@@ -46,7 +46,7 @@ public class ManagerRender {
             baseFilterRenders.get(i).initFBOLink();
         }
         screenRender.setStreamSize(encoderWidth, encoderHeight);
-        screenRender.setTexId(baseFilterRender.get(numFilters-1).getTextureId());
+        screenRender.setTexId(baseFilterRenders.get(numFilters-1).getTextureId());
         screenRender.initGl(context);
     }
 
@@ -74,7 +74,7 @@ public class ManagerRender {
     }
 
     public boolean isAAEnabled(){
-        return screenRender.isAAEnabled;
+        return screenRender.isAAEnabled();
     }
 
     public void updateFrame(){
