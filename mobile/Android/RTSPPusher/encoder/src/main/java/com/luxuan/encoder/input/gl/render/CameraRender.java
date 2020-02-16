@@ -111,6 +111,10 @@ public class CameraRender extends BaseRenderOffScreen {
         return surfaceTexture;
     }
 
+    public Surface getSurface(){
+        return surface;
+    }
+
     public void setRotation(int rotation){
         Matrix.setIdentityM(rotationMatrix, 0);
         Matrix.rotateM(rotationMatrix, 0, rotation, 0, 0, -1f);
