@@ -92,7 +92,7 @@ public abstract class BaseObjectFilterRender extends BaseFilterRender {
         GLES20.glVertexAttribPointer(aPositionHandle, 3, GLES20.GL_FLOAT, false,
                 SQUARE_VERTEX_DATA_STRIDE_BYTES, squareVertex);
 
-        squareVertex.position(SQUARE_VERTEX_DATA_DV_OFFSET);
+        squareVertex.position(SQUARE_VERTEX_DATA_UV_OFFSET);
         GLES20.glVertexAttribPointer(aPositionHandle, 2, GLES20.GL_FLOAT, false,
                 SQUARE_VERTEX_DATA_STRIDE_BYTES, squareVertex);
 
